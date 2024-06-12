@@ -1,0 +1,62 @@
+@charset "UTF-8";
+
+@import './components/common.module';
+
+/* variables */
+$main-color: #89A8FF;
+$sub-color: #ABBDFF;
+$red-color: #DC143C;
+$yellow-color: #F7E600;
+$orange-color: #F89B00;
+$blue-color: #070080;
+$green-color: #008D62;
+$purple-color: #483D8B;
+$border-color: #e2e2e2;
+$background-color: #ffffff;
+$chat-background: #eaedf0;
+$text: #1F1F1F;
+$text2: #1F1F1F;
+$text-sub: #555555;
+$text-sub2: #999999;
+$facebook-color: #3B5999;
+$google-color: #DE4B39;
+
+#html, #body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+#html {
+  overflow-y: auto;
+}
+
+#body {
+  font: 14px/1 normal "Noto Sans KR", "Nanum Myeongjo", "Open Sans";
+  color: $text-sub;
+  background: #fff;
+}
+
+.link {
+  text-decoration: none;
+  color: $text-sub;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.normal {
+  font-style: normal;
+}
+
+.button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
