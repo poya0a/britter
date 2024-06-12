@@ -1,0 +1,31 @@
+@import '@styles/globals.scss';
+
+.login {
+    width: 100%;
+    max-width: 768px;
+    margin: auto;
+    padding: 100px 16px;
+}
+
+.loginWrapper {
+    margin-bottom: 36px;
+}
+
+.social {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.goToJoin {
+    text-align: center;
+    font-size: 12px;
+    color: $text-sub;
+    margin-bottom: 16px;
+    a {
+        color: $main-color;
+        font-style: normal;
+        text-decoration: none;
+    }
+}

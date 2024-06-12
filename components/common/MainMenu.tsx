@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import styles from "./page.module.scss";
+import styles from "@styles/components/_common.module.scss";
 
 export default function MainMenu() {
   const [width, setWidth] = useState(240);

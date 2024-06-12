@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import styles from "./page.module.scss";
-import MainMenu from "./MainMenu";
+import MainMenu from "@components/common/MainMenu";
 
 export const metadata: Metadata = {
   title: "Home",
 };
 
-export default function Company() {
+export default function Home() {
   return (
     <div className={styles.home}>
       <MainMenu />

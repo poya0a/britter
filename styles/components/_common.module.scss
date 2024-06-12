@@ -1,4 +1,46 @@
+@import '@styles/globals.scss';
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    width: 100%;
+    height: 40px;
+    background-color: $blue-color;
+    display: flex;
+    justify-content: space-between;
+    .profileButton {
+      width: 60px;
+      height: 40px;
+      > img {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #fff !important;
+      }
+    }
+}
+
 .logo {
+  height: 116px;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 40px;
+  > i {
+      color: $main-color;
+      font-weight: bold;
+      letter-spacing: 2px;
+      font-size: 60px;
+      padding: 8px 24px;
+
+      border: 10px solid transparent;
+      border-image: linear-gradient(to right, $sub-color 50%, $blue-color 50%);
+      border-image-slice: 1;
+  }
+}
+
+.headerLogo {
     display: block;
     width: 100px;
     height: 40px;
@@ -13,3 +55,233 @@
     }
 }
 
+.mainMenu {
+    position: relative;
+    position: fixed;
+    z-index: 2;
+    top: 40px;
+    left: 0;
+    height: calc(100vh - 40px);
+    background-color: $chat-background;
+    overflow: auto;
+  
+    button {
+      height: 30px;
+      width: 100%;
+      display: flex;
+      padding: 5px;
+      border-radius: 5px;
+      transition: all .2s ease;
+      &:hover {
+        background-color: rgba(171,189,255, .5);
+      }
+    }
+  
+    img {
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+    }
+  
+    em {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 500;
+      line-height: 20px;
+    }
+  
+    .mainMenuWrapper {
+      width: 100%;
+      .mainMenuFixed {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: calc(100% - 10px);
+        padding: 5px;
+        .pageNameButtonWrapper {
+          margin-bottom: 5px;
+          display: flex;
+          justify-content: space-between;
+          .pageNameButton {
+            height: 40px;
+            > img {
+              width: 30px;
+              height: 30px;
+            }
+  
+            > i {
+              width: 30px;
+              height: 30px;
+              margin-right: 5px;
+              border-radius: 5px;
+              color: #fff;
+              font-style: 20px;
+              line-height: 30px;
+              background-color: $sub-color;
+            }
+  
+            > em {
+              font-size: 16px;
+              line-height: 30px;
+            }
+          }
+          .pageAddButton {
+            width: 40px;
+            height: 40px;
+            > img {
+              width: 20px;
+              height: 20px;
+              margin: 5px;
+            }
+          }
+        }
+        .mainMenuDefault {
+          margin-bottom: 5px;
+          &:last-child {margin: 0;}
+        }
+      }
+      .pageMenu {
+        margin-top: 180px;
+        padding: 5px;
+        overflow: auto;
+        .pageMenuName {
+          margin: 0;
+          padding: 0 5px;
+          height: 30px;
+          line-height: 30px;
+        }
+        .pageList {
+          .pageItem {
+            .pageWrapper {
+              display: flex;
+              .pageButton {}
+              .pageMoreButton, .pageAddOneDepth {
+                width: 30px;
+                opacity: 0;
+                transition: all .2s ease;
+              }
+              &:hover {
+                .pageMoreButton, .pageAddOneDepth {
+                  opacity: 1;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  
+    .mainMenuDragBar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 10px;
+      height: 100%;
+      background-color: transparent;
+      cursor: col-resize;
+    }
+}
+
+.inputText {
+  width: 100%;
+  margin-top: 16px;
+  &:first-child {
+    margin: 0;
+  }
+  label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: $blue-color;
+  }
+  input {
+    width: 100%;
+    height: 40px;
+    
+    font-size: 14px;
+    padding: 10px;
+
+    border-radius: 5px;
+    border: 1px solid $main-color;
+  }
+}
+
+.buttonBlue {
+  width: 100%;
+  height: 40px;
+  border-radius: 5px;
+  background-color: $main-color;
+  color: $background-color;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.buttonCircleLine {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 1px solid $border-color;
+  padding: 0;
+  margin-right: 12px;
+  &:last-child {margin: 0;}
+  img {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.buttonJustText {
+  text-align: center;
+  margin: 8px 0;
+  a {
+    font-size: 12px;
+    color: $blue-color;
+    padding-right: 20px;
+    position: relative;
+    text-decoration: none;
+    &:last-child {
+      padding: 0;
+      &::before {
+        display: none;
+      }
+    }
+    &::before {
+      content: '';
+      width: 1px;
+      height: 14px;
+      background-color: $blue-color;
+      position: absolute;
+      top: 0;
+      right: 10px;
+    }
+  }
+}
+
+.textLine {
+  position: relative;
+  width: 100%;
+  margin: 40px 0;
+  text-align: center;
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 1px;
+    background-color: $border-color;
+    z-index: 1;
+  }
+  em {
+    position: relative;
+    z-index: 2;
+    padding: 5px 10px;
+    background-color: $background-color;
+    color: $text-sub;
+    font-size: 12px;
+    margin-top: -10px;
+  }
+}
