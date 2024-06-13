@@ -1,0 +1,13 @@
+.join {
+    position: relative;
+    width: calc(100% - 32px);
+    height: calc(100% - 100px);
+    max-width: 768px;
+    margin: auto;
+    padding: 0 16px 100px 16px;
+    overflow-y: auto;
+}
+
+.joinWrapper {
+    margin-bottom: 36px;
+}

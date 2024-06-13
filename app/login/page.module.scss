@@ -1,13 +1,17 @@
 @import '@styles/globals.scss';
 
 .login {
-    width: 100%;
+    z-index: 2;
+    width: calc(100% - 32px);
+    height: calc(100% - 200px);
     max-width: 768px;
     margin: auto;
     padding: 100px 16px;
+    overflow-y: auto;
 }
 
 .loginWrapper {
+    width: 100%;
     margin-bottom: 36px;
 }
 
