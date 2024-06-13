@@ -21,9 +21,11 @@
       "@/*": ["./*"],
       "@api/*": ["./api/*"],
       "@app/*": ["./app/*"],
+      "@provider/*": ["./provider/*"],
+      "@utils/*": ["./utils/*"],
+      "@hooks/*": ["./hooks/*"],
       "@styles/*": ["./styles/*"],
-      "@components/*": ["./components/*"],
-      "@hooks/*": ["./hooks/*"]
+      "@components/*": ["./components/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
