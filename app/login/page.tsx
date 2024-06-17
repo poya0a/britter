@@ -21,6 +21,7 @@ export default function Login() {
               id="userId"
               className="input"
               placeholder="아이디를 입력해 주세요."
+              autoComplete="userId"
             />
           </div>
           <PasswordInput

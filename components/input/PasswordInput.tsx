@@ -7,9 +7,15 @@ interface InputProps {
   id: string;
   name: string;
   placeholder: string;
+  register: any;
 }
 
-export default function PasswordInput({ id, name, placeholder }: InputProps) {
+export default function PasswordInput({
+  id,
+  name,
+  placeholder,
+  register,
+}: InputProps) {
   const pathName = usePathname();
   const [type, setType] = useState<string>("password");
 
@@ -36,6 +42,7 @@ export default function PasswordInput({ id, name, placeholder }: InputProps) {
           className="input"
           placeholder={placeholder}
           autoComplete="new-password"
+          {...register}
         />
         <button
           type="button"

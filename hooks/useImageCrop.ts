@@ -19,31 +19,32 @@ export const imageCropState = atom<ImageCropData>({
 });
 
 export const useImageCrop = () => {
-  const [state, setState] = useRecoilState(imageCropState);
+  const [useImageCropState, setUseImageCropState] =
+    useRecoilState<ImageCropData>(imageCropState);
 
   const setImageCustom = (imageCustom: string | ArrayBuffer | null) => {
-    setState((prevState) => ({
+    setUseImageCropState((prevState) => ({
       ...prevState,
       imageCustom,
     }));
   };
 
   const setImageSource = (imageSource: string | ArrayBuffer | null) => {
-    setState((prevState) => ({
+    setUseImageCropState((prevState) => ({
       ...prevState,
       imageSource,
     }));
   };
 
   const updateImageFile = (imageFile: File | null) => {
-    setState((prevState) => ({
+    setUseImageCropState((prevState) => ({
       ...prevState,
       imageFile,
     }));
   };
 
   return {
-    state,
+    useImageCropState,
     setImageCustom,
     setImageSource,
     updateImageFile,

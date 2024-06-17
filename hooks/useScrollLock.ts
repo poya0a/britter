@@ -7,7 +7,7 @@ export const scrollLockState = atom<boolean>({
 });
 
 export const useScrollLock = () => {
-  const [isLocked, setIsLocked] = useRecoilState(scrollLockState);
+  const [isLocked, setIsLocked] = useRecoilState<boolean>(scrollLockState);
 
   const toggleScrollLock = (lock: boolean) => {
     setIsLocked(lock);

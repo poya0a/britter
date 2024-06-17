@@ -3,11 +3,11 @@ import React, { useState, useRef } from "react";
 import ReactCrop, { type Crop, PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { useImageCrop } from "@hooks/useImageCrop";
-import { useScrollLock } from "@/hooks/useScrollLock";
+import { useScrollLock } from "@hooks/useScrollLock";
 import commonStyles from "@styles/components/_common.module.scss";
 
 export default function ImageCropInput() {
-  const { state, setImageCustom, setImageSource, updateImageFile } =
+  const { useImageCropState, setImageCustom, setImageSource, updateImageFile } =
     useImageCrop();
   const { toggleScrollLock } = useScrollLock();
 
@@ -79,7 +79,11 @@ export default function ImageCropInput() {
         aspect={1}
         circularCrop
       >
-        <img ref={imgRef} src={state.imageCustom as string} alt="selected" />
+        <img
+          ref={imgRef}
+          src={useImageCropState.imageCustom as string}
+          alt="selected"
+        />
       </ReactCrop>
       <p>드래그하여 이미지를 잘라주세요.</p>
       <div className={commonStyles.imageCropButton}>

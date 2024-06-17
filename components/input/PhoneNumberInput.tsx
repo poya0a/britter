@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
 import commonStyles from "@styles/components/_common.module.scss";
+import { ErrorMessage } from "@hookform/error-message";
 
-export default function PhoneNumberInput() {
+export default function PhoneNumberInput({ register, errors }: any) {
   return (
     <>
       <div className={commonStyles.inputPhoneNumber}>
@@ -15,6 +16,8 @@ export default function PhoneNumberInput() {
             id="userHp"
             className="input"
             placeholder="휴대전화 번호를 입력해 주세요."
+            maxLength={11}
+            {...register}
           />
           <button
             type="button"
@@ -24,6 +27,13 @@ export default function PhoneNumberInput() {
           </button>
         </div>
       </div>
+      <ErrorMessage
+        errors={errors}
+        name="user_hp"
+        render={({ message }) => (
+          <p className={commonStyles.errorMessage}>{message}</p>
+        )}
+      />
       <div className={commonStyles.inputPhoneNumber}>
         <label htmlFor="verifyNumber" className={commonStyles.required}>
           인증번호
@@ -34,6 +44,7 @@ export default function PhoneNumberInput() {
             id="verifyNumber"
             className="input"
             placeholder="인증 번호를 입력해 주세요."
+            maxLength={6}
           />
           <button
             type="button"

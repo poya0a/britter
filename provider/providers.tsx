@@ -4,7 +4,7 @@ import { RecoilRoot } from "recoil";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools/production";
 import { onScrollLock, onScrollUnlock } from "@utils/scroll";
-import { useScrollLock } from "../hooks/useScrollLock";
+import { useScrollLock } from "@hooks/useScrollLock";
 
 const ScrollLockHandler = () => {
   const { isLocked } = useScrollLock();
