@@ -1,0 +1,30 @@
+@import '@styles/globals.scss';
+
+.complete {
+    width: calc(100% - 32px);
+    height: calc(100% - 100px);
+    max-width: 768px;
+    margin: auto;
+    padding: 0 16px 100px 16px;
+    overflow-y: auto;
+    position: relative;
+    .completeWrapper {
+        position: absolute;
+        width: 100%;
+        height: auto;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        .completeMessage {
+            font-size: 20px;
+            line-height: 32px;
+            text-align: center;
+            span {
+                font-size: 20px;
+                line-height: 32px;
+                color: $main-color;
+                display: block;
+            }
+        }
+    }
+}

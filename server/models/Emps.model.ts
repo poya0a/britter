@@ -1,6 +1,6 @@
-import { CommentModel } from "./CommentModel";
-import { PostModel } from "./PostModel";
-import { FileModel } from "./FileModel";
+import { CommentModel } from "./Comment.model";
+import { PostModel } from "./Post.model";
+import { FileModel } from "./File.model";
 
 export interface EmpsInterface {
   UID: string;
@@ -9,11 +9,14 @@ export interface EmpsInterface {
   user_pw: string;
   user_name: string;
   user_hp: string;
+  user_certification: number;
   user_email?: string;
-  user_birth?: number;
+  user_nick_name?: string;
+  user_birth?: string;
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
+  terms: string;
   comments?: CommentModel[];
   posts?: PostModel[];
   userProfile?: FileModel;
@@ -26,11 +29,14 @@ export class EmpsModel implements EmpsInterface {
   user_pw: string;
   user_name: string;
   user_hp: string;
+  user_certification: number;
   user_email?: string;
-  user_birth?: number;
+  user_nick_name?: string;
+  user_birth?: string;
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
+  terms: string;
   comments?: CommentModel[];
   posts?: PostModel[];
   userProfile?: FileModel;
@@ -42,11 +48,14 @@ export class EmpsModel implements EmpsInterface {
     this.user_pw = emps.user_pw;
     this.user_name = emps.user_name;
     this.user_hp = emps.user_hp;
+    this.user_certification = emps.user_certification;
     this.user_email = emps.user_email;
+    this.user_nick_name = emps.user_nick_name;
     this.user_birth = emps.user_birth;
     this.create_date = emps.create_date;
     this.status_emoji = emps.status_emoji;
     this.status_message = emps.status_message;
+    this.terms = emps.terms;
     this.comments = emps.comments;
     this.posts = emps.posts;
     this.userProfile = emps.userProfile;

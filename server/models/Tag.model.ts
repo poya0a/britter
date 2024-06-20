@@ -1,4 +1,4 @@
-import { PostModel } from "./PostModel";
+import { PostModel } from "./Post.model";
 
 export interface TagInterface {
   seq: number;

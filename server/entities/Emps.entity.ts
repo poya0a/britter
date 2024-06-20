@@ -9,6 +9,7 @@ import {
 import { Comment } from "./Comment.entity";
 import { File } from "./File.entity";
 import { Post } from "./Post.entity";
+import { Certification } from "./Certification.entity";
 
 @Entity("Emps")
 export class Emps {
@@ -30,20 +31,34 @@ export class Emps {
   @Column({ type: "varchar", nullable: false })
   user_hp!: string;
 
+  @Column({ type: "int", nullable: false })
+  user_certification!: number;
+
   @Column({ type: "varchar", nullable: true })
   user_email?: string;
 
-  @Column({ type: "int", nullable: true })
-  user_birth?: number;
+  @Column({ type: "varchar", nullable: true })
+  user_nick_name?: string;
 
-  @Column({ type: "datetime", nullable: false })
-  create_date!: Date;
+  @Column({ type: "varchar", nullable: true })
+  user_birth?: string;
+
+  @Column({
+    type: "datetime",
+    nullable: false,
+    default: () => "CURRENT_TIMESTAMP",
+    comment: "생성일",
+  })
+  create_date: Date;
 
   @Column({ type: "varchar", nullable: true })
   status_emoji?: string;
 
   @Column({ type: "varchar", nullable: true })
   status_message?: string;
+
+  @Column({ type: "varchar", nullable: false })
+  terms!: string;
 
   @OneToMany(() => Comment, (comment) => comment.user)
   comments?: Comment[];
@@ -54,4 +69,7 @@ export class Emps {
   @ManyToOne(() => File, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_profile_seq" })
   userProfile!: File;
+
+  @OneToMany(() => Certification, (certification) => certification.UID)
+  certifications?: Certification[];
 }

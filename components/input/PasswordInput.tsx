@@ -8,6 +8,7 @@ interface InputProps {
   name: string;
   placeholder: string;
   register: any;
+  onKeyUp?: Function;
 }
 
 export default function PasswordInput({
@@ -15,6 +16,7 @@ export default function PasswordInput({
   name,
   placeholder,
   register,
+  onKeyUp,
 }: InputProps) {
   const pathName = usePathname();
   const [type, setType] = useState<string>("password");
@@ -42,7 +44,9 @@ export default function PasswordInput({
           className="input"
           placeholder={placeholder}
           autoComplete="new-password"
+          maxLength={50}
           {...register}
+          onKeyUp={onKeyUp}
         />
         <button
           type="button"

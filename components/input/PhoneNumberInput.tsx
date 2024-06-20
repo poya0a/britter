@@ -1,9 +1,25 @@
-"use client";
-import { useState } from "react";
+// "use client";
 import commonStyles from "@styles/components/_common.module.scss";
 import { ErrorMessage } from "@hookform/error-message";
+import { useVerify } from "@/hooks/useVerify";
 
-export default function PhoneNumberInput({ register, errors }: any) {
+interface InputProps {
+  hpRegister: any;
+  verifyRegister: any;
+  errors: any;
+  getCertificationNumber: Function;
+  postCertificationNumber: Function;
+}
+
+export default function PhoneNumberInput({
+  hpRegister,
+  verifyRegister,
+  errors,
+  getCertificationNumber,
+  postCertificationNumber,
+}: InputProps) {
+  const { formatTime, useVerifyState } = useVerify();
+
   return (
     <>
       <div className={commonStyles.inputPhoneNumber}>
@@ -17,11 +33,12 @@ export default function PhoneNumberInput({ register, errors }: any) {
             className="input"
             placeholder="휴대전화 번호를 입력해 주세요."
             maxLength={11}
-            {...register}
+            {...hpRegister}
           />
           <button
             type="button"
             className={`button ${commonStyles.buttonPasswordType}`}
+            onClick={() => getCertificationNumber()}
           >
             인증 번호 받기
           </button>
@@ -45,14 +62,29 @@ export default function PhoneNumberInput({ register, errors }: any) {
             className="input"
             placeholder="인증 번호를 입력해 주세요."
             maxLength={6}
+            {...verifyRegister}
+            readOnly={
+              typeof useVerifyState.timeLimit === "number" ? false : true
+            }
           />
+          <p className={commonStyles.timeLimit}>
+            {formatTime(useVerifyState.timeLimit)}
+          </p>
           <button
             type="button"
             className={`button ${commonStyles.buttonPasswordType}`}
+            onClick={() => postCertificationNumber()}
           >
             인증 번호 확인
           </button>
         </div>
+        <ErrorMessage
+          errors={errors}
+          name="verify_number"
+          render={({ message }) => (
+            <p className={commonStyles.errorMessage}>{message}</p>
+          )}
+        />
       </div>
     </>
   );

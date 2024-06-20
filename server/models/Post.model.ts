@@ -1,7 +1,7 @@
-import { CommentModel } from "./CommentModel";
-import { EmpsModel } from "./EmpsModel";
-import { FileModel } from "./FileModel";
-import { TagModel } from "./TagModel";
+import { CommentModel } from "./Comment.model";
+import { EmpsModel } from "./Emps.model";
+import { FileModel } from "./File.model";
+import { TagModel } from "./Tag.model";
 
 export interface PostInterface {
   seq: number;

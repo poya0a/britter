@@ -47,18 +47,74 @@ export default function ImageCropInput() {
 
         canvas.toBlob((blob) => {
           if (blob) {
-            const croppedFile = new File([blob], "cropped_image.jpg", {
-              type: "image/jpeg",
-            });
-            updateImageFile(croppedFile);
-            setImageSource(URL.createObjectURL(croppedFile));
-            toggleScrollLock(false);
+            const maxSizeBytes = 2 * 1024 * 1024;
+            if (blob.size > maxSizeBytes) {
+              resizeImage(blob, maxSizeBytes);
+            } else {
+              processCroppedImage(blob);
+            }
           } else {
             console.error("Failed to create blob from canvas");
           }
         }, "image/jpeg");
       }
     }
+  };
+
+  const resizeImage = (originalBlob: Blob, maxSizeBytes: number) => {
+    const image = new Image();
+    image.src = URL.createObjectURL(originalBlob);
+
+    image.onload = () => {
+      let width = image.width;
+      let height = image.height;
+      let quality = 0.92;
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      if (!ctx) return;
+
+      const resize = () => {
+        const scale = Math.sqrt(maxSizeBytes / originalBlob.size);
+        width *= scale;
+        height *= scale;
+
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(image, 0, 0, width, height);
+
+        canvas.toBlob(
+          (resizedBlob) => {
+            if (resizedBlob) {
+              if (resizedBlob.size <= maxSizeBytes || quality < 0.5) {
+                processCroppedImage(resizedBlob);
+              } else {
+                quality *= 0.9;
+                resize();
+              }
+            } else {
+              console.error("Failed to resize image blob");
+            }
+          },
+          "image/jpeg",
+          quality
+        );
+      };
+
+      resize();
+    };
+  };
+
+  const processCroppedImage = (croppedBlob: Blob) => {
+    const croppedFile = new File([croppedBlob], "cropped_image.jpg", {
+      type: "image/jpeg",
+    });
+    updateImageFile(croppedFile);
+    setImageSource(URL.createObjectURL(croppedFile));
+    toggleScrollLock(false);
   };
 
   const handleCropChange = (newCrop: Crop) => {

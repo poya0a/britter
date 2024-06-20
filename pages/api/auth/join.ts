@@ -1,54 +1,212 @@
+"use server";
 import { NextApiRequest, NextApiResponse } from "next";
+import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import fs from "fs";
+import path from "path";
+import multer from "multer";
 import { AppDataSource } from "@/server/database/typeorm.config";
 import { Emps } from "@entities/Emps.entity";
+import { getErrorMassage } from "@utils/errorMessage";
+import { regexValue } from "@utils/regex";
+import { validationRules } from "@utils/errorMessage";
+import { DeepPartial } from "typeorm";
+import { EmpsInterface } from "@/server/models/Emps.model";
+import { handleFileUpload } from "@/utils/fileUpload";
+
+type NextApiRequestWithFormData = NextApiRequest &
+  Request & {
+    file: Express.Multer.File;
+  };
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      const uploadDirectory = path.join(process.cwd(), "files");
+      if (!fs.existsSync(uploadDirectory)) {
+        fs.mkdirSync(uploadDirectory, { recursive: true });
+      }
+      cb(null, uploadDirectory);
+    },
+    filename: (req, file, cb) => {
+      cb(null, `${Date.now()}-${file.originalname}`);
+    },
+  }),
+}).single("user_profile");
+
+const runMiddleware = (req: NextApiRequest, res: NextApiResponse, fn: any) => {
+  return new Promise((resolve, reject) => {
+    fn(req, res, (result: any) => {
+      if (result instanceof Error) {
+        return reject(result);
+      }
+      resolve(result);
+    });
+  });
+};
+
+const requiredField = [
+  "user_id",
+  "user_pw",
+  "user_name",
+  "user_hp",
+  "user_certification",
+  "terms",
+];
 
 export default async function handler(
-  req: NextApiRequest,
+  req: NextApiRequestWithFormData,
   res: NextApiResponse
 ) {
   if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method Not Allowed" });
+    return res
+      .status(405)
+      .json({ message: "잘못된 메소드입니다.", resultCode: false });
+  }
+  await runMiddleware(req, res, upload);
+
+  const data: Partial<EmpsInterface> = req.body;
+  const file: Express.Multer.File | undefined = req.file;
+
+  // 빈 값 확인
+  const emptyFields = requiredField.filter(
+    (fieldName) =>
+      data[fieldName as keyof EmpsInterface] === undefined ||
+      data[fieldName as keyof EmpsInterface] === "" ||
+      data[fieldName as keyof EmpsInterface] === null
+  );
+
+  if (emptyFields.length > 0) {
+    return res.status(200).json({
+      message: getErrorMassage(emptyFields[0]),
+      resultCode: false,
+    });
   }
 
-  const { user_id, user_pw, user_name, user_email } = req.body;
+  // 유효성 검사
+  const errorMessages = Object.keys(data).reduce(
+    (
+      errors: Partial<{ [key in keyof EmpsInterface]: string }>,
+      fieldName: string
+    ) => {
+      if (requiredField.includes(fieldName)) {
+        const patternInfo = validationRules[fieldName as keyof EmpsInterface];
+        if (patternInfo) {
+          const sanitizedValue = regexValue(
+            patternInfo.pattern,
+            data[fieldName as keyof EmpsInterface]
+          ) as EmpsInterface[keyof EmpsInterface];
+          if (!sanitizedValue) {
+            errors[fieldName as keyof EmpsInterface] = patternInfo.errorMessage;
+          }
+        }
+      }
+      return errors;
+    },
+    {}
+  );
 
-  if (!user_id || !user_pw || !user_name || !user_email) {
-    return res.status(400).json({ message: "Missing required fields" });
+  if (Object.keys(errorMessages).length > 0) {
+    const keys = Object.keys(errorMessages) as Array<keyof EmpsInterface>;
+    return res.status(200).json({
+      message: errorMessages[keys[0]],
+      resultCode: false,
+    });
   }
 
   try {
     const dataSource = await AppDataSource.useFactory();
-    const userRepository = dataSource.getRepository(Emps);
-    const existingUser = await userRepository.findOne({ where: { user_id } });
-
-    if (existingUser) {
-      return res.status(409).json({ message: "User already exists" });
-    }
-    const hashedPassword = await bcrypt.hash(user_pw, 10);
-
-    const newUser = userRepository.create({
-      user_id,
-      user_pw: hashedPassword,
-      user_name,
-      user_email,
+    const empsRepository = dataSource.getRepository(Emps);
+    const existingId = await empsRepository.findOne({
+      where: { user_id: data.user_id },
     });
-    await userRepository.save(newUser);
 
-    const token = jwt.sign(
-      { user_id: newUser.user_id },
-      process.env.JWT_SECRET!,
-      {
-        expiresIn: "1h",
+    const existinghp = await empsRepository.findOne({
+      where: { user_hp: data.user_hp },
+    });
+
+    const existingEmail = await empsRepository.findOne({
+      where: { user_email: data.user_email },
+    });
+
+    if (existingId || existinghp || existingEmail) {
+      let name = "";
+      if (existingId) {
+        name = "아이디";
+      } else if (existinghp) {
+        name = "휴대전화 번호";
+      } else if (existingEmail) {
+        name = "이메일";
       }
-    );
-    return res
-      .status(201)
-      .json({ message: "User registered successfully", token });
+      return res
+        .status(200)
+        .json({ message: `이미 사용 중인 ${name}입니다.`, resultCode: false });
+    }
+
+    const uid = uuidv4();
+    const hashedPassword = await bcrypt.hash(data.user_pw!, 10);
+
+    const emp: DeepPartial<Emps> = {
+      UID: uid,
+      user_profile_seq: 0,
+      user_id: data.user_id,
+      user_pw: hashedPassword,
+      user_name: data.user_name,
+      user_hp: data.user_hp,
+      user_certification: data.user_certification,
+      user_email: data.user_email ? data.user_email : undefined,
+      user_nick_name: data.user_nick_name ? data.user_nick_name : undefined,
+      user_birth: data.user_birth ? data.user_birth : undefined,
+      create_date: new Date(),
+      terms: data.terms,
+    };
+
+    const newUser = empsRepository.create(emp);
+
+    const saveUser = await empsRepository.save(newUser);
+
+    if (saveUser) {
+      if (file !== undefined) {
+        const saveFile = await handleFileUpload(file);
+        if (saveFile.resultCode) {
+          saveUser.user_profile_seq = saveFile.seq;
+          const updateUser = await empsRepository.save(saveUser);
+          if (updateUser) {
+            return res.status(200).json({
+              message: "회원 가입이 완료되었습니다.",
+              resultCode: true,
+            });
+          } else {
+            return res.status(200).json({
+              message: "회원 가입에 실패하였습니다. 다시 시도해 주세요.",
+              resultCode: false,
+            });
+          }
+        } else {
+          return res.status(200).json({
+            message:
+              "프로필 이미지 저장에 실패하였습니다. 개인 정보 수정에서 다시 시도해 주세요.",
+            resultCode: false,
+          });
+        }
+      } else {
+        return res.status(200).json({
+          message: "회원 가입이 완료되었습니다.",
+          resultCode: true,
+        });
+      }
+    }
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Internal Server Error", error: error });
+    return res.status(500).json({
+      message: "서버 에러가 발생하였습니다.",
+      error: error,
+      resultCode: false,
+    });
   }
 }

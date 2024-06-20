@@ -38,8 +38,13 @@ export class Comment {
   @Column({ type: "varchar", nullable: false })
   content!: string;
 
-  @Column({ type: "datetime", nullable: false })
-  create_date!: Date;
+  @Column({
+    type: "datetime",
+    nullable: false,
+    default: () => "CURRENT_TIMESTAMP",
+    comment: "생성일",
+  })
+  create_date: Date;
 
   @Column({ type: "datetime", nullable: true })
   modify_date?: Date;

@@ -1,6 +1,6 @@
-import { EmpsModel } from "./EmpsModel";
-import { PostModel } from "./PostModel";
-import { CommentModel } from "./CommentModel";
+import { EmpsModel } from "./Emps.model";
+import { PostModel } from "./Post.model";
+import { CommentModel } from "./Comment.model";
 
 export interface FileInterface {
   seq: number;

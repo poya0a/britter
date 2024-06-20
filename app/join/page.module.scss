@@ -1,3 +1,5 @@
+@import '@styles/globals.scss';
+
 .join {
     width: calc(100% - 32px);
     height: calc(100% - 100px);
@@ -9,4 +11,48 @@
 
 .joinWrapper {
     margin-bottom: 36px;
+}
+
+.termsWrapper {
+    margin: 30px 16px 156px 16px;
+    position: relative;
+    h1 {
+        text-align: center;
+        color: $text;
+        font-size: 24px;
+        line-height: 29px;
+        font-weight: bold;
+    }
+    h3 {
+        text-align: center;
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 15px;
+    }
+    .terms {
+        margin-top: 36px;
+    }
+
+    .termsContents {
+        position: relative;
+        max-height: 100px;
+        height: 0;
+        opacity: 0;
+        background-color: $chat-background;
+        margin-top: 8px;
+        border-radius: 5px;
+        display: none;
+        overflow-y: auto;
+        p {
+          width: 340px;
+          height: 100%;
+          margin: auto;
+          padding: 20px;
+        }
+        &.active {
+          height: 100%;
+          opacity: 1;
+          display: block;
+        }
+    }
 }
