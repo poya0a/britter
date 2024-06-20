@@ -5,9 +5,22 @@ import Logo from "@/components/common/Logo";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PasswordInput from "@/components/input/PasswordInput";
+import { ErrorMessage } from "@hookform/error-message";
+import { useForm } from "react-hook-form";
 
 export default function Login() {
   const router = useRouter();
+  const {
+    register,
+    getValues,
+    trigger,
+    setValue,
+    watch,
+    setError,
+    clearErrors,
+    reset,
+    formState: { errors },
+  } = useForm({ mode: "onChange" });
 
   return (
     <div className={styles.login}>
@@ -22,12 +35,34 @@ export default function Login() {
               className="input"
               placeholder="아이디를 입력해 주세요."
               autoComplete="userId"
+              {...register("user_id", {
+                required: true,
+              })}
             />
           </div>
+          <ErrorMessage
+            errors={errors}
+            name="user_name"
+            render={({ message }) => (
+              <p className={commonStyles.errorMessage}>{message}</p>
+            )}
+          />
           <PasswordInput
             id="userPw"
             name="비밀번호"
             placeholder="비밀번호를 입력해 주세요."
+            register={{
+              ...register("user_pw", {
+                required: true,
+              }),
+            }}
+          />
+          <ErrorMessage
+            errors={errors}
+            name="user_"
+            render={({ message }) => (
+              <p className={commonStyles.errorMessage}>{message}</p>
+            )}
           />
         </div>
         <button
