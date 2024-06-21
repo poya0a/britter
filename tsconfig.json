@@ -24,6 +24,7 @@
     "paths": {
       "@/*": ["./*"],
       "@app/*": ["./app/*"],
+      "@fetch/*": ["./app/fetch/*"],
       "@api/*": ["./pages/api/*"],
       "@database/*": ["./server/database/*"],
       "@entities/*": ["./server/entities/*"],

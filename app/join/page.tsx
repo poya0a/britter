@@ -275,10 +275,23 @@ export default function Join() {
 
     const data: FieldValues = getValues();
 
-    // 불필요한 데이터 삭제
-    delete data.user_pw_check;
-    delete data.user_certification;
-    delete data.verify_number;
+    // 빈 값 확인
+    const emptyFields: Partial<JoinForm> = {};
+    const requiredFields: (keyof JoinForm)[] = [
+      "user_id",
+      "user_pw",
+      "user_pw_check",
+      "user_name",
+      "user_hp",
+      "user_certification",
+    ];
+
+    requiredFields.forEach((fieldName) => {
+      const value = data[fieldName];
+      if (value === undefined || value === null || value === "") {
+        emptyFields[fieldName] = value;
+      }
+    });
 
     // 필수 이용약관 동의 확인
     const hasAgreeRequiredTerms = useTermsState
@@ -286,6 +299,7 @@ export default function Join() {
       .every((term) => term.checked);
 
     if (
+      Object.keys(emptyFields).length > 0 ||
       !dupleCheck.userId ||
       (!(
         data.user_email === undefined ||
@@ -296,8 +310,17 @@ export default function Join() {
       !useVerifyState ||
       Object.keys(errors).length > 0
     ) {
+      if (Object.keys(emptyFields).length > 0) {
+        Object.keys(emptyFields).forEach((fieldName) => {
+          setError(fieldName as keyof JoinForm, {
+            type: "empty",
+            message: getErrorMassage(fieldName),
+          });
+        });
+        return;
+      }
       // 유효성 에러
-      if (Object.keys(errors).length > 0) {
+      else if (Object.keys(errors).length > 0) {
         Object.keys(errors).forEach((fieldName) => {
           setError(fieldName as keyof JoinForm, {
             type: "valid",
@@ -346,6 +369,11 @@ export default function Join() {
       toggleAlert("필수 이용 약관에 동의해 주세요.");
       return;
     } else {
+      // 불필요한 데이터 삭제
+      delete data.user_pw_check;
+      delete data.user_certification;
+      delete data.verify_number;
+
       const formData = new FormData();
 
       const terms = useTermsState

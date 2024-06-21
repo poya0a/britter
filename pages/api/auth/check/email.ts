@@ -1,6 +1,6 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
-import { AppDataSource } from "@/server/database/typeorm.config";
+import { AppDataSource } from "@database/typeorm.config";
 import { Emps } from "@entities/Emps.entity";
 
 export default async function handler(

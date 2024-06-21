@@ -3,8 +3,8 @@
     "version": "2.2.13",
     "width": 2000,
     "height": 2000,
-    "scrollTop": -246.0581822971543,
-    "scrollLeft": -297.70190274841457,
+    "scrollTop": -521,
+    "scrollLeft": -300,
     "zoomLevel": 0.8,
     "show": {
       "tableComment": true,
@@ -368,13 +368,36 @@
               "widthDataType": 64.6005859375,
               "widthDefault": 60
             }
+          },
+          {
+            "id": "d1ccc6fd-f5e2-43a2-b131-8daa22d4c44c",
+            "name": "private_seq",
+            "comment": "키 고유번호",
+            "dataType": "INT",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": false
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": true,
+              "pfk": false,
+              "widthName": 69.208984375,
+              "widthComment": 70.61181640625,
+              "widthDataType": 60,
+              "widthDefault": 60
+            }
           }
         ],
         "ui": {
-          "active": true,
+          "active": false,
           "left": 514,
           "top": 521.75,
-          "zIndex": 19,
+          "zIndex": 116,
           "widthName": 60,
           "widthComment": 60,
           "color": "#3F51B5"
@@ -1534,6 +1557,91 @@
           "color": "#FF9800"
         },
         "visible": true
+      },
+      {
+        "id": "d2fe6eb0-4a71-4381-a04d-e8a5bb151319",
+        "name": "Private",
+        "comment": "키",
+        "columns": [
+          {
+            "id": "ed1d0384-ad1e-46fe-bfa0-98b2fb66e6e5",
+            "name": "seq",
+            "comment": "고유번호",
+            "dataType": "INT",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": true,
+              "unique": false,
+              "notNull": true
+            },
+            "ui": {
+              "active": false,
+              "pk": true,
+              "fk": false,
+              "pfk": false,
+              "widthName": 60,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            }
+          },
+          {
+            "id": "eeb55821-e048-483e-9324-610edc43409f",
+            "name": "device_id",
+            "comment": "접속 기기",
+            "dataType": "TEXT",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": true
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 60,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            }
+          },
+          {
+            "id": "b5f03740-4c5d-4b1e-822d-fe838ced1631",
+            "name": "private_key",
+            "comment": "키",
+            "dataType": "TEXT",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": true
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 68.47900390625,
+              "widthComment": 60,
+              "widthDataType": 60,
+              "widthDefault": 60
+            }
+          }
+        ],
+        "ui": {
+          "active": false,
+          "left": 21,
+          "top": 553.5,
+          "zIndex": 119,
+          "widthName": 60,
+          "widthComment": 60
+        },
+        "visible": true
       }
     ],
     "indexes": []
@@ -1589,7 +1697,7 @@
             "bdb07233-07f9-4ea7-aaed-43f58f8f3fd1"
           ],
           "x": 892.968994140625,
-          "y": 877.75,
+          "y": 898.25,
           "direction": "bottom"
         },
         "constraintName": "fk_file_to_emps",
@@ -1710,7 +1818,7 @@
             "18b62bc7-7d80-4d8d-817c-170722a911ae"
           ],
           "x": 640.322998046875,
-          "y": 877.75,
+          "y": 898.25,
           "direction": "bottom"
         },
         "end": {
@@ -1736,7 +1844,7 @@
             "18b62bc7-7d80-4d8d-817c-170722a911ae"
           ],
           "x": 1019.2919921875,
-          "y": 699.75,
+          "y": 710,
           "direction": "right"
         },
         "end": {
@@ -1827,6 +1935,32 @@
           "direction": "top"
         },
         "constraintName": "fk_certification_to_emps",
+        "visible": true
+      },
+      {
+        "id": "b0a6c46e-60a6-45b2-b57a-d6d9a678b54d",
+        "identification": false,
+        "relationshipType": "ZeroOne",
+        "startRelationshipType": "Ring",
+        "start": {
+          "tableId": "d2fe6eb0-4a71-4381-a04d-e8a5bb151319",
+          "columnIds": [
+            "ed1d0384-ad1e-46fe-bfa0-98b2fb66e6e5"
+          ],
+          "x": 376.47900390625,
+          "y": 618.75,
+          "direction": "right"
+        },
+        "end": {
+          "tableId": "7c7d167e-ec27-4f68-918b-583011921d9a",
+          "columnIds": [
+            "d1ccc6fd-f5e2-43a2-b131-8daa22d4c44c"
+          ],
+          "x": 514,
+          "y": 710,
+          "direction": "left"
+        },
+        "constraintName": "fk_privatekey_to_emps",
         "visible": true
       }
     ]

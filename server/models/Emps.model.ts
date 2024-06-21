@@ -1,10 +1,12 @@
 import { CommentModel } from "./Comment.model";
 import { PostModel } from "./Post.model";
 import { FileModel } from "./File.model";
+import { PrivateModel } from "./Private.model";
 
 export interface EmpsInterface {
   UID: string;
   user_profile_seq: number;
+  private_seq: number;
   user_id: string;
   user_pw: string;
   user_name: string;
@@ -20,11 +22,13 @@ export interface EmpsInterface {
   comments?: CommentModel[];
   posts?: PostModel[];
   userProfile?: FileModel;
+  privateSeq?: PrivateModel;
 }
 
 export class EmpsModel implements EmpsInterface {
   UID: string;
   user_profile_seq: number;
+  private_seq: number;
   user_id: string;
   user_pw: string;
   user_name: string;
@@ -40,10 +44,12 @@ export class EmpsModel implements EmpsInterface {
   comments?: CommentModel[];
   posts?: PostModel[];
   userProfile?: FileModel;
+  privateSeq?: PrivateModel;
 
   constructor(emps: EmpsInterface) {
     this.UID = emps.UID;
     this.user_profile_seq = emps.user_profile_seq;
+    this.private_seq = emps.private_seq;
     this.user_id = emps.user_id;
     this.user_pw = emps.user_pw;
     this.user_name = emps.user_name;
@@ -59,5 +65,6 @@ export class EmpsModel implements EmpsInterface {
     this.comments = emps.comments;
     this.posts = emps.posts;
     this.userProfile = emps.userProfile;
+    this.privateSeq = emps.privateSeq;
   }
 }

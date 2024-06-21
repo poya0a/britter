@@ -10,6 +10,7 @@ import { Comment } from "./Comment.entity";
 import { File } from "./File.entity";
 import { Post } from "./Post.entity";
 import { Certification } from "./Certification.entity";
+import { Private } from "./Private.entity";
 
 @Entity("Emps")
 export class Emps {
@@ -18,6 +19,9 @@ export class Emps {
 
   @Column({ type: "int", nullable: false })
   user_profile_seq!: number;
+
+  @Column({ type: "int", nullable: true })
+  private_seq!: number;
 
   @Column({ type: "varchar", nullable: false })
   user_id!: string;
@@ -72,4 +76,8 @@ export class Emps {
 
   @OneToMany(() => Certification, (certification) => certification.UID)
   certifications?: Certification[];
+
+  @ManyToOne(() => Private, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "private_seq" })
+  private!: Private;
 }

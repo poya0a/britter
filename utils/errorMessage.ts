@@ -23,6 +23,9 @@ const getErrorMassage = (fieldName: String) => {
     case (fieldName = "user_hp"):
       return "휴대폰 번호를 입력해 주세요.";
       break;
+    case (fieldName = "verify_number"):
+      return "인증 번호를 입력해 주세요.";
+      break;
     case (fieldName = "terms"):
       return "필수 이용 약관에 동의해 주세요.";
       break;

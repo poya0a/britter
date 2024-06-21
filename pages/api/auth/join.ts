@@ -5,14 +5,14 @@ import bcrypt from "bcrypt";
 import fs from "fs";
 import path from "path";
 import multer from "multer";
-import { AppDataSource } from "@/server/database/typeorm.config";
+import { AppDataSource } from "@database/typeorm.config";
 import { Emps } from "@entities/Emps.entity";
 import { getErrorMassage } from "@utils/errorMessage";
 import { regexValue } from "@utils/regex";
 import { validationRules } from "@utils/errorMessage";
 import { DeepPartial } from "typeorm";
-import { EmpsInterface } from "@/server/models/Emps.model";
-import { handleFileUpload } from "@/utils/fileUpload";
+import { EmpsInterface } from "@models/Emps.model";
+import { handleFileUpload } from "@/server/utils/fileUpload";
 
 type NextApiRequestWithFormData = NextApiRequest &
   Request & {

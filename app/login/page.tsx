@@ -6,26 +6,100 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PasswordInput from "@/components/input/PasswordInput";
 import { ErrorMessage } from "@hookform/error-message";
-import { useForm } from "react-hook-form";
+import { FieldValues, useForm } from "react-hook-form";
+import Alert from "@components/popup/Alert";
+import { useAlert } from "@hooks/useAlert";
+import encryptRSA from "@/utils/encryptRSA";
+import storage from "@fetch/auth/storage";
 
 export default function Login() {
   const router = useRouter();
   const {
     register,
     getValues,
-    trigger,
-    setValue,
-    watch,
     setError,
-    clearErrors,
     reset,
     formState: { errors },
   } = useForm({ mode: "onChange" });
+  const { useAlertState, toggleAlert } = useAlert();
+
+  const doLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const data: FieldValues = getValues();
+
+    const idValue = getValues("user_id");
+    const pwValue = getValues("user_pw");
+
+    if (!idValue || !pwValue) {
+      if (!idValue) {
+        setError("user_id", {
+          type: "empty",
+          message: "아이디를 입력해 주세요.",
+        });
+      }
+      if (!pwValue) {
+        setError("user_pw", {
+          type: "empty",
+          message: "비밀번호를 입력해 주세요.",
+        });
+      }
+      return;
+    } else {
+      try {
+        const getKey = await fetch("api/auth/key", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (getKey.ok) {
+          const getKeyRes = await getKey.json();
+          if (getKeyRes.resultCode) {
+            const userIdEncrypted = await encryptRSA(
+              getKeyRes.message,
+              data.user_id
+            );
+
+            const userPwEncrypted = await encryptRSA(
+              getKeyRes.message,
+              data.user_pw
+            );
+
+            const encryptedLoginFormData = {
+              user_id: userIdEncrypted,
+              user_pw: userPwEncrypted,
+            };
+
+            const postLogin = await fetch("api/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(encryptedLoginFormData),
+            });
+
+            if (postLogin.ok) {
+              const postLoginRes = await postLogin.json();
+              if (postLoginRes.resultCode) {
+                storage.setAccessToken(postLoginRes.accessToken);
+                storage.setRefreshToken(postLoginRes.refreshToken);
+                reset();
+                router.push(`/${data.user_id}`);
+              } else {
+                toggleAlert(postLoginRes.message);
+              }
+            } else {
+              toggleAlert("서버 에러가 발생하였습니다. 다시 시도해 주세요.");
+            }
+          }
+        } else {
+          toggleAlert("서버 에러가 발생하였습니다. 다시 시도해 주세요.");
+        }
+      } catch {}
+    }
+  };
 
   return (
     <div className={styles.login}>
       <Logo />
-      <form action="">
+      <form>
         <div className={styles.loginWrapper}>
           <div className={commonStyles.inputText}>
             <label htmlFor="userId">아이디</label>
@@ -42,7 +116,7 @@ export default function Login() {
           </div>
           <ErrorMessage
             errors={errors}
-            name="user_name"
+            name="user_id"
             render={({ message }) => (
               <p className={commonStyles.errorMessage}>{message}</p>
             )}
@@ -59,16 +133,16 @@ export default function Login() {
           />
           <ErrorMessage
             errors={errors}
-            name="user_"
+            name="user_pw"
             render={({ message }) => (
               <p className={commonStyles.errorMessage}>{message}</p>
             )}
           />
         </div>
         <button
-          type="button"
+          type="submit"
           className={`button ${commonStyles.buttonBlue}`}
-          onClick={() => router.push("/poya505")}
+          onClick={(e) => doLogin(e)}
         >
           로그인
         </button>
@@ -110,6 +184,7 @@ export default function Login() {
           비밀번호 찾기
         </Link>
       </div>
+      {useAlertState.isActOpen && <Alert />}
     </div>
   );
 }
