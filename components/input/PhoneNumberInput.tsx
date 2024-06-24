@@ -1,4 +1,3 @@
-// "use client";
 import commonStyles from "@styles/components/_common.module.scss";
 import { ErrorMessage } from "@hookform/error-message";
 import { useVerify } from "@/hooks/useVerify";

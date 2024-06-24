@@ -14,7 +14,7 @@ export default async function handler(
       .status(405)
       .json({ message: "잘못된 메소드입니다.", resultCode: false });
   }
-  const { user_hp } = req.body;
+  const { user_hp, type } = req.body;
 
   if (!user_hp) {
     return res
@@ -28,7 +28,7 @@ export default async function handler(
     const certificationRepository = dataSource.getRepository(Certification);
     const existingUser = await empsRepository.findOne({ where: { user_hp } });
 
-    if (existingUser) {
+    if (type === "join" && existingUser) {
       return res.status(200).json({
         message: "이미 가입한 휴대전화 번호입니다.",
         resultCode: false,

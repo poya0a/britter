@@ -170,7 +170,7 @@ export default function Join() {
         const res = await fetch("api/auth/getVerify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user_hp: value }),
+          body: JSON.stringify({ user_hp: value, type: "join" }),
         });
 
         if (res.ok) {
@@ -241,6 +241,7 @@ export default function Join() {
               seq: resData.data.certification_number,
               timeLimit: "",
             });
+            clearErrors("user_hp");
           } else {
             toggleVerify({ verify: resData.resultCode });
           }
@@ -283,7 +284,7 @@ export default function Join() {
       "user_pw_check",
       "user_name",
       "user_hp",
-      "user_certification",
+      "verify_number",
     ];
 
     requiredFields.forEach((fieldName) => {
@@ -301,13 +302,15 @@ export default function Join() {
     if (
       Object.keys(emptyFields).length > 0 ||
       !dupleCheck.userId ||
+      data.user_pw !== data.user_pw_check ||
       (!(
         data.user_email === undefined ||
         data.user_email === "" ||
         data.user_email === null
       ) &&
         !dupleCheck.userEmail) ||
-      !useVerifyState ||
+      !useVerifyState.verify ||
+      !useVerifyState.seq ||
       Object.keys(errors).length > 0
     ) {
       if (Object.keys(emptyFields).length > 0) {
@@ -330,18 +333,26 @@ export default function Join() {
         return;
       } else if (
         !dupleCheck.userId ||
+        data.user_pw !== data.user_pw_check ||
         (!(
           data.user_email === undefined ||
           data.user_email === "" ||
           data.user_email === null
         ) &&
           !dupleCheck.userEmail) ||
-        !useVerifyState.verify
+        !useVerifyState.verify ||
+        !useVerifyState.seq
       ) {
         if (!dupleCheck.userId) {
           setError("user_id", {
             type: "custom",
             message: "아이디 중복을 확인해 주세요.",
+          });
+        }
+        if (data.user_pw !== data.user_pw_check) {
+          setError("user_pw_check", {
+            type: "custom",
+            message: "비밀번호가 일치하지 않습니다.",
           });
         }
         if (
@@ -357,10 +368,10 @@ export default function Join() {
             message: "이메일 중복을 확인해 주세요.",
           });
         }
-        if (!useVerifyState.verify) {
+        if (!useVerifyState.verify || !useVerifyState.seq) {
           setError("user_hp", {
             type: "custom",
-            message: "휴대폰 번호를 인증해 주세요.",
+            message: "전화번호를 인증해 주세요.",
           });
         }
         return;
@@ -371,7 +382,6 @@ export default function Join() {
     } else {
       // 불필요한 데이터 삭제
       delete data.user_pw_check;
-      delete data.user_certification;
       delete data.verify_number;
 
       const formData = new FormData();

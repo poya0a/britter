@@ -2,6 +2,7 @@
 import styles from "@styles/components/_common.module.scss";
 import Navigate from "../button/Navigate";
 import { useRouter } from "next/navigation";
+import { useRouteAndCancelAlert } from "@hooks/useRouteAndCancelAlert";
 
 interface HeaderContent {
   type: string;
@@ -11,10 +12,15 @@ interface HeaderContent {
 
 export default function AuthHeader({ type }: { type: string }) {
   const router = useRouter();
+  const { toggleRouteAndCancelAlert } = useRouteAndCancelAlert();
 
   const handleNavigate = () => {
     if (type === "reset") {
-      router.push("login");
+      toggleRouteAndCancelAlert({
+        isActOpen: true,
+        content: "입력한 정보가 저장되지 않을 수 있습니다. 이동하시겠습니까?",
+        route: "/login",
+      });
     } else {
       router.back();
     }

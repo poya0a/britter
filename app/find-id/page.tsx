@@ -11,6 +11,8 @@ import { onlyNumPattern, phonePattern, regexValue } from "@utils/regex";
 import { useAlert } from "@hooks/useAlert";
 import Alert from "@components/popup/Alert";
 import { ErrorMessage } from "@hookform/error-message";
+import RoutAlert from "@/components/popup/RouteAlert";
+import { useRouteAlert } from "@/hooks/useRouteAlert";
 
 export default function FindId() {
   const {
@@ -25,6 +27,7 @@ export default function FindId() {
     formState: { errors },
   } = useForm({ mode: "onChange" });
   const { useAlertState, toggleAlert } = useAlert();
+  const { useRouteAlertState, toggleRouteAlert } = useRouteAlert();
   const { useVerifyState, toggleVerify } = useVerify();
 
   const getCertificationNumber = async () => {
@@ -42,7 +45,7 @@ export default function FindId() {
         const res = await fetch("api/auth/getVerify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user_hp: value }),
+          body: JSON.stringify({ user_hp: value, type: "find-id" }),
         });
 
         if (res.ok) {
@@ -113,6 +116,7 @@ export default function FindId() {
               seq: resData.data.certification_number,
               timeLimit: "",
             });
+            clearErrors("user_hp");
           } else {
             toggleVerify({ verify: resData.resultCode });
           }
@@ -138,10 +142,75 @@ export default function FindId() {
     );
   }, [watch("verify_number"), trigger]);
 
+  const onSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const nameValue = getValues("user_name");
+    const hpValue = getValues("user_hp");
+
+    if (
+      !nameValue ||
+      !hpValue ||
+      !useVerifyState.verify ||
+      !useVerifyState.seq
+    ) {
+      if (!nameValue) {
+        setError("user_name", {
+          type: "empty",
+          message: "이름을 입력해 주세요.",
+        });
+      }
+      if (!useVerifyState.verify || !useVerifyState.seq) {
+        setError("user_hp", {
+          type: "empty",
+          message: "전화번호를 인증해 주세요.",
+        });
+      }
+      if (!hpValue) {
+        setError("user_hp", {
+          type: "empty",
+          message: "전화번호를 입력해 주세요.",
+        });
+      }
+      return;
+    } else {
+      try {
+        const value = {
+          user_name: nameValue,
+          user_hp: hpValue,
+          user_certification: useVerifyState.seq,
+        };
+
+        const res = await fetch("api/auth/findId", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(value),
+        });
+
+        if (res.ok) {
+          const resData = await res.json();
+          if (resData.resultCode) {
+            reset();
+            toggleRouteAlert({
+              isActOpen: true,
+              content: resData.message,
+              route: "/login",
+            });
+          } else {
+            toggleAlert(resData.message);
+          }
+        } else {
+          toggleAlert("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
+        }
+      } catch (error) {
+        toggleAlert("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
+      }
+    }
+  };
+
   return (
     <div className={styles.findId}>
       <AuthHeader type={"id"}></AuthHeader>
-      <form action="">
+      <form>
         <div className={styles.findIdWrapper}>
           <div className={commonStyles.inputText}>
             <label htmlFor="userName" className={commonStyles.required}>
@@ -152,6 +221,9 @@ export default function FindId() {
               id="userName"
               className="input"
               placeholder="이름을 입력해 주세요."
+              {...register("user_name", {
+                required: true,
+              })}
             />
           </div>
           <ErrorMessage
@@ -185,14 +257,16 @@ export default function FindId() {
 
         <div className={commonStyles.buttonFooterWrapper}>
           <button
-            type="button"
+            type="submit"
             className={`button ${commonStyles.buttonFooter}`}
+            onClick={(e) => onSubmit(e)}
           >
             아이디 찾기
           </button>
         </div>
       </form>
       {useAlertState.isActOpen && <Alert />}
+      {useRouteAlertState.isActOpen && <RoutAlert />}
     </div>
   );
 }
