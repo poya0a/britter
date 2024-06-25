@@ -2,6 +2,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { AppDataSource } from "@database/typeorm.config";
 import { Emps } from "@entities/Emps.entity";
+import bcrypt from "bcrypt";
 
 export default async function handler(
   req: NextApiRequest,
@@ -66,8 +67,10 @@ export default async function handler(
       },
     });
 
+    const hashedPassword = await bcrypt.hash(user_pw, 10);
+
     if (existingUser) {
-      existingUser.user_pw = user_pw;
+      existingUser.user_pw = hashedPassword;
 
       await empsRepository.save(existingUser);
 

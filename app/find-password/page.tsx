@@ -24,7 +24,6 @@ export default function FindPassword() {
     setValue,
     setError,
     clearErrors,
-    reset,
     trigger,
     formState: { errors },
   } = useForm({ mode: "onChange" });
@@ -148,6 +147,12 @@ export default function FindPassword() {
 
   const onSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (
+      typeof window !== "undefined" &&
+      document.activeElement instanceof HTMLElement
+    ) {
+      document.activeElement.blur();
+    }
     const idValue = getValues("user_id");
     const nameValue = getValues("user_name");
     const hpValue = getValues("user_hp");
@@ -203,7 +208,6 @@ export default function FindPassword() {
           const resData = await res.json();
           if (resData.resultCode) {
             saveUserState(value);
-            reset();
             toggleRouteAlert({
               isActOpen: true,
               content: resData.message,

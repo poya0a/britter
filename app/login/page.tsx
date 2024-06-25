@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PasswordInput from "@/components/input/PasswordInput";
 import { ErrorMessage } from "@hookform/error-message";
-import { FieldValues, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import Alert from "@components/popup/Alert";
 import { useAlert } from "@hooks/useAlert";
 import encryptRSA from "@/utils/encryptRSA";
@@ -25,8 +25,12 @@ export default function Login() {
 
   const doLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const data: FieldValues = getValues();
-
+    if (
+      typeof window !== "undefined" &&
+      document.activeElement instanceof HTMLElement
+    ) {
+      document.activeElement.blur();
+    }
     const idValue = getValues("user_id");
     const pwValue = getValues("user_pw");
 
@@ -56,12 +60,12 @@ export default function Login() {
           if (getKeyRes.resultCode) {
             const userIdEncrypted = await encryptRSA(
               getKeyRes.message,
-              data.user_id
+              idValue
             );
 
             const userPwEncrypted = await encryptRSA(
               getKeyRes.message,
-              data.user_pw
+              pwValue
             );
 
             const encryptedLoginFormData = {
@@ -80,8 +84,7 @@ export default function Login() {
               if (postLoginRes.resultCode) {
                 storage.setAccessToken(postLoginRes.accessToken);
                 storage.setRefreshToken(postLoginRes.refreshToken);
-                reset();
-                router.push(`/${data.user_id}`);
+                router.push(`/${idValue}`);
               } else {
                 toggleAlert(postLoginRes.message);
               }

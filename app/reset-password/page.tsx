@@ -18,12 +18,8 @@ export default function ResetPassword() {
   const {
     register,
     getValues,
-    watch,
-    setValue,
     setError,
     clearErrors,
-    reset,
-    trigger,
     formState: { errors },
   } = useForm({ mode: "onChange" });
   const { useAlertState, toggleAlert } = useAlert();
@@ -42,6 +38,12 @@ export default function ResetPassword() {
 
   const onSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (
+      typeof window !== "undefined" &&
+      document.activeElement instanceof HTMLElement
+    ) {
+      document.activeElement.blur();
+    }
     const pwValue = getValues("user_pw");
     const pwCheckValue = getValues("user_pw_check");
 
@@ -85,7 +87,6 @@ export default function ResetPassword() {
         if (res.ok) {
           const resData = await res.json();
           if (resData.resultCode) {
-            reset();
             toggleRouteAlert({
               isActOpen: true,
               content: resData.message,

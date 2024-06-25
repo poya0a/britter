@@ -273,7 +273,12 @@ export default function Join() {
 
   const onSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-
+    if (
+      typeof window !== "undefined" &&
+      document.activeElement instanceof HTMLElement
+    ) {
+      document.activeElement.blur();
+    }
     const data: FieldValues = getValues();
 
     // 빈 값 확인

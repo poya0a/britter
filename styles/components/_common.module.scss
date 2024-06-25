@@ -727,3 +727,76 @@
     }
   }
 }
+
+// editor 
+.toolbar {
+  border-bottom: 1px solid $chat-background;
+  .toolbarWrapper {
+    display: inline-block;
+    position: relative;
+    padding-right: 20px;
+    margin: 5px;
+    &::before {
+      content: '';
+      width: 1px;
+      height: 15px;
+      background-color: $text-sub2;
+      position: absolute;
+      top: 5px;
+      right: 5px;
+    }
+    &:last-child {
+      padding: 0;
+      &::before {
+        display: none;
+      }
+    }
+    button {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      position: relative;
+      background: transparent;
+      cursor: pointer;
+      font: inherit;
+      background: none;
+      outline-style: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: all .2s ease;
+      &.active {
+        background-color: $main-color;
+        color: $background-color;
+        img {
+          filter: brightness(1000%);
+        }
+      }
+      img {
+        width: 15px;
+        height: 15px;
+      }
+      &:hover {
+        background-color: rgba(171,189,255, .5);
+      }
+      &:disabled {
+        opacity: 0.5;
+      }
+      .colorbar {
+        position: absolute;
+        bottom: 3px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 15px;
+        height: 3px;
+        border-radius: 5px;
+      }
+    }
+  }
+}
+
+.colorPicker {
+  position: absolute;
+  z-index: 2;
+  top: 36px;
+  right: 0;
+}

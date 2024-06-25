@@ -1,9 +1,10 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import styles from "@styles/components/_common.module.scss";
+import { useMainMenuWidth } from "@hooks/useMainMenuWidth";
 
 export default function MainMenu() {
-  const [width, setWidth] = useState(240);
+  const { useMainMenuWidthState, handleMainMenuWidth } = useMainMenuWidth();
   const nodeRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
 
@@ -21,7 +22,9 @@ export default function MainMenu() {
     const currentX = "clientX" in e ? e.clientX : e.touches[0].clientX;
     const dx = currentX - startX + 230;
     const newWidth = startWidth + dx;
-    setWidth(Math.min(Math.max(newWidth, 200), window.innerWidth / 2));
+    handleMainMenuWidth(
+      Math.min(Math.max(newWidth, 200), window.innerWidth / 2)
+    );
   };
 
   const handleMouseUp = () => {
@@ -45,7 +48,10 @@ export default function MainMenu() {
   }, []);
 
   return (
-    <div style={{ width: `${width}px` }} className={styles.mainMenu}>
+    <div
+      style={{ width: `${useMainMenuWidthState}px` }}
+      className={styles.mainMenu}
+    >
       <div className={styles.mainMenuWrapper}>
         <div className={styles.mainMenuFixed}>
           <div className={styles.pageNameButtonWrapper}>

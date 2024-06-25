@@ -11,8 +11,8 @@ import { onlyNumPattern, phonePattern, regexValue } from "@utils/regex";
 import { useAlert } from "@hooks/useAlert";
 import Alert from "@components/popup/Alert";
 import { ErrorMessage } from "@hookform/error-message";
-import RoutAlert from "@/components/popup/RouteAlert";
-import { useRouteAlert } from "@/hooks/useRouteAlert";
+import RoutAlert from "@components/popup/RouteAlert";
+import { useRouteAlert } from "@hooks/useRouteAlert";
 
 export default function FindId() {
   const {
@@ -22,7 +22,6 @@ export default function FindId() {
     setValue,
     setError,
     clearErrors,
-    reset,
     trigger,
     formState: { errors },
   } = useForm({ mode: "onChange" });
@@ -144,6 +143,13 @@ export default function FindId() {
 
   const onSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (
+      typeof window !== "undefined" &&
+      document.activeElement instanceof HTMLElement
+    ) {
+      document.activeElement.blur();
+    }
+
     const nameValue = getValues("user_name");
     const hpValue = getValues("user_hp");
 
@@ -189,7 +195,6 @@ export default function FindId() {
         if (res.ok) {
           const resData = await res.json();
           if (resData.resultCode) {
-            reset();
             toggleRouteAlert({
               isActOpen: true,
               content: resData.message,

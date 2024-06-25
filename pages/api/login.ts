@@ -83,6 +83,10 @@ export default async function handler(
       user_id: user.user_id,
     });
 
+    user.private_seq = existingPrivate.seq;
+
+    await userRepository.save(user);
+
     return res
       .status(200)
       .json({ resultCode: true, accessToken, refreshToken });

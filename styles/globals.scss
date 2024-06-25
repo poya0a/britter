@@ -82,3 +82,214 @@ $ko: "Noto Sans KR", "Nanum Myeongjo", "Open Sans";
   transition: border 0.3s;
   box-sizing: border-box;
 }
+
+// editor
+.tiptap {
+  margin-top: 16px;
+  outline: none;
+  padding: 0 15px;
+  P {
+    color: $text;
+  }
+}
+
+.tiptap ul,
+.tiptap ol {
+  padding: 0 1rem;
+  margin: 1.25rem 1rem 1.25rem 0.4rem;
+  color: $text;
+}
+
+.tiptap ul li p,
+.tiptap ol li p {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  color: $text;
+}
+
+.tiptap ul[data-type="taskList"] {
+  list-style: none;
+  margin-left: 0;
+  padding: 0;
+
+  li {
+    align-items: flex-start;
+    display: flex;
+
+    > label {
+      flex: 0 0 auto;
+      margin-right: 0.5rem;
+      user-select: none;
+    }
+
+    > div {
+      flex: 1 1 auto;
+    }
+  }
+
+  input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    background-color: $border-color;
+    border-radius: 5px;
+    margin-right: 5px;
+    appearance: none;
+    -webkit-appearance: none;
+
+    &:checked {
+      background-size: 60% 60%;
+      background-position: 50%;
+      background-repeat: no-repeat;
+      background-color: $blue-color;
+      border-radius: 5px;
+      background-image: url('/images/check.svg');
+    }
+  }
+
+  ul[data-type="taskList"] {
+    margin: 0;
+  }
+}
+
+.tiptap h1,
+.tiptap h2,
+.tiptap h3,
+.tiptap h4,
+.tiptap h5,
+.tiptap h6 {
+  line-height: 1.1;
+  margin-top: 2.5rem;
+  text-wrap: pretty;
+  color: $text;
+}
+
+.tiptap h1,
+.tiptap h2 {
+  margin-top: 3.5rem;
+  margin-bottom: 1.5rem;
+  color: $text;
+}
+
+.tiptap h1 {
+  font-size: 1.4rem;
+  color: $text;
+}
+
+.tiptap h2 {
+  font-size: 1.2rem;
+  color: $text;
+}
+
+.tiptap h3 {
+  font-size: 1.1rem;
+  color: $text;
+}
+
+.tiptap h4,
+.tiptap h5,
+.tiptap h6 {
+  font-size: 1rem;
+}
+
+.tiptap code {
+  background-color: $blue-color;
+  border-radius: 0.4rem;
+  color: $text;
+  font-size: 0.85rem;
+  padding: 0.25em 0.3em;
+}
+
+.tiptap pre {
+  background: $text;
+  border-radius: 0.5rem;
+  color: $background-color;
+  font-family: 'JetBrainsMono', monospace;
+  margin: 1.5rem 0;
+  padding: 0.75rem 1rem;
+}
+
+.tiptap pre code {
+  background: none;
+  color: inherit;
+  font-size: 0.8rem;
+
+  padding: 0;
+}
+
+.tiptap blockquote {
+  border-left: 3px solid $text-sub;
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+}
+
+.tiptap hr {
+  border: none;
+  border-top: 1px solid $text-sub2;
+  margin: 2rem 0;
+}
+
+.tiptap .tableWrapper {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  table {
+    border-collapse: collapse;
+    margin: 0;
+    overflow: hidden;
+    table-layout: fixed;
+    width: 100%;
+  
+    td,
+    th {
+      border: 1px solid $border-color;
+      box-sizing: border-box;
+      min-width: 1em;
+      padding: 6px 8px;
+      position: relative;
+      vertical-align: top;
+  
+      > * {
+        margin-bottom: 0;
+      }
+    }
+  
+    th {
+      background-color: #F5F5F5;
+      font-weight: bold;
+      text-align: left;
+    }
+  
+    .selectedCell:after {
+      background: rgba(171,189,255, .3);
+      content: "";
+      left: 0; right: 0; top: 0; bottom: 0;
+      pointer-events: none;
+      position: absolute;
+      z-index: 2;
+    }
+  
+    .column-resize-handle {
+      background-color: $text-sub2;
+      bottom: -2px;
+      pointer-events: none;
+      position: absolute;
+      right: -2px;
+      top: 0;
+      width: 4px;
+    }
+  }
+  &.resize-cursor {
+    cursor: ew-resize;
+    cursor: col-resize;
+  }
+}
+
+.tiptap mark {
+  // background-color: transparent;
+  box-decoration-break: clone;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0;
+  box-decoration-break: unset;
+  padding: 0;
+  color: inherit;
+}
