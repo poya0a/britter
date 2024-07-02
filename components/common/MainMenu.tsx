@@ -2,11 +2,16 @@
 import { useRef, useEffect } from "react";
 import styles from "@styles/components/_common.module.scss";
 import { useMainMenuWidth } from "@hooks/useMainMenuWidth";
+import { useRouter } from "next/navigation";
+import storage from "@fetch/auth/storage";
+import { useRouteAlert } from "@/hooks/useRouteAlert";
 
 export default function MainMenu() {
   const { useMainMenuWidthState, handleMainMenuWidth } = useMainMenuWidth();
   const nodeRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
+  const router = useRouter();
+  const { toggleRouteAlert } = useRouteAlert();
 
   let startX: number, startWidth: number;
 
@@ -47,6 +52,18 @@ export default function MainMenu() {
     };
   }, []);
 
+  const handleCreate = () => {
+    const userId = storage.getUserId();
+    if (!userId) {
+      toggleRouteAlert({
+        isActOpen: true,
+        content: "로그아웃되었습니다. 다시 로그인해 주세요.",
+        route: "/login",
+      });
+    } else {
+      router.push(`${userId}`);
+    }
+  };
   return (
     <div
       style={{ width: `${useMainMenuWidthState}px` }}
@@ -60,11 +77,17 @@ export default function MainMenu() {
               <i className="normal">B</i>
               <em className="normal">BRIT</em>
             </button>
-            <button className={`button ${styles.pageAddButton}`}>
+            <button
+              className={`button ${styles.pageAddButton}`}
+              onClick={handleCreate}
+            >
               <img src="/images/icon/write.svg" alt="" />
             </button>
           </div>
-          <button className={`button ${styles.mainMenuDefault}`}>
+          <button
+            className={`button ${styles.mainMenuDefault}`}
+            onClick={() => router.push("/")}
+          >
             <img src="/images/icon/home.svg" alt="" />
             <em className="normal">홈</em>
           </button>

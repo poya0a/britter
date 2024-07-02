@@ -7,7 +7,7 @@ const fetchApi = async (config: RequestConfig): Promise<any> => {
   const { method, url, headers, body } = config;
 
   const defaultHeaders: HeadersInit = {
-    "Content-Type": "application/json",
+    // "Content-Type": "application/json",
     "User-Token": storage.getAccessToken() || "",
   };
 
@@ -59,7 +59,7 @@ const fetchApi = async (config: RequestConfig): Promise<any> => {
 const refreshToken = async (): Promise<string | null> => {
   try {
     const response = await fetch(requests.REFRESH_TOKEN, {
-      method: "POST",
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
         "Refresh-Token": storage.getRefreshToken() || "",

@@ -5,23 +5,19 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm";
-import { File } from "./File.entity";
 import { Tag } from "./Tag.entity";
 import { Emps } from "./Emps.entity";
 
 @Entity("Post")
 export class Post {
   @PrimaryGeneratedColumn()
-  seq!: number;
+  seq!: string;
 
-  @Column({ type: "int", nullable: true })
-  p_seq?: number;
+  @Column({ type: "varchar", nullable: true })
+  p_seq?: string;
 
   @Column({ type: "varchar", nullable: false })
   UID!: string;
-
-  @Column({ type: "int", nullable: true })
-  file_seq?: number;
 
   @Column({ type: "int", nullable: true })
   tag_seq?: number;
@@ -43,12 +39,8 @@ export class Post {
   @Column({ type: "datetime", nullable: false })
   modify_date?: Date;
 
-  @ManyToOne(() => File, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "file_seq" })
-  file?: File;
-
   @ManyToOne(() => Emps, { onDelete: "CASCADE" })
-  // @JoinColumn({ name: "UID" })
+  @JoinColumn({ name: "UID" })
   user!: string;
 
   @ManyToOne(() => Tag, { onDelete: "CASCADE" })

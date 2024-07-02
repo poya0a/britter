@@ -3,12 +3,14 @@ import { atom } from "recoil";
 
 interface EditorData {
   hasTableTag: boolean;
+  title: string;
 }
 
 export const editorState = atom<EditorData>({
   key: "editorState",
   default: {
     hasTableTag: false,
+    title: "",
   },
 });
 
@@ -23,8 +25,16 @@ export const useEditor = () => {
     }));
   };
 
+  const setTitle = (props: string) => {
+    setUseEditorState((useEditorState) => ({
+      ...useEditorState,
+      title: props,
+    }));
+  };
+
   return {
     useEditorState,
     setHasTableTag,
+    setTitle,
   };
 };

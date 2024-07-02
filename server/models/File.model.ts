@@ -1,5 +1,4 @@
 import { EmpsModel } from "./Emps.model";
-import { PostModel } from "./Post.model";
 import { CommentModel } from "./Comment.model";
 
 export interface FileInterface {
@@ -10,7 +9,6 @@ export interface FileInterface {
   file_size: string;
   file_extension: string;
   users?: EmpsModel[];
-  posts?: PostModel[];
   comments?: CommentModel[];
 }
 
@@ -22,7 +20,6 @@ export class FileModel implements FileInterface {
   file_size: string;
   file_extension: string;
   users?: EmpsModel[];
-  posts?: PostModel[];
   comments?: CommentModel[];
 
   constructor(file: FileInterface) {
@@ -33,7 +30,6 @@ export class FileModel implements FileInterface {
     this.file_size = file.file_size;
     this.file_extension = file.file_extension;
     this.users = file.users;
-    this.posts = file.posts;
     this.comments = file.comments;
   }
 }

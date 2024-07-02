@@ -1,6 +1,7 @@
-import jwt from "jsonwebtoken";
+// import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { config } from "dotenv";
+var jwt = require("jsonwebtoken");
 
 config();
 
@@ -51,6 +52,33 @@ export function createRefreshToken(userVO: {
   );
 
   return token;
+}
+
+interface DecodedToken {
+  sub: string;
+  claims?: { UID: string; user_id: string };
+}
+
+export function verifyRefreshToken(
+  refreshToken: string
+): { UID: string; user_id: string } | null {
+  try {
+    const decoded = jwt.verify(refreshToken, SECRET_KEY, {
+      algorithms: ["HS512"],
+    }) as DecodedToken;
+
+    const [user_id, randomKey] = decoded.sub.split(":");
+    const UID = decoded.claims?.UID || "";
+
+    return { UID, user_id };
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      console.error("Refresh token expired");
+    } else {
+      console.error("Error verifying refresh token:", error);
+    }
+    return null;
+  }
 }
 
 function getRandomKey(): string {

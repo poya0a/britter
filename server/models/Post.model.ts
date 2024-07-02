@@ -1,13 +1,11 @@
 import { CommentModel } from "./Comment.model";
 import { EmpsModel } from "./Emps.model";
-import { FileModel } from "./File.model";
 import { TagModel } from "./Tag.model";
 
 export interface PostInterface {
-  seq: number;
-  p_seq?: number;
+  seq: string;
+  p_seq?: string;
   UID: string;
-  file_seq?: number;
   tag_seq?: number;
   title: string;
   content: string;
@@ -15,15 +13,13 @@ export interface PostInterface {
   modify_date?: Date;
   comments?: CommentModel[];
   user?: EmpsModel;
-  file?: FileModel;
   tag?: TagModel;
 }
 
 export class PostModel implements PostInterface {
-  seq: number;
-  p_seq?: number;
+  seq: string;
+  p_seq?: string;
   UID: string;
-  file_seq?: number;
   tag_seq?: number;
   title: string;
   content: string;
@@ -31,14 +27,12 @@ export class PostModel implements PostInterface {
   modify_date?: Date;
   comments?: CommentModel[];
   user?: EmpsModel;
-  file?: FileModel;
   tag?: TagModel;
 
   constructor(post: PostInterface) {
     this.seq = post.seq;
     this.p_seq = post.p_seq;
     this.UID = post.UID;
-    this.file_seq = post.file_seq;
     this.tag_seq = post.tag_seq;
     this.title = post.title;
     this.content = post.content;
@@ -46,7 +40,6 @@ export class PostModel implements PostInterface {
     this.modify_date = post.modify_date;
     this.comments = post.comments;
     this.user = post.user;
-    this.file = post.file;
     this.tag = post.tag;
   }
 }

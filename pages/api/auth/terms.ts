@@ -14,7 +14,11 @@ export default async function handler(
   try {
     const dataSource = await AppDataSource.useFactory();
     const termsRepository = dataSource.getRepository(Terms);
-    const terms = await termsRepository.find();
+    const terms = await termsRepository.find({
+      where: {
+        in_used: true,
+      },
+    });
 
     return res.status(200).json({
       message: "이용약관 조회 완료했습니다.",

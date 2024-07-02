@@ -3,8 +3,16 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.TOKEN_SECRET_KEY || "default_secret_key";
 
-interface AuthenticatedRequest extends IncomingMessage {
-  user?: string | object;
+export interface AuthenticatedRequest extends IncomingMessage {
+  user?: {
+    sub: string;
+    claims: {
+      UID: string;
+      user_id: string;
+    };
+    iat: number;
+    exp: number;
+  };
 }
 
 export const authenticateToken = (
@@ -12,13 +20,7 @@ export const authenticateToken = (
   res: ServerResponse,
   next: () => void
 ) => {
-  const authHeader = req.headers["User-Token"] as string | undefined;
-
-  let token: string | undefined;
-
-  if (authHeader) {
-    token = authHeader.split(" ")[1];
-  }
+  const token = req.headers["user-token"] as string | undefined;
 
   if (!token) {
     res.writeHead(401, { "Content-Type": "application/json" });
@@ -36,8 +38,23 @@ export const authenticateToken = (
         return;
       }
 
-      req.user = user;
-      next();
+      if (
+        typeof user === "object" &&
+        user.hasOwnProperty("sub") &&
+        user.hasOwnProperty("claims") &&
+        user.hasOwnProperty("iat") &&
+        user.hasOwnProperty("exp")
+      ) {
+        req.user = user as AuthenticatedRequest["user"];
+        next();
+      } else {
+        res.writeHead(403, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            error: "유효한 사용자 정보가 포함되지 않은 토큰입니다.",
+          })
+        );
+      }
     }
   );
 };

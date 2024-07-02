@@ -6,7 +6,7 @@ export interface CommentInterface {
   seq: number;
   p_seq?: number;
   UID: string;
-  postSeq: number;
+  postSeq: string;
   user_profile_seq: number;
   file_seq?: number;
   user_id: string;
@@ -25,7 +25,7 @@ export class CommentModel implements CommentInterface {
   seq: number;
   p_seq?: number;
   UID: string;
-  postSeq: number;
+  postSeq: string;
   user_profile_seq: number;
   file_seq?: number;
   user_id: string;

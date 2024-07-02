@@ -11,24 +11,33 @@ const removeStorage = (key: string) => {
 };
 
 const getAccessToken = () => {
-  return getStorage('user-access-token');
+  return getStorage("user-access-token");
 };
 
 const setAccessToken = (value: string) => {
-  return setStorage('user-access-token', value);
+  return setStorage("user-access-token", value);
 };
 
 const getRefreshToken = () => {
-  return getStorage('user-refresh-token');
+  return getStorage("user-refresh-token");
 };
 
 const setRefreshToken = (value: string) => {
-  return setStorage('user-refresh-token', value);
+  return setStorage("user-refresh-token", value);
+};
+
+const getUserId = () => {
+  return getStorage("user-id");
+};
+
+const setUserId = (value: string) => {
+  return setStorage("user-id", value);
 };
 
 const removeToken = () => {
-  removeStorage('user-access-token');
-  removeStorage('user-refresh-token');
+  removeStorage("user-access-token");
+  removeStorage("user-refresh-token");
+  removeStorage("user-id");
 };
 
 export default {
@@ -36,5 +45,7 @@ export default {
   setAccessToken: setAccessToken,
   getRefreshToken: getRefreshToken,
   setRefreshToken: setRefreshToken,
-  removeToken: removeToken
+  getUserId: getUserId,
+  setUserId: setUserId,
+  removeToken: removeToken,
 };

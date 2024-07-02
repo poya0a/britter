@@ -19,23 +19,23 @@ export function generateKeyPair(deviceId: string): {
   };
 }
 
-export function encryptData(data: string, publicKey: string): string {
-  const bufferPublicKey = Buffer.from(publicKey, "base64");
-
+export function encryptData(data: string, key: string): string {
+  const bufferPublicKey = Buffer.from(key, "base64");
+  console.log(crypto.createPublicKey(bufferPublicKey));
   const encryptedBuffer = crypto.publicEncrypt(
     {
-      key: bufferPublicKey,
+      key: crypto.createPublicKey(bufferPublicKey),
       padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
     },
     Buffer.from(data)
   );
-
+  console.log(encryptedBuffer);
   return encryptedBuffer.toString("base64");
 }
 
-export function decryptData(encryptedData: string, privateKey: string): string {
+export function decryptData(encryptedData: string, key: string): string {
   try {
-    const bufferPrivateKey = Buffer.from(privateKey, "base64");
+    const bufferPrivateKey = Buffer.from(key, "base64");
 
     const decryptedBuffer = crypto.privateDecrypt(
       {

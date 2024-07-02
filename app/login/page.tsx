@@ -84,7 +84,8 @@ export default function Login() {
               if (postLoginRes.resultCode) {
                 storage.setAccessToken(postLoginRes.accessToken);
                 storage.setRefreshToken(postLoginRes.refreshToken);
-                router.push(`/${idValue}`);
+                storage.setUserId(idValue);
+                router.push("/");
               } else {
                 toggleAlert(postLoginRes.message);
               }

@@ -20,8 +20,8 @@ export class Comment {
   @Column({ type: "varchar", nullable: false })
   UID!: string;
 
-  @Column({ type: "int", nullable: false })
-  postSeq!: number;
+  @Column({ type: "varchar", nullable: false })
+  postSeq!: string;
 
   @Column({ type: "int", nullable: false })
   user_profile_seq!: number;
