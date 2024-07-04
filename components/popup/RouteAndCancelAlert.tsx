@@ -1,5 +1,5 @@
 "use client";
-import { useRouteAndCancelAlert } from "@hooks/useRouteAndCancelAlert";
+import { useRouteAndCancelAlert } from "@/hooks/popup/useRouteAndCancelAlert";
 import commonStyles from "@styles/components/_common.module.scss";
 import { useRouter } from "next/navigation";
 

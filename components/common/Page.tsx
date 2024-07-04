@@ -30,12 +30,16 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useToolBarHeight } from "@hooks/useToolBarHeight";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
-import { useAlert } from "@hooks/useAlert";
+import { useAlert } from "@/hooks/popup/useAlert";
 import Alert from "@components/popup/Alert";
 import { PostData, usePost } from "@hooks/usePost";
-import storage from "@fetch/auth/storage";
 import Toast from "../popup/Toast";
-import { useToast } from "@/hooks/useToast";
+import { useToast } from "@/hooks/popup/useToast";
+import { useInfo } from "@hooks/useInfo";
+import RoutAlert from "../popup/RouteAlert";
+import FnAndCancelAlert from "../popup/FnAndCancelAlert";
+import { useRouteAlert } from "@hooks/popup/useRouteAlert";
+import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
 
 const lowlight = createLowlight(common);
 
@@ -112,8 +116,11 @@ export default function Page({ type }: { type: string }) {
   const [editorContent, setEditorContent] = useState<string>("");
   const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
   const { useAlertState, toggleAlert } = useAlert();
+  const { useRouteAlertState } = useRouteAlert();
+  const { useFnAndCancelAlertState } = useFnAndCancelAlert();
   const { useToastState } = useToast();
   const { usePostState, pageSeq, setPageSeq, savePost, deletePost } = usePost();
+  const { useInfoState } = useInfo();
   const [viewPost, setViewPost] = useState<PostData>();
 
   useEffect(() => {
@@ -282,9 +289,8 @@ export default function Page({ type }: { type: string }) {
   };
 
   const modifyPost = () => {
-    const userId = storage.getUserId();
     const lastSegment = pathname?.split("/").filter(Boolean).pop();
-    router.push(`/${userId}?page=${lastSegment}`);
+    router.push(`/${useInfoState.user_id}?page=${lastSegment}`);
   };
 
   const handleDeletePost = () => {
@@ -356,6 +362,8 @@ export default function Page({ type }: { type: string }) {
         </div>
       </div>
       {useAlertState.isActOpen && <Alert />}
+      {useRouteAlertState.isActOpen && <RoutAlert />}
+      {useFnAndCancelAlertState.isActOpen && <FnAndCancelAlert />}
       {useToastState.isActOpen && <Toast />}
     </div>
   );

@@ -4,10 +4,10 @@ import { atom } from "recoil";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
-import { useAlert } from "./useAlert";
+import { useAlert } from "./popup/useAlert";
 import { useRouter } from "next/navigation";
-import { useToast } from "./useToast";
-import storage from "@fetch/auth/storage";
+import { useToast } from "./popup/useToast";
+import { useInfo } from "./useInfo";
 
 export interface PostData {
   seq: string;
@@ -46,6 +46,7 @@ export const usePost = () => {
   const queryClient = useQueryClient();
   const { toggleAlert } = useAlert();
   const { setToast } = useToast();
+  const { useInfoState } = useInfo();
   const router = useRouter();
 
   const fetchPost = async (): Promise<PostData[]> => {
@@ -55,7 +56,7 @@ export const usePost = () => {
     });
 
     if (!res.resultCode) {
-      throw new Error("게시글을 받는 중 에러가 발생하였습니다.");
+      throw new Error(res.message);
     }
 
     return res.data;
@@ -79,8 +80,7 @@ export const usePost = () => {
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode && res.data) {
-        const userId = storage.getUserId();
-        router.push(`/${userId}/${res.data.seq}`);
+        router.push(`/${useInfoState.user_id}/${res.data.seq}`);
         setToast(res.message);
         setPageSeq(res.data.seq);
       }

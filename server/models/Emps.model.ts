@@ -6,7 +6,7 @@ import { PrivateModel } from "./Private.model";
 export interface EmpsInterface {
   UID: string;
   user_profile_seq: number;
-  private_seq: number;
+  private_seq?: number | null;
   user_id: string;
   user_pw: string;
   user_name: string;
@@ -28,7 +28,7 @@ export interface EmpsInterface {
 export class EmpsModel implements EmpsInterface {
   UID: string;
   user_profile_seq: number;
-  private_seq: number;
+  private_seq?: number | null;
   user_id: string;
   user_pw: string;
   user_name: string;

@@ -1,4 +1,4 @@
-import { useModal } from "@/hooks/useModal";
+import { useModal } from "@/hooks/popup/useModal";
 import { TermsData, useTerms } from "@hooks/useTerms";
 import commonStyles from "@styles/components/_common.module.scss";
 import styles from "./page.module.scss";

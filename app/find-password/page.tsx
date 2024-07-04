@@ -8,12 +8,12 @@ import { useVerify } from "@hooks/useVerify";
 import { useForm } from "react-hook-form";
 import { getErrorMassage, getValidMassage } from "@utils/errorMessage";
 import { onlyNumPattern, phonePattern, regexValue } from "@utils/regex";
-import { useAlert } from "@hooks/useAlert";
+import { useAlert } from "@/hooks/popup/useAlert";
 import Alert from "@components/popup/Alert";
 import { ErrorMessage } from "@hookform/error-message";
 import { useRouter } from "next/navigation";
 import { UserData, useResetPassword } from "@hooks/useResetPassword";
-import { useRouteAlert } from "@hooks/useRouteAlert";
+import { useRouteAlert } from "@/hooks/popup/useRouteAlert";
 import RoutAlert from "@components/popup/RouteAlert";
 
 export default function FindPassword() {
@@ -298,7 +298,7 @@ export default function FindPassword() {
           <button
             type="submit"
             className={`button ${commonStyles.buttonFooter}`}
-            onClick={(e) => onSubmit(e)}
+            onClick={onSubmit}
           >
             비밀번호 찾기
           </button>

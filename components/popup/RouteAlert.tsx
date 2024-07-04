@@ -1,5 +1,5 @@
 "use client";
-import { useRouteAlert } from "@hooks/useRouteAlert";
+import { useRouteAlert } from "@/hooks/popup/useRouteAlert";
 import commonStyles from "@styles/components/_common.module.scss";
 import { useRouter } from "next/navigation";
 

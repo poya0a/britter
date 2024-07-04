@@ -18,8 +18,22 @@ $text-sub2: #999999;
 $facebook-color: #3B5999;
 $google-color: #DE4B39;
 
-$en: poppins, sans-serif;
-$ko: "Noto Sans KR", "Nanum Myeongjo", "Open Sans";
+@font-face {
+  font-family: 'DungGeunMo';
+  src: url('/fonts/DungGeunMo.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'VT323-Regular';
+  src: url('/fonts/VT323-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+$en: 'DungGeunMo', "VT323-Regular", "Open Sans";
+$ko: 'DungGeunMo', "VT323-Regular", "Open Sans";
 
 #html, #body {
   margin: 0;
@@ -29,6 +43,23 @@ $ko: "Noto Sans KR", "Nanum Myeongjo", "Open Sans";
   border: 0;
   vertical-align: baseline;
   box-sizing: border-box;
+  h1, h2, h3, h4, h5, h6,
+  p, em, button, input, label, a, 
+  table, tbody, thead, tr,th, td, ul, li, ol,
+  nav, img, ins, ins, kbd, small, strong,
+  blockquote,
+  div, span, address, 
+  cite, code, del,
+  b, u, dl, dt, dd,
+  fieldset, form, label,
+  legend, caption, article,
+  aside, figure,
+  footer, header, menu, section,
+  time, mark, audio, video, option
+   {
+    font-family: $ko;
+    font-style: normal;
+  }
 }
 
 #html {
@@ -154,44 +185,6 @@ $ko: "Noto Sans KR", "Nanum Myeongjo", "Open Sans";
   ul[data-type="taskList"] {
     margin: 0;
   }
-}
-
-.tiptap h1,
-.tiptap h2,
-.tiptap h3,
-.tiptap h4,
-.tiptap h5,
-.tiptap h6 {
-  line-height: 1.1;
-  text-wrap: pretty;
-  color: $text;
-}
-
-.tiptap h1,
-.tiptap h2 {
-  margin-bottom: 1.5rem;
-  color: $text;
-}
-
-.tiptap h1 {
-  font-size: 1.4rem;
-  color: $text;
-}
-
-.tiptap h2 {
-  font-size: 1.2rem;
-  color: $text;
-}
-
-.tiptap h3 {
-  font-size: 1.1rem;
-  color: $text;
-}
-
-.tiptap h4,
-.tiptap h5,
-.tiptap h6 {
-  font-size: 1rem;
 }
 
 .tiptap code {

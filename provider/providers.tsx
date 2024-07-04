@@ -6,6 +6,8 @@ import { onScrollLock, onScrollUnlock } from "@utils/scroll";
 import { useScrollLock } from "@hooks/useScrollLock";
 import Loading from "@components/common/loading";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { usePathname } from "next/navigation";
+import { useAuthentication } from "@hooks/useAuthentication";
 
 const ScrollLockHandler = () => {
   const { isLocked } = useScrollLock();
@@ -21,6 +23,13 @@ const ScrollLockHandler = () => {
 };
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
+  const pathname = usePathname();
+  const { checkTokenAndNavigate } = useAuthentication();
+
+  useEffect(() => {
+    if (pathname) checkTokenAndNavigate(pathname);
+  }, [pathname]);
+
   const [queryClient] = useState(
     () =>
       new QueryClient({

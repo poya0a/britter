@@ -21,7 +21,7 @@ export class Emps {
   user_profile_seq!: number;
 
   @Column({ type: "int", nullable: true })
-  private_seq!: number;
+  private_seq?: number | null;
 
   @Column({ type: "varchar", nullable: false })
   user_id!: string;

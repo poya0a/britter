@@ -7,12 +7,12 @@ import { useForm } from "react-hook-form";
 import { passwordPattern } from "@/utils/regex";
 import { ErrorMessage } from "@hookform/error-message";
 import { useResetPassword } from "@hooks/useResetPassword";
-import { useAlert } from "@hooks/useAlert";
+import { useAlert } from "@/hooks/popup/useAlert";
 import Alert from "@components/popup/Alert";
-import { useRouteAlert } from "@hooks/useRouteAlert";
+import { useRouteAlert } from "@/hooks/popup/useRouteAlert";
 import RoutAlert from "@components/popup/RouteAlert";
 import RoutAndCancelAlert from "@components/popup/RouteAndCancelAlert";
-import { useRouteAndCancelAlert } from "@hooks/useRouteAndCancelAlert";
+import { useRouteAndCancelAlert } from "@/hooks/popup/useRouteAndCancelAlert";
 
 export default function ResetPassword() {
   const {
@@ -167,7 +167,7 @@ export default function ResetPassword() {
           <button
             type="submit"
             className={`button ${commonStyles.buttonFooter}`}
-            onClick={(e) => onSubmit(e)}
+            onClick={onSubmit}
           >
             비밀번호 재설정
           </button>

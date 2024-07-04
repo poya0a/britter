@@ -8,7 +8,7 @@ import PasswordInput from "@/components/input/PasswordInput";
 import { ErrorMessage } from "@hookform/error-message";
 import { useForm } from "react-hook-form";
 import Alert from "@components/popup/Alert";
-import { useAlert } from "@hooks/useAlert";
+import { useAlert } from "@/hooks/popup/useAlert";
 import encryptRSA from "@/utils/encryptRSA";
 import storage from "@fetch/auth/storage";
 
@@ -23,7 +23,7 @@ export default function Login() {
   } = useForm({ mode: "onChange" });
   const { useAlertState, toggleAlert } = useAlert();
 
-  const doLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const login = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (
       typeof window !== "undefined" &&
@@ -84,7 +84,6 @@ export default function Login() {
               if (postLoginRes.resultCode) {
                 storage.setAccessToken(postLoginRes.accessToken);
                 storage.setRefreshToken(postLoginRes.refreshToken);
-                storage.setUserId(idValue);
                 router.push("/");
               } else {
                 toggleAlert(postLoginRes.message);
@@ -146,7 +145,7 @@ export default function Login() {
         <button
           type="submit"
           className={`button ${commonStyles.buttonBlue}`}
-          onClick={(e) => doLogin(e)}
+          onClick={login}
         >
           로그인
         </button>

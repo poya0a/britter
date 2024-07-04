@@ -11,14 +11,12 @@
     background-color: $blue-color;
     display: flex;
     justify-content: space-between;
-    .profileButton {
+    .logoutButton {
       width: 60px;
       height: 40px;
       > img {
         width: 30px;
         height: 30px;
-        border-radius: 50%;
-        background-color: #fff !important;
       }
     }
 }
@@ -69,7 +67,7 @@
         color: #ffffff;
         font-weight: bold;
         letter-spacing: 2px;
-        font-size: 16px;
+        font-size: 20px;
     }
 }
 
@@ -126,6 +124,7 @@
             > img {
               width: 30px;
               height: 30px;
+              border-radius: 5px;
             }
   
             > i {
@@ -134,13 +133,13 @@
               margin-right: 5px;
               border-radius: 5px;
               color: #fff;
-              font-style: 20px;
+              font-size: 20px;
               line-height: 30px;
               background-color: $sub-color;
             }
   
             > em {
-              font-size: 16px;
+              font-size: 20px;
               line-height: 30px;
             }
           }
@@ -848,44 +847,6 @@
 
 .create ul[data-type="taskList"] ul[data-type="taskList"] {
   margin: 0;
-}
-
-.create h1,
-.create h2,
-.create h3,
-.create h4,
-.create h5,
-.create h6 {
-  line-height: 1.1;
-  text-wrap: pretty;
-  color: $text;
-}
-
-.create h1,
-.create h2 {
-  margin-bottom: 1.5rem;
-  color: $text;
-}
-
-.create h1 {
-  font-size: 1.4rem;
-  color: $text;
-}
-
-.create h2 {
-  font-size: 1.2rem;
-  color: $text;
-}
-
-.create h3 {
-  font-size: 1.1rem;
-  color: $text;
-}
-
-.create h4,
-.create h5,
-.create h6 {
-  font-size: 1rem;
 }
 
 .create code {

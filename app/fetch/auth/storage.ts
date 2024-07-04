@@ -26,14 +26,6 @@ const setRefreshToken = (value: string) => {
   return setStorage("user-refresh-token", value);
 };
 
-const getUserId = () => {
-  return getStorage("user-id");
-};
-
-const setUserId = (value: string) => {
-  return setStorage("user-id", value);
-};
-
 const getExpandedPosts = () => {
   return getStorage("expanded-posts");
 };
@@ -54,8 +46,6 @@ export default {
   setAccessToken: setAccessToken,
   getRefreshToken: getRefreshToken,
   setRefreshToken: setRefreshToken,
-  getUserId: getUserId,
-  setUserId: setUserId,
   setExpandedPosts: setExpandedPosts,
   getExpandedPosts: getExpandedPosts,
   removeToken: removeToken,

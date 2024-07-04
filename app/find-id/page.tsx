@@ -8,11 +8,11 @@ import { useVerify } from "@hooks/useVerify";
 import { useForm } from "react-hook-form";
 import { getErrorMassage, getValidMassage } from "@utils/errorMessage";
 import { onlyNumPattern, phonePattern, regexValue } from "@utils/regex";
-import { useAlert } from "@hooks/useAlert";
+import { useAlert } from "@/hooks/popup/useAlert";
 import Alert from "@components/popup/Alert";
 import { ErrorMessage } from "@hookform/error-message";
 import RoutAlert from "@components/popup/RouteAlert";
-import { useRouteAlert } from "@hooks/useRouteAlert";
+import { useRouteAlert } from "@/hooks/popup/useRouteAlert";
 
 export default function FindId() {
   const {
@@ -264,7 +264,7 @@ export default function FindId() {
           <button
             type="submit"
             className={`button ${commonStyles.buttonFooter}`}
-            onClick={(e) => onSubmit(e)}
+            onClick={onSubmit}
           >
             아이디 찾기
           </button>

@@ -23,13 +23,13 @@ import {
   regexValue,
 } from "@/utils/regex";
 import { JoinForm } from "./interface/join.interface";
-import { useAlert } from "@hooks/useAlert";
+import { useAlert } from "@/hooks/popup/useAlert";
 import Alert from "@components/popup/Alert";
 import TermsModal from "./TermsModal";
 import { useVerify } from "@hooks/useVerify";
 import { getErrorMassage, getValidMassage } from "../../utils/errorMessage";
 import { useTerms } from "@hooks/useTerms";
-import { useModal } from "@hooks/useModal";
+import { useModal } from "@/hooks/popup/useModal";
 
 export default function Join() {
   const {
@@ -693,7 +693,7 @@ export default function Join() {
           <button
             type="submit"
             className={`button ${commonStyles.buttonFooter}`}
-            onClick={(e) => onSubmit(e)}
+            onClick={onSubmit}
           >
             회원 가입
           </button>

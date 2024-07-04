@@ -1,4 +1,4 @@
-import { useAlert } from "@hooks/useAlert";
+import { useAlert } from "@/hooks/popup/useAlert";
 import commonStyles from "@styles/components/_common.module.scss";
 
 export default function Alert() {

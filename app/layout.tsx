@@ -30,12 +30,12 @@ export default function RootLayout({
   return (
     <html lang="ko" id="html">
       <body id="body" className={inter.className}>
-        <Header />
-        <main className={styles.main}>
-          <div className={styles.mainView}>
-            <Providers>{children}</Providers>
-          </div>
-        </main>
+        <Providers>
+          <Header />
+          <main className={styles.main}>
+            <div className={styles.mainView}>{children}</div>
+          </main>
+        </Providers>
       </body>
     </html>
   );

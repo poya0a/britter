@@ -4,8 +4,9 @@ import styles from "@styles/components/_common.module.scss";
 import { useMainMenuWidth } from "@hooks/useMainMenuWidth";
 import { useRouter } from "next/navigation";
 import storage from "@fetch/auth/storage";
-import { useRouteAlert } from "@hooks/useRouteAlert";
+import { useRouteAlert } from "@/hooks/popup/useRouteAlert";
 import { PostData, usePost } from "@hooks/usePost";
+import { useInfo } from "@hooks/useInfo";
 
 export default function MainMenu() {
   const { useMainMenuWidthState, handleMainMenuWidth } = useMainMenuWidth();
@@ -14,6 +15,7 @@ export default function MainMenu() {
   const router = useRouter();
   const { toggleRouteAlert } = useRouteAlert();
   const { usePostState } = usePost();
+  const { useInfoState } = useInfo();
   const [expandedPosts, setExpandedPosts] = useState<string[]>(() => {
     const storedPosts = storage.getExpandedPosts();
     return storedPosts ? JSON.parse(storedPosts) : [];
@@ -56,15 +58,14 @@ export default function MainMenu() {
   }, []);
 
   const handleCreate = (pageId?: string) => {
-    const userId = storage.getUserId();
-    if (!userId) {
+    if (!useInfoState.user_id) {
       return toggleRouteAlert({
         isActOpen: true,
         content: "로그아웃되었습니다. 다시 로그인해 주세요.",
         route: "/login",
       });
     } else {
-      let path = `/${userId}`;
+      let path = `/${useInfoState.user_id}`;
       if (pageId) path += `?p_page=${pageId}`;
       router.push(path);
     }
@@ -135,14 +136,13 @@ export default function MainMenu() {
   }, []);
 
   const handleClick = (seq: string) => {
-    const userId = storage.getUserId();
     const newExpandedPosts = expandedPosts.includes(seq)
       ? expandedPosts.filter((item) => item !== seq)
       : [...expandedPosts, seq];
 
     setExpandedPosts(newExpandedPosts);
     storage.setExpandedPosts(JSON.stringify(newExpandedPosts));
-    router.push(`/${userId}/${seq}`);
+    router.push(`/${useInfoState.user_id}/${seq}`);
   };
 
   return (
@@ -154,9 +154,14 @@ export default function MainMenu() {
         <div className={styles.mainMenuFixed}>
           <div className={styles.pageNameButtonWrapper}>
             <button type="button" className={`button ${styles.pageNameButton}`}>
-              {/* <img src="" alt="" /> */}
-              <i className="normal">B</i>
-              <em className="normal">BRIT</em>
+              {useInfoState.user_profile_path ? (
+                // <img src={useInfoState.user_profile_path} alt="" />
+                <img src="/files/profile_img.jpg" alt="" />
+              ) : (
+                <i className="normal">{useInfoState.user_name.charAt(0)}</i>
+              )}
+
+              <em className="normal">{useInfoState.user_name}</em>
             </button>
             <button
               type="button"

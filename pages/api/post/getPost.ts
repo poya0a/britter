@@ -1,7 +1,7 @@
 "use server";
 import { NextApiResponse } from "next";
 import { AppDataSource } from "@database/typeorm.config";
-import { Post } from "@/server/entities/Post.entity";
+import { Post } from "@entities/Post.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
