@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { onScrollLock, onScrollUnlock } from "@utils/scroll";
 import { useScrollLock } from "@hooks/useScrollLock";
 import Loading from "@components/common/loading";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const ScrollLockHandler = () => {
   const { isLocked } = useScrollLock();
@@ -37,6 +38,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
         {children}
         <Loading />
         <ScrollLockHandler />
+        <ReactQueryDevtools />
       </QueryClientProvider>
     </RecoilRoot>
   );

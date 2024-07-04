@@ -65,6 +65,9 @@ $ko: "Noto Sans KR", "Nanum Myeongjo", "Open Sans";
   font: inherit;
   background: none;
   outline-style: none;
+  white-space: nowrap;
+  overflow: hidden; 
+  text-overflow: ellipsis; 
 }
 
 .input {

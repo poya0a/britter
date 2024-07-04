@@ -1,8 +1,8 @@
 const requests = {
   REFRESH_TOKEN: "api/auth/refreshToken",
-  GET_POST_LIST: "api/post/getPostList",
-  GET_POST_DETAIL: "api/post/getPostDetail",
+  GET_POST: "api/post/getPost",
   SAVE_POST: "api/post/savePost",
+  DELETE_POST: "api/post/deletePost",
   FILE_UPLOAD: "api/file/upload",
 };
 

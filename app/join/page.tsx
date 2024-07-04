@@ -49,7 +49,7 @@ export default function Join() {
   const { isLocked, toggleScrollLock } = useScrollLock();
   const { useAlertState, toggleAlert } = useAlert();
   const { useModalState, toggleModal } = useModal();
-  const { useTermsState, fetchTermsList, toggleCheckAll } = useTerms();
+  const { useTermsState, toggleCheckAll } = useTerms();
   const [checked, setChecked] = useState<boolean>(false);
   const termsChecked =
     useTermsState
@@ -64,10 +64,6 @@ export default function Join() {
     userEmail: false,
   });
   const { useVerifyState, toggleVerify } = useVerify();
-
-  useEffect(() => {
-    fetchTermsList();
-  }, []);
 
   useEffect(() => {
     setChecked(termsChecked ?? false);

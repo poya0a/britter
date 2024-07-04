@@ -1,10 +1,11 @@
 "use client";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import styles from "@styles/components/_common.module.scss";
 import { useMainMenuWidth } from "@hooks/useMainMenuWidth";
 import { useRouter } from "next/navigation";
 import storage from "@fetch/auth/storage";
-import { useRouteAlert } from "@/hooks/useRouteAlert";
+import { useRouteAlert } from "@hooks/useRouteAlert";
+import { PostData, usePost } from "@hooks/usePost";
 
 export default function MainMenu() {
   const { useMainMenuWidthState, handleMainMenuWidth } = useMainMenuWidth();
@@ -12,7 +13,11 @@ export default function MainMenu() {
   const dragging = useRef(false);
   const router = useRouter();
   const { toggleRouteAlert } = useRouteAlert();
-
+  const { usePostState } = usePost();
+  const [expandedPosts, setExpandedPosts] = useState<string[]>(() => {
+    const storedPosts = storage.getExpandedPosts();
+    return storedPosts ? JSON.parse(storedPosts) : [];
+  });
   let startX: number, startWidth: number;
 
   const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
@@ -20,6 +25,11 @@ export default function MainMenu() {
     startX = "clientX" in e ? e.clientX : e.touches[0].clientX;
     startWidth = nodeRef.current!.offsetWidth;
     dragging.current = true;
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("touchmove", handleMouseMove);
+    document.addEventListener("touchend", handleMouseUp);
   };
 
   const handleMouseMove = (e: MouseEvent | TouchEvent) => {
@@ -37,33 +47,104 @@ export default function MainMenu() {
   };
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    dragging.current = false;
 
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-    document.addEventListener("touchmove", handleMouseMove);
-    document.addEventListener("touchend", handleMouseUp);
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("touchmove", handleMouseMove);
-      document.removeEventListener("touchend", handleMouseUp);
-    };
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
+    document.removeEventListener("touchmove", handleMouseMove);
+    document.removeEventListener("touchend", handleMouseUp);
   }, []);
 
-  const handleCreate = () => {
+  const handleCreate = (pageId?: string) => {
     const userId = storage.getUserId();
     if (!userId) {
-      toggleRouteAlert({
+      return toggleRouteAlert({
         isActOpen: true,
         content: "로그아웃되었습니다. 다시 로그인해 주세요.",
         route: "/login",
       });
     } else {
-      router.push(`${userId}`);
+      let path = `/${userId}`;
+      if (pageId) path += `?p_page=${pageId}`;
+      router.push(path);
     }
   };
+
+  const renderSubPages = (subPages: PostData[], depth: number) => {
+    if (!subPages || subPages.length === 0) {
+      return null;
+    }
+
+    return (
+      <div style={{ paddingLeft: depth * 5 + "px" }}>
+        <ul className={`list ${styles.pageList}`}>
+          {subPages.map((post: PostData, idx: number) => (
+            <li
+              className={`list ${styles.pageItem}`}
+              key={`post-sub${depth}-${idx}`}
+            >
+              <div className={`button ${styles.pageWrapper}`}>
+                <button
+                  type="button"
+                  className={`button ${styles.pageButton}`}
+                  onClick={() => handleClick(post.seq)}
+                >
+                  <img src="/images/icon/page.svg" alt="" />
+                  <em className="normal">{post.title}</em>
+                </button>
+                <button
+                  type="button"
+                  className={`button ${styles.pageMoreButton}`}
+                >
+                  <img
+                    src="/images/icon/more.svg"
+                    alt="삭제, 복제 등"
+                    title="삭제, 복제 등"
+                  />
+                </button>
+                <button
+                  type="button"
+                  className={`button ${styles.pageAddOneDepth}`}
+                  onClick={() => handleCreate(post.seq)}
+                >
+                  <img
+                    src="/images/icon/add.svg"
+                    alt="하위 페이지 추가"
+                    title="하위 페이지 추가"
+                  />
+                </button>
+              </div>
+              {post.subPost &&
+                post.subPost.length > 0 &&
+                expandedPosts.includes(post.seq) &&
+                renderSubPages(post.subPost, depth + 1)}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedPosts = storage.getExpandedPosts();
+      if (storedPosts) {
+        setExpandedPosts(JSON.parse(storedPosts));
+      }
+    }
+  }, []);
+
+  const handleClick = (seq: string) => {
+    const userId = storage.getUserId();
+    const newExpandedPosts = expandedPosts.includes(seq)
+      ? expandedPosts.filter((item) => item !== seq)
+      : [...expandedPosts, seq];
+
+    setExpandedPosts(newExpandedPosts);
+    storage.setExpandedPosts(JSON.stringify(newExpandedPosts));
+    router.push(`/${userId}/${seq}`);
+  };
+
   return (
     <div
       style={{ width: `${useMainMenuWidthState}px` }}
@@ -72,30 +153,32 @@ export default function MainMenu() {
       <div className={styles.mainMenuWrapper}>
         <div className={styles.mainMenuFixed}>
           <div className={styles.pageNameButtonWrapper}>
-            <button className={`button ${styles.pageNameButton}`}>
+            <button type="button" className={`button ${styles.pageNameButton}`}>
               {/* <img src="" alt="" /> */}
               <i className="normal">B</i>
               <em className="normal">BRIT</em>
             </button>
             <button
+              type="button"
               className={`button ${styles.pageAddButton}`}
-              onClick={handleCreate}
+              onClick={() => handleCreate()}
             >
               <img src="/images/icon/write.svg" alt="" />
             </button>
           </div>
           <button
+            type="button"
             className={`button ${styles.mainMenuDefault}`}
             onClick={() => router.push("/")}
           >
             <img src="/images/icon/home.svg" alt="" />
             <em className="normal">홈</em>
           </button>
-          <button className={`button ${styles.mainMenuDefault}`}>
+          <button type="button" className={`button ${styles.mainMenuDefault}`}>
             <img src="/images/icon/search.svg" alt="" />
             <em className="normal">검색</em>
           </button>
-          <button className={`button ${styles.mainMenuDefault}`}>
+          <button type="button" className={`button ${styles.mainMenuDefault}`}>
             <img src="/images/icon/inbox.png" alt="" />
             <em className="normal">수신함</em>
           </button>
@@ -104,47 +187,45 @@ export default function MainMenu() {
         <div className={styles.pageMenu}>
           <h6 className={styles.pageMenuName}>페이지</h6>
           <ul className={`list ${styles.pageList}`}>
-            <li className={`list ${styles.pageItem}`}>
-              <div className={styles.pageWrapper}>
-                <button className={`button ${styles.pageButton}`}>
-                  <img src="/images/icon/page.svg" alt="" />
-                  <em className="normal">page1</em>
-                </button>
-                <button className={`button ${styles.pageMoreButton}`}>
-                  <img
-                    src="/images/icon/more.svg"
-                    alt="삭제, 복제 등"
-                    title="삭제, 복제 등"
-                  />
-                </button>
-                <button className={`button ${styles.pageAddOneDepth}`}>
-                  <img
-                    src="/images/icon/add.svg"
-                    alt="하위 페이지 추가"
-                    title="하위 페이지 추가"
-                  />
-                </button>
-              </div>
-
-              <div className={styles.subPageMenu}>
-                <ul className={`list ${styles.subPageList}`}>
-                  <li className={`list ${styles.subPageItem}`}>
-                    <div className={`button ${styles.sebPageWrapper}`}>
-                      <button className={`button ${styles.pageButton}`}>
-                        <img src="/images/icon/page_edit.svg" alt="" />
-                        <em className="normal">page1</em>
-                      </button>
-                      <button
-                        className={`button ${styles.pageMoreButton}`}
-                      ></button>
-                      <button
-                        className={`button ${styles.pageAddOneDepth}`}
-                      ></button>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </li>
+            {usePostState.map((post: PostData, idx: number) => (
+              <li className={`list ${styles.pageItem}`} key={`post-${idx}`}>
+                <div className={styles.pageWrapper}>
+                  <button
+                    type="button"
+                    className={`button ${styles.pageButton}`}
+                    onClick={() => handleClick(post.seq)}
+                  >
+                    <img src="/images/icon/page.svg" alt="" />
+                    <em className="normal">{post.title}</em>
+                  </button>
+                  <button
+                    type="button"
+                    className={`button ${styles.pageMoreButton}`}
+                  >
+                    <img
+                      src="/images/icon/more.svg"
+                      alt="삭제, 복제 등"
+                      title="삭제, 복제 등"
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    className={`button ${styles.pageAddOneDepth}`}
+                    onClick={() => handleCreate(post.seq)}
+                  >
+                    <img
+                      src="/images/icon/add.svg"
+                      alt="하위 페이지 추가"
+                      title="하위 페이지 추가"
+                    />
+                  </button>
+                </div>
+                {post.subPost &&
+                  post.subPost.length > 0 &&
+                  expandedPosts.includes(post.seq) &&
+                  renderSubPages(post.subPost, 1)}
+              </li>
+            ))}
           </ul>
         </div>
       </div>

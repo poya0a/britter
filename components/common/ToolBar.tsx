@@ -5,7 +5,9 @@ import { Editor } from "@tiptap/core";
 import { useEditor } from "@hooks/useEditor";
 import { SketchPicker, ColorResult } from "react-color";
 import { useMainMenuWidth } from "@hooks/useMainMenuWidth";
-import { useToolBarHeight } from "@/hooks/useToolBarHeight";
+import { useToolBarHeight } from "@hooks/useToolBarHeight";
+import { useSearchParams } from "next/navigation";
+import { usePost } from "@hooks/usePost";
 
 const isTablePresent = (editor: Editor): boolean => {
   const { selection } = editor.state;
@@ -36,6 +38,8 @@ export default function ToolBar() {
   const imgRef = useRef<HTMLInputElement>(null);
   const { useEditorState, setHasTableTag, setTitle } = useEditor();
   const colorPickerRef = useRef<HTMLDivElement>(null);
+  const { usePostState } = usePost();
+  const searchParams = useSearchParams();
 
   if (editor === null) return;
 
@@ -77,6 +81,19 @@ export default function ToolBar() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // 게시글 수정
+  const pageSeq = searchParams?.get("page");
+
+  useEffect(() => {
+    if (pageSeq) {
+      const modifyPost = usePostState.find((post) => post.seq === pageSeq);
+      if (modifyPost) {
+        setTitle(modifyPost.title);
+        editor.chain().setContent(modifyPost.content).run();
+      }
+    }
+  }, [pageSeq]);
 
   const handleColorChange = (color: ColorResult) => {
     if (type === "text") {

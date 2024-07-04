@@ -34,10 +34,19 @@ const setUserId = (value: string) => {
   return setStorage("user-id", value);
 };
 
+const getExpandedPosts = () => {
+  return getStorage("expanded-posts");
+};
+
+const setExpandedPosts = (value: string) => {
+  return setStorage("expanded-posts", value);
+};
+
 const removeToken = () => {
   removeStorage("user-access-token");
   removeStorage("user-refresh-token");
   removeStorage("user-id");
+  removeStorage("expanded-posts");
 };
 
 export default {
@@ -47,5 +56,7 @@ export default {
   setRefreshToken: setRefreshToken,
   getUserId: getUserId,
   setUserId: setUserId,
+  setExpandedPosts: setExpandedPosts,
+  getExpandedPosts: getExpandedPosts,
   removeToken: removeToken,
 };

@@ -39,6 +39,9 @@ export class Post {
   @Column({ type: "datetime", nullable: false })
   modify_date?: Date;
 
+  @Column({ type: "int", nullable: false })
+  order_number?: number;
+
   @ManyToOne(() => Emps, { onDelete: "CASCADE" })
   @JoinColumn({ name: "UID" })
   user!: string;

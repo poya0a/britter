@@ -3,7 +3,7 @@ import { NextApiResponse } from "next";
 import { AppDataSource } from "@database/typeorm.config";
 import { v4 as uuidv4 } from "uuid";
 import { DeepPartial } from "typeorm";
-import { Post } from "@/server/entities/Post.entity";
+import { Post } from "@entities/Post.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
@@ -35,19 +35,36 @@ export default async function handler(
           resultCode: false,
         });
       }
+      if (req.user) {
+        try {
+          const dataSource = await AppDataSource.useFactory();
+          const postRepository = dataSource.getRepository(Post);
 
-      try {
-        const dataSource = await AppDataSource.useFactory();
-        const postRepository = dataSource.getRepository(Post);
-        if (req.user) {
           // 토큰 이용하여 UID GET
           const uid = req.user.claims.UID;
 
           var pSeq: string = "";
+          var orderNumber: number = 0;
 
           // 부모 페이지가 있는 경우
           if (fields.p_seq) {
             pSeq = fields.p_seq[0];
+
+            const parent = await postRepository.find({
+              where: {
+                p_seq: fields.p_seq[0],
+              },
+            });
+
+            orderNumber = parent.length;
+          } else {
+            // 부모 페이지가 없고 새 페이지일 때
+            const parent = await postRepository.find({
+              where: {
+                p_seq: "",
+              },
+            });
+            orderNumber = parent.length;
           }
 
           var title: string = "";
@@ -101,6 +118,7 @@ export default async function handler(
               title: title,
               content: content,
               create_date: new Date(),
+              order_number: orderNumber,
             };
 
             const newPost = postRepository.create(post);
@@ -120,12 +138,17 @@ export default async function handler(
               });
             }
           }
+        } catch (error) {
+          return res.status(500).json({
+            message:
+              typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+            error: error,
+            resultCode: false,
+          });
         }
-      } catch (error) {
-        return res.status(500).json({
-          message:
-            typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
-          error: error,
+      } else {
+        return res.status(200).json({
+          message: "사용자 정보를 찾을 수 없습니다.",
           resultCode: false,
         });
       }

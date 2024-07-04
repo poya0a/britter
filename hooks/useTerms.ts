@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { atom } from "recoil";
+import { useQuery } from "@tanstack/react-query";
 
 export interface TermsData {
   seq: number;
@@ -32,21 +33,31 @@ export const useTerms = () => {
     useRecoilState<TermsData[]>(termsState);
   const [selectedTerms, setSelectedTerms] = useState<number>(0);
 
-  const fetchTermsList = async () => {
-    try {
-      const res = await fetch("api/auth/terms", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+  const fetchTermsList = async (): Promise<TermsData[]> => {
+    const res = await fetch("/api/auth/terms", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
 
-      if (res) {
-        const data = await res.json();
-        setUseTermsState(data.data);
-      }
-    } catch (err) {
-    } finally {
+    if (!res.ok) {
+      throw new Error("이용약관을 받는 중 에러가 발생하였습니다.");
     }
+
+    const data = await res.json();
+    return data.data;
   };
+
+  const { data } = useQuery<TermsData[], Error>({
+    queryKey: ["terms"],
+    queryFn: fetchTermsList,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  useEffect(() => {
+    if (data) {
+      setUseTermsState(data);
+    }
+  }, []);
 
   const selectTerms = async (seq: number) => {
     setSelectedTerms(seq);
@@ -69,7 +80,6 @@ export const useTerms = () => {
   return {
     useTermsState,
     selectedTerms,
-    fetchTermsList,
     selectTerms,
     toggleCheck,
     toggleCheckAll,
