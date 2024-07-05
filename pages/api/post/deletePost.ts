@@ -57,10 +57,18 @@ export default async function handler(
             });
           }
 
+          let pSeq: string = "";
+          console.log(fields.p_seq);
+          if (fields.p_seq) {
+            pSeq = fields.p_seq[0];
+            console.log(fields.p_seq[0]);
+          }
+
           await postRepository.remove(posts);
 
           return res.status(200).json({
             message: "게시글이 삭제되었습니다.",
+            data: { seq: pSeq },
             resultCode: true,
           });
         } catch (error) {

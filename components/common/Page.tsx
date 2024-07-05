@@ -43,10 +43,27 @@ import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
 
 const lowlight = createLowlight(common);
 
+const CustomTextStyle = TextStyle.extend({
+  addAttributes() {
+    return {
+      fontSize: {
+        default: null,
+        parseHTML: (element) =>
+          element.style.fontSize.replace("px", "") || null,
+        renderHTML: (attributes) => {
+          return {
+            style: `font-size: ${attributes.fontSize || "14"}px;`,
+          };
+        },
+      },
+    };
+  },
+});
+
 const extensions = [
   Color,
   ListItem,
-  TextStyle,
+  CustomTextStyle,
   CodeBlockLowlight.configure({ lowlight }),
   Highlight.configure({
     multicolor: true,
@@ -117,7 +134,8 @@ export default function Page({ type }: { type: string }) {
   const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
   const { useAlertState, toggleAlert } = useAlert();
   const { useRouteAlertState } = useRouteAlert();
-  const { useFnAndCancelAlertState } = useFnAndCancelAlert();
+  const { useFnAndCancelAlertState, toggleFnAndCancelAlert } =
+    useFnAndCancelAlert();
   const { useToastState } = useToast();
   const { usePostState, pageSeq, setPageSeq, savePost, deletePost } = usePost();
   const { useInfoState } = useInfo();
@@ -150,7 +168,7 @@ export default function Page({ type }: { type: string }) {
 
   useEffect(() => {
     if (type === "create") {
-      // 부모 페이지 아이디
+      // 부모 페이지 아이디 (하위 페이지 신규 생성)
       const pPageSeq = searchParams?.get("p_page");
       if (pPageSeq) {
         setpPagSeq(pPageSeq);
@@ -158,7 +176,7 @@ export default function Page({ type }: { type: string }) {
         setpPagSeq("");
       }
 
-      // 페이지 아이디
+      // 페이지 아이디 (수정)
       const pageSeq = searchParams?.get("page");
       if (pageSeq) {
         setPageSeq(pageSeq);
@@ -297,7 +315,17 @@ export default function Page({ type }: { type: string }) {
     const formData = new FormData();
     if (viewPost) formData.append("seq", viewPost?.seq);
 
-    deletePost(formData);
+    let content = "삭제하시겠습니까?";
+
+    if (viewPost?.subPost && viewPost?.subPost?.length > 0) {
+      content = "하위 게시글도 함께 삭제됩니다. 삭제하시겠습니까?";
+    }
+
+    toggleFnAndCancelAlert({
+      isActOpen: true,
+      content: content,
+      fn: () => deletePost(formData),
+    });
   };
 
   return (

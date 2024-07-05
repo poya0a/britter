@@ -19,12 +19,13 @@ export async function handleFileUpload(file: Express.Multer.File) {
 
     const fileBuffer = fs.readFileSync(filePath);
 
-    const uploadDirectory = path.join(process.cwd(), "files");
+    const uploadDirectory = path.join(process.cwd(), "public/files");
     if (!fs.existsSync(uploadDirectory)) {
       fs.mkdirSync(uploadDirectory, { recursive: true });
     }
 
-    const savedFilePath = path.join(uploadDirectory, fileName);
+    const savedFilePath = `/files/${fileName}`;
+
     fs.writeFileSync(savedFilePath, fileBuffer);
 
     const newFile = new File();

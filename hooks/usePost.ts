@@ -102,7 +102,12 @@ export const usePost = () => {
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else {
-        router.push("/");
+        if (res.data) {
+          router.push(`/${useInfoState.user_id}/${res.data.seq}`);
+        } else {
+          router.push("/");
+        }
+
         setToast(res.message);
       }
     },

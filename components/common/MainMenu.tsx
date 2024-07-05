@@ -7,12 +7,14 @@ import storage from "@fetch/auth/storage";
 import { useRouteAlert } from "@/hooks/popup/useRouteAlert";
 import { PostData, usePost } from "@hooks/usePost";
 import { useInfo } from "@hooks/useInfo";
+import { useAlert } from "@/hooks/popup/useAlert";
 
 export default function MainMenu() {
   const { useMainMenuWidthState, handleMainMenuWidth } = useMainMenuWidth();
   const nodeRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const router = useRouter();
+  const { toggleAlert } = useAlert();
   const { toggleRouteAlert } = useRouteAlert();
   const { usePostState } = usePost();
   const { useInfoState } = useInfo();
@@ -90,7 +92,14 @@ export default function MainMenu() {
                   className={`button ${styles.pageButton}`}
                   onClick={() => handleClick(post.seq)}
                 >
-                  <img src="/images/icon/page.svg" alt="" />
+                  <img
+                    src={
+                      post.subPost && post.subPost.length > 0
+                        ? "/images/icon/folder.svg"
+                        : "/images/icon/file.svg"
+                    }
+                    alt=""
+                  />
                   <em className="normal">{post.title}</em>
                 </button>
                 <button
@@ -145,6 +154,10 @@ export default function MainMenu() {
     router.push(`/${useInfoState.user_id}/${seq}`);
   };
 
+  const notService = () => {
+    toggleAlert("서비스 준비 중입니다.");
+  };
+
   return (
     <div
       style={{ width: `${useMainMenuWidthState}px` }}
@@ -155,8 +168,7 @@ export default function MainMenu() {
           <div className={styles.pageNameButtonWrapper}>
             <button type="button" className={`button ${styles.pageNameButton}`}>
               {useInfoState.user_profile_path ? (
-                // <img src={useInfoState.user_profile_path} alt="" />
-                <img src="/files/profile_img.jpg" alt="" />
+                <img src={useInfoState.user_profile_path} alt="" />
               ) : (
                 <i className="normal">{useInfoState.user_name.charAt(0)}</i>
               )}
@@ -183,8 +195,12 @@ export default function MainMenu() {
             <img src="/images/icon/search.svg" alt="" />
             <em className="normal">검색</em>
           </button>
-          <button type="button" className={`button ${styles.mainMenuDefault}`}>
-            <img src="/images/icon/inbox.png" alt="" />
+          <button
+            type="button"
+            className={`button ${styles.mainMenuDefault}`}
+            onClick={notService}
+          >
+            <img src="/images/icon/inbox.svg" alt="" />
             <em className="normal">수신함</em>
           </button>
         </div>
@@ -200,7 +216,14 @@ export default function MainMenu() {
                     className={`button ${styles.pageButton}`}
                     onClick={() => handleClick(post.seq)}
                   >
-                    <img src="/images/icon/page.svg" alt="" />
+                    <img
+                      src={
+                        post.subPost && post.subPost.length > 0
+                          ? "/images/icon/folder.svg"
+                          : "/images/icon/file.svg"
+                      }
+                      alt=""
+                    />
                     <em className="normal">{post.title}</em>
                   </button>
                   <button

@@ -36,7 +36,14 @@ export default function ToolBar() {
     useState<string>("transparent");
   const [type, setType] = useState<string>("");
   const imgRef = useRef<HTMLInputElement>(null);
-  const { useEditorState, setHasTableTag, setTitle } = useEditor();
+  const {
+    useEditorState,
+    setHasTableTag,
+    setTitle,
+    setFontSize,
+    plusFontSize,
+    minusFontSize,
+  } = useEditor();
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const { usePostState } = usePost();
   const searchParams = useSearchParams();
@@ -82,6 +89,17 @@ export default function ToolBar() {
     };
   }, []);
 
+  useEffect(() => {
+    if (useEditorState.fontSize) {
+      editor
+        .chain()
+        .setMark("textStyle", {
+          fontSize: useEditorState.fontSize,
+        })
+        .run();
+    }
+  }, [useEditorState.fontSize, editor]);
+
   // 게시글 수정
   const pageSeq = searchParams?.get("page");
 
@@ -93,6 +111,7 @@ export default function ToolBar() {
         editor.chain().setContent(modifyPost.content).run();
       }
     }
+    setFontSize("14");
   }, [pageSeq]);
 
   const handleColorChange = (color: ColorResult) => {
@@ -276,6 +295,30 @@ export default function ToolBar() {
               />
             </div>
           )}
+          <div className={styles.fontSizeWrapper}>
+            <input
+              type="text"
+              name="font_size"
+              id="fontSize"
+              className="input"
+              value={useEditorState.fontSize}
+              onChange={(e) => setFontSize(e.target.value)}
+            />
+            <button
+              type="button"
+              className={`button ${styles.fontSizeButton}`}
+              onClick={plusFontSize}
+            >
+              <img src="/images/icon/up.svg" alt="" />
+            </button>
+            <button
+              type="button"
+              className={`button ${styles.fontSizeButton}`}
+              onClick={minusFontSize}
+            >
+              <img src="/images/icon/down.svg" alt="" />
+            </button>
+          </div>
         </div>
         <div className={styles.toolbarWrapper}>
           <button
@@ -319,80 +362,6 @@ export default function ToolBar() {
             title="양쪽 맞춤"
           >
             <img src="/images/icon/textalign_justify.svg" alt="justify" />
-          </button>
-        </div>
-        <div className={styles.toolbarWrapper}>
-          <button
-            type="button"
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 1 }).run()
-            }
-            className={
-              editor.isActive("heading", { level: 1 }) ? `${styles.active}` : ""
-            }
-            title="제목 1"
-          >
-            H1
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 2 }).run()
-            }
-            className={
-              editor.isActive("heading", { level: 2 }) ? `${styles.active}` : ""
-            }
-            title="제목 2"
-          >
-            H2
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 3 }).run()
-            }
-            className={
-              editor.isActive("heading", { level: 3 }) ? `${styles.active}` : ""
-            }
-            title="제목 3"
-          >
-            H3
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 4 }).run()
-            }
-            className={
-              editor.isActive("heading", { level: 4 }) ? `${styles.active}` : ""
-            }
-            title="제목 4"
-          >
-            H4
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 5 }).run()
-            }
-            className={
-              editor.isActive("heading", { level: 5 }) ? `${styles.active}` : ""
-            }
-            title="제목 5"
-          >
-            H5
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 6 }).run()
-            }
-            className={
-              editor.isActive("heading", { level: 6 }) ? `${styles.active}` : ""
-            }
-            title="제목 6"
-          >
-            H6
           </button>
         </div>
         <div className={styles.toolbarWrapper}>

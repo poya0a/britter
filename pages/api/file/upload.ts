@@ -14,7 +14,7 @@ export interface NextApiRequestWithFile extends NextApiRequest {
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      const uploadDirectory = path.join(process.cwd(), "uploads");
+      const uploadDirectory = path.join(process.cwd(), "public/files");
       if (!fs.existsSync(uploadDirectory)) {
         fs.mkdirSync(uploadDirectory, { recursive: true });
       }
@@ -77,7 +77,8 @@ export default async function handler(
         fs.mkdirSync(uploadDirectory, { recursive: true });
       }
 
-      const savedFilePath = path.join(uploadDirectory, fileName);
+      const savedFilePath = `/files/${fileName}`;
+
       fs.writeFileSync(savedFilePath, fileBuffer);
 
       const newFile = new File();

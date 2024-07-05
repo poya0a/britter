@@ -124,7 +124,7 @@
             > img {
               width: 30px;
               height: 30px;
-              border-radius: 5px;
+              border-radius: 50%;
             }
   
             > i {
@@ -167,6 +167,7 @@
           padding: 0 5px;
           height: 30px;
           line-height: 30px;
+          font-size: 12px;
         }
         .pageList {
           .pageItem {
@@ -176,6 +177,7 @@
               gap: 5px;
               align-items: center; 
               .pageButton {
+                font-size: 14px;
                 white-space: nowrap;
                 overflow: hidden; 
                 text-overflow: ellipsis; 
@@ -500,6 +502,7 @@
     border-radius: 50%;
     border: 1px solid $background-color;
     background: url('/images/icon/modify.svg') no-repeat 50% $blue-color;
+    background-size: 60%;
   }
 }
 
@@ -1021,6 +1024,35 @@
         width: 15px;
         height: 3px;
         border-radius: 5px;
+      }
+    }
+
+    .fontSizeWrapper {
+      width: 60px;
+      height: 28px;
+      display: inline;
+      position: relative;
+      input {
+        border: none;
+        width: 50px;
+        height: 28px;
+        margin-left: 10px;
+        font-size: 16px;
+      }
+      .fontSizeButton {
+        position: absolute;
+        right: 0;
+        padding: 0;
+        img {
+          width: 10px;
+          height: 10px;
+        }
+        &:first-child {
+          top: 0px;
+        }
+        &:last-child {
+          bottom: -8px;
+        }
       }
     }
   }

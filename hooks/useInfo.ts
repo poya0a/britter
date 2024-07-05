@@ -82,7 +82,7 @@ export const useInfo = () => {
   useEffect(() => {
     if (data) {
       setUseInfoState(data);
-      if (data.user_profile_seq !== null) {
+      if (useInfoState.user_profile_path === "") {
         fetchFile(data.user_profile_seq);
       }
     }

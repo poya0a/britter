@@ -99,6 +99,10 @@ export default function Login() {
     }
   };
 
+  const notService = () => {
+    toggleAlert("서비스 준비 중입니다.");
+  };
+
   return (
     <div className={styles.login}>
       <Logo />
@@ -158,18 +162,21 @@ export default function Login() {
         <button
           type="button"
           className={`button ${commonStyles.buttonCircleLine}`}
+          onClick={notService}
         >
           <img src="images/icon/kakao.png" alt="kakao" />
         </button>
         <button
           type="button"
           className={`button ${commonStyles.buttonCircleLine}`}
+          onClick={notService}
         >
           <img src="images/icon/naver.png" alt="naver" />
         </button>
         <button
           type="button"
           className={`button ${commonStyles.buttonCircleLine}`}
+          onClick={notService}
         >
           <img src="images/icon/apple.png" alt="apple" />
         </button>
