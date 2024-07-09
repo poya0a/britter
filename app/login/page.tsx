@@ -11,6 +11,7 @@ import Alert from "@components/popup/Alert";
 import { useAlert } from "@/hooks/popup/useAlert";
 import encryptRSA from "@/utils/encryptRSA";
 import storage from "@fetch/auth/storage";
+import { usePost } from "@/hooks/usePost";
 
 export default function Login() {
   const router = useRouter();
@@ -84,6 +85,7 @@ export default function Login() {
               if (postLoginRes.resultCode) {
                 storage.setAccessToken(postLoginRes.accessToken);
                 storage.setRefreshToken(postLoginRes.refreshToken);
+                reset();
                 router.push("/");
               } else {
                 toggleAlert(postLoginRes.message);
@@ -95,7 +97,9 @@ export default function Login() {
         } else {
           toggleAlert("서버 에러가 발생하였습니다. 다시 시도해 주세요.");
         }
-      } catch {}
+      } catch (error) {
+        toggleAlert("네트워크 오류가 발생하였습니다. 다시 시도해 주세요.");
+      }
     }
   };
 

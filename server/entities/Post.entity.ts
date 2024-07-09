@@ -40,7 +40,7 @@ export class Post {
   modify_date?: Date;
 
   @Column({ type: "int", nullable: false })
-  order_number?: number;
+  order_number: number;
 
   @ManyToOne(() => Emps, { onDelete: "CASCADE" })
   @JoinColumn({ name: "UID" })

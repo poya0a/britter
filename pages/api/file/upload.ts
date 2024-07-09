@@ -72,14 +72,14 @@ export default async function handler(
 
       const fileBuffer = fs.readFileSync(filePath);
 
-      const uploadDirectory = path.join(process.cwd(), "files");
+      const uploadDirectory = path.join(process.cwd(), "public/files");
       if (!fs.existsSync(uploadDirectory)) {
         fs.mkdirSync(uploadDirectory, { recursive: true });
       }
 
       const savedFilePath = `/files/${fileName}`;
 
-      fs.writeFileSync(savedFilePath, fileBuffer);
+      fs.writeFileSync(path.join(uploadDirectory, fileName), fileBuffer);
 
       const newFile = new File();
       newFile.file = fileBuffer;
@@ -98,10 +98,10 @@ export default async function handler(
           path: savedFile.file_path,
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       return res.status(500).json({
         message: "서버 에러가 발생하였습니다.",
-        error: error,
+        error: error?.message,
         resultCode: false,
       });
     }

@@ -6,8 +6,8 @@ import { useEditor } from "@hooks/useEditor";
 import { SketchPicker, ColorResult } from "react-color";
 import { useMainMenuWidth } from "@hooks/useMainMenuWidth";
 import { useToolBarHeight } from "@hooks/useToolBarHeight";
-import { useSearchParams } from "next/navigation";
 import { usePost } from "@hooks/usePost";
+import { useUpdateEffect } from "@/utils/useUpdateEffect";
 
 const isTablePresent = (editor: Editor): boolean => {
   const { selection } = editor.state;
@@ -35,6 +35,7 @@ export default function ToolBar() {
   const [currentHighlightColor, setCurrentHighlightColor] =
     useState<string>("transparent");
   const [type, setType] = useState<string>("");
+  const [autoSaved, setAutoSaved] = useState<boolean>(false);
   const imgRef = useRef<HTMLInputElement>(null);
   const {
     useEditorState,
@@ -45,11 +46,18 @@ export default function ToolBar() {
     minusFontSize,
   } = useEditor();
   const colorPickerRef = useRef<HTMLDivElement>(null);
-  const { usePostState } = usePost();
-  const searchParams = useSearchParams();
+  const {
+    auto,
+    editorContent,
+    usePostState,
+    type: pageType,
+    pageSeq,
+    findPostBySeq,
+  } = usePost();
 
   if (editor === null) return;
 
+  // 리사이즈
   useEffect(() => {
     const handleResize = (entries: ResizeObserverEntry[]) => {
       const toolbarElement = entries[0].target as HTMLDivElement;
@@ -67,6 +75,7 @@ export default function ToolBar() {
     };
   }, []);
 
+  // 컬러피커
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (editor === null || colorPickerRef.current === null) return;
@@ -89,6 +98,7 @@ export default function ToolBar() {
     };
   }, []);
 
+  // 폰트 사이즈
   useEffect(() => {
     if (useEditorState.fontSize) {
       editor
@@ -101,18 +111,29 @@ export default function ToolBar() {
   }, [useEditorState.fontSize, editor]);
 
   // 게시글 수정
-  const pageSeq = searchParams?.get("page");
-
   useEffect(() => {
-    if (pageSeq) {
-      const modifyPost = usePostState.find((post) => post.seq === pageSeq);
-      if (modifyPost) {
-        setTitle(modifyPost.title);
-        editor.chain().setContent(modifyPost.content).run();
+    if (pageType === "create" && pageSeq.seq !== "") {
+      if (!autoSaved) {
+        const modifyPost = findPostBySeq(usePostState, pageSeq.seq);
+        if (modifyPost) {
+          setTitle(modifyPost.title);
+          editor.chain().setContent(modifyPost.content).run();
+        }
+        setAutoSaved(true);
       }
+    } else {
+      setTitle("");
+      editor.chain().setContent("").run();
     }
     setFontSize("14");
-  }, [pageSeq]);
+  }, [pageType, pageSeq.seq, usePostState]);
+
+  useUpdateEffect(() => {
+    if (pageType === "create" && pageSeq.seq !== "" && autoSaved) {
+      setTitle(useEditorState.title);
+      editor.chain().setContent(editorContent).run();
+    }
+  }, [auto]);
 
   const handleColorChange = (color: ColorResult) => {
     if (type === "text") {
@@ -202,6 +223,44 @@ export default function ToolBar() {
       editor.commands.focus();
     }
   };
+
+  // 복사 / 붙여넣기로 이미지 저장
+  const handlePaste = async (event: ClipboardEvent) => {
+    const items = event.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.includes("image")) {
+        const blob = item.getAsFile();
+        if (!blob) continue;
+
+        event.preventDefault();
+
+        try {
+          const imageUrl = URL.createObjectURL(blob);
+          editor.chain().focus().setImage({ src: imageUrl }).run();
+        } catch (error) {
+          console.error("Error handling pasted image:", error);
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleEditorPaste = (event: ClipboardEvent) => {
+      handlePaste(event);
+    };
+
+    if (editor) {
+      const editorElement = editor.view.dom;
+      editorElement.addEventListener("paste", handleEditorPaste);
+
+      return () => {
+        editorElement.removeEventListener("paste", handleEditorPaste);
+      };
+    }
+  }, [editor]);
 
   return (
     <>

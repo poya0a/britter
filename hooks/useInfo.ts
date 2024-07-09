@@ -5,6 +5,9 @@ import { useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { atom } from "recoil";
 import { useAlert } from "./popup/useAlert";
+import { FetchError } from "@fetch/types";
+import { useRouteAlert } from "./popup/useRouteAlert";
+import storage from "@fetch/auth/storage";
 
 export interface InfoData {
   user_profile_seq: number;
@@ -40,18 +43,35 @@ export const infoState = atom<InfoData>({
 export const useInfo = () => {
   const [useInfoState, setUseInfoState] = useRecoilState<InfoData>(infoState);
   const { toggleAlert } = useAlert();
+  const { toggleRouteAlert } = useRouteAlert();
 
   const fetchInfo = async (): Promise<InfoData> => {
-    const res = await fetchApi({
-      method: "GET",
-      url: requests.USER_INFO,
-    });
+    try {
+      const res = await fetchApi({
+        method: "GET",
+        url: requests.USER_INFO,
+      });
 
-    if (!res.resultCode) {
-      throw new Error(res.message);
+      if (!res.resultCode) {
+        throw new Error(res.message);
+      }
+
+      return res.data;
+    } catch (error) {
+      if (error instanceof FetchError) {
+        if (error.code === 403 || error.code === 401) {
+          toggleRouteAlert({
+            isActOpen: true,
+            content: error.message,
+            route: "/login",
+          });
+          storage.removeToken();
+        } else {
+          alert(error.message);
+        }
+      }
+      throw error;
     }
-
-    return res.data;
   };
 
   const fetchFile = async (seq: number): Promise<void> => {

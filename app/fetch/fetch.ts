@@ -5,10 +5,12 @@ import { FetchError } from "./types";
 
 const fetchApi = async (config: RequestConfig): Promise<any> => {
   const { method, url, headers, body } = config;
+  const token = storage.getAccessToken();
+  if (!token || token === "" || token === undefined) return;
 
   const defaultHeaders: HeadersInit = {
     // "Content-Type": "application/json",
-    "User-Token": storage.getAccessToken() || "",
+    "User-Token": token,
   };
 
   const finalHeaders: HeadersInit = { ...defaultHeaders, ...headers };
@@ -32,7 +34,14 @@ const fetchApi = async (config: RequestConfig): Promise<any> => {
             headers: finalHeaders,
           });
           return retryResponse.json();
+        } else {
+          throw new FetchError("로그아웃되었습니다.", response.status);
         }
+      }
+
+      // 토큰 X
+      if (response.status === 403) {
+        throw new FetchError("로그아웃되었습니다.", response.status);
       }
 
       if (response.status.toString().startsWith("5")) {
@@ -48,11 +57,7 @@ const fetchApi = async (config: RequestConfig): Promise<any> => {
 
     return response.json();
   } catch (error) {
-    if (error instanceof FetchError) {
-      throw error;
-    } else {
-      throw new FetchError("네트워크 오류가 발생했습니다.", 0);
-    }
+    throw error;
   }
 };
 
@@ -67,10 +72,15 @@ const refreshToken = async (): Promise<string | null> => {
     });
 
     if (!response.ok) {
-      throw new Error("토큰 갱신 실패");
+      throw new FetchError("토큰 갱신 실패", response.status);
     }
 
-    const { accessToken, refreshToken } = await response.json();
+    const { accessToken, refreshToken, resultCode } = await response.json();
+
+    // 갱신할 토큰 X
+    if (!resultCode) {
+      throw new FetchError("토큰 갱신 실패", response.status);
+    }
 
     if (accessToken) {
       storage.setAccessToken(accessToken);
@@ -84,6 +94,7 @@ const refreshToken = async (): Promise<string | null> => {
   } catch (error) {
     storage.removeToken();
     window.location.href = "/login";
+
     return null;
   }
 };

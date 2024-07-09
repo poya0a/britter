@@ -6,8 +6,8 @@ import { onScrollLock, onScrollUnlock } from "@utils/scroll";
 import { useScrollLock } from "@hooks/useScrollLock";
 import Loading from "@components/common/loading";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import storage from "@fetch/auth/storage";
 import { usePathname } from "next/navigation";
-import { useAuthentication } from "@hooks/useAuthentication";
 
 const ScrollLockHandler = () => {
   const { isLocked } = useScrollLock();
@@ -23,11 +23,21 @@ const ScrollLockHandler = () => {
 };
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
+  const userToken = storage.getAccessToken();
   const pathname = usePathname();
-  const { checkTokenAndNavigate } = useAuthentication();
+  const pathWithoutToken = [
+    "/login",
+    "/join",
+    "/find-id",
+    "/find-password",
+    "/reset-password",
+    "/complete",
+  ];
 
   useEffect(() => {
-    if (pathname) checkTokenAndNavigate(pathname);
+    if (userToken && pathname && pathWithoutToken.includes(pathname)) {
+      window.location.href = "/";
+    }
   }, [pathname]);
 
   const [queryClient] = useState(

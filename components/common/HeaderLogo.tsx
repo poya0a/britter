@@ -1,10 +1,19 @@
-import Link from "next/link";
+import { usePost } from "@/hooks/usePost";
 import styles from "@styles/components/_common.module.scss";
+import { useRouter } from "next/navigation";
 
 export default function HeaderLogo() {
+  const route = useRouter();
+  const { setPageSeq } = usePost();
+
+  const goToHome = () => {
+    route.push("/");
+    setPageSeq({ seq: "", pSeq: "" });
+  };
+
   return (
-    <Link href="/" className={`link ${styles.headerLogo}`}>
+    <button className={`button ${styles.headerLogo}`} onClick={goToHome}>
       <i className="normal">BRITTER</i>
-    </Link>
+    </button>
   );
 }

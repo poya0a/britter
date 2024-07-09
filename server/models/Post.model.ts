@@ -11,7 +11,7 @@ export interface PostInterface {
   content: string;
   create_date: Date;
   modify_date?: Date;
-  order_number?: number;
+  order_number: number;
   comments?: CommentModel[];
   user?: EmpsModel;
   tag?: TagModel;
@@ -26,7 +26,7 @@ export class PostModel implements PostInterface {
   content: string;
   create_date: Date;
   modify_date?: Date;
-  order_number?: number;
+  order_number: number;
   comments?: CommentModel[];
   user?: EmpsModel;
   tag?: TagModel;

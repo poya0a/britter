@@ -16,12 +16,9 @@ export default function MainMenu() {
   const router = useRouter();
   const { toggleAlert } = useAlert();
   const { toggleRouteAlert } = useRouteAlert();
-  const { usePostState } = usePost();
+  const { usePostState, pageSeq, setPageSeq, setType } = usePost();
   const { useInfoState } = useInfo();
-  const [expandedPosts, setExpandedPosts] = useState<string[]>(() => {
-    const storedPosts = storage.getExpandedPosts();
-    return storedPosts ? JSON.parse(storedPosts) : [];
-  });
+  const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
   let startX: number, startWidth: number;
 
   const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
@@ -59,7 +56,8 @@ export default function MainMenu() {
     document.removeEventListener("touchend", handleMouseUp);
   }, []);
 
-  const handleCreate = (pageId?: string) => {
+  // 페이지 생성
+  const handleCreate = (seq?: string) => {
     if (!useInfoState.user_id) {
       return toggleRouteAlert({
         isActOpen: true,
@@ -67,9 +65,9 @@ export default function MainMenu() {
         route: "/login",
       });
     } else {
-      let path = `/${useInfoState.user_id}`;
-      if (pageId) path += `?p_page=${pageId}`;
-      router.push(path);
+      setPageSeq({ seq: "", pSeq: seq ? seq : "" });
+      setType("create");
+      router.push(`/${useInfoState.user_id}`);
     }
   };
 
@@ -89,8 +87,17 @@ export default function MainMenu() {
               <div className={`button ${styles.pageWrapper}`}>
                 <button
                   type="button"
-                  className={`button ${styles.pageButton}`}
-                  onClick={() => handleClick(post.seq)}
+                  className={`button ${styles.pageButton} 
+                  ${
+                    pageSeq.seq === post.seq ||
+                    (pageSeq.seq === "" &&
+                      post.subPost?.find(
+                        (sub: PostData) => sub.p_seq === pageSeq.pSeq
+                      ))
+                      ? styles.active
+                      : ""
+                  }`}
+                  onClick={() => handleView(post.seq)}
                 >
                   <img
                     src={
@@ -144,15 +151,23 @@ export default function MainMenu() {
     }
   }, []);
 
-  const handleClick = (seq: string) => {
+  // 페이지 이동
+  const handleView = (seq: string) => {
     const newExpandedPosts = expandedPosts.includes(seq)
       ? expandedPosts.filter((item) => item !== seq)
       : [...expandedPosts, seq];
 
     setExpandedPosts(newExpandedPosts);
     storage.setExpandedPosts(JSON.stringify(newExpandedPosts));
-    router.push(`/${useInfoState.user_id}/${seq}`);
+
+    setPageSeq({ seq: seq, pSeq: "" });
+
+    setType("view");
+    router.push(`/${useInfoState.user_id}`);
   };
+
+  // 게시글 검색
+  const handleSearch = () => {};
 
   const notService = () => {
     toggleAlert("서비스 준비 중입니다.");
@@ -191,7 +206,11 @@ export default function MainMenu() {
             <img src="/images/icon/home.svg" alt="" />
             <em className="normal">홈</em>
           </button>
-          <button type="button" className={`button ${styles.mainMenuDefault}`}>
+          <button
+            type="button"
+            className={`button ${styles.mainMenuDefault}`}
+            onClick={handleSearch}
+          >
             <img src="/images/icon/search.svg" alt="" />
             <em className="normal">검색</em>
           </button>
@@ -213,8 +232,12 @@ export default function MainMenu() {
                 <div className={styles.pageWrapper}>
                   <button
                     type="button"
-                    className={`button ${styles.pageButton}`}
-                    onClick={() => handleClick(post.seq)}
+                    className={`button ${styles.pageButton} ${
+                      pageSeq.seq === post.seq && pageSeq.pSeq === ""
+                        ? styles.active
+                        : ""
+                    }`}
+                    onClick={() => handleView(post.seq)}
                   >
                     <img
                       src={

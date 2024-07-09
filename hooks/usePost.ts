@@ -5,9 +5,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
 import { useAlert } from "./popup/useAlert";
-import { useRouter } from "next/navigation";
+import { useRouteAlert } from "./popup/useRouteAlert";
 import { useToast } from "./popup/useToast";
-import { useInfo } from "./useInfo";
+import { FetchError } from "@fetch/types";
+import storage from "@fetch/auth/storage";
 
 export interface PostData {
   seq: string;
@@ -41,25 +42,78 @@ export const postState = atom<PostData[]>({
 });
 
 export const usePost = () => {
-  const [usePostState, setUsePostState] = useRecoilState<PostData[]>(postState);
-  const [pageSeq, setPageSeq] = useState<string>("");
   const queryClient = useQueryClient();
+  const [usePostState, setUsePostState] = useRecoilState<PostData[]>(postState);
+  const [editorContent, setEditorContent] = useState<string>("");
   const { toggleAlert } = useAlert();
+  const { toggleRouteAlert } = useRouteAlert();
   const { setToast } = useToast();
-  const { useInfoState } = useInfo();
-  const router = useRouter();
+
+  const [auto, setAuto] = useState<boolean | null>(null);
+  const { data: type = "view" } = useQuery<string>({
+    queryKey: ["type"],
+    queryFn: () => {
+      const data = queryClient.getQueryData<string>(["type"]) ?? "view";
+      return data;
+    },
+  });
+  const { data: pageSeq } = useQuery<
+    {
+      seq: string;
+      pSeq: string;
+    },
+    Error
+  >({
+    queryKey: ["pageSeq"],
+    queryFn: () => {
+      const data = queryClient.getQueryData<{
+        seq: string;
+        pSeq: string;
+      }>(["pageSeq"]) ?? {
+        seq: "",
+        pSeq: "",
+      };
+      return data;
+    },
+    initialData: { seq: "", pSeq: "" },
+  });
+  const { data: pathname = [] } = useQuery<{ title: string; seq: string }[]>({
+    queryKey: ["pathname"],
+    queryFn: async () => {
+      const data = queryClient.getQueryData<{ title: string; seq: string }[]>([
+        "pathname",
+      ]);
+      return data ?? [];
+    },
+  });
 
   const fetchPost = async (): Promise<PostData[]> => {
-    const res = await fetchApi({
-      method: "GET",
-      url: requests.GET_POST,
-    });
+    try {
+      const res = await fetchApi({
+        method: "GET",
+        url: requests.GET_POST,
+      });
 
-    if (!res.resultCode) {
-      throw new Error(res.message);
+      if (!res.resultCode) {
+        toggleAlert(res.message);
+        throw new Error(res.message);
+      }
+      return res.data;
+    } catch (error) {
+      if (error instanceof FetchError) {
+        if (error.code === 403 || error.code === 401) {
+          toggleRouteAlert({
+            isActOpen: true,
+            content: error.message,
+            route: "/login",
+          });
+          storage.removeToken();
+        } else {
+          alert(error.message);
+        }
+      }
+      throw error;
     }
-
-    return res.data;
   };
 
   const { data } = useQuery<PostData[], Error>({
@@ -80,9 +134,14 @@ export const usePost = () => {
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode && res.data) {
-        router.push(`/${useInfoState.user_id}/${res.data.seq}`);
-        setToast(res.message);
-        setPageSeq(res.data.seq);
+        setPageSeq({ seq: res.data.seq, pSeq: "" });
+        setAuto(null);
+        if (!auto) {
+          toggleAlert(res.message);
+          setType("view");
+        } else {
+          setToast(res.message);
+        }
       }
     },
     onError: (error: any) => {
@@ -101,13 +160,9 @@ export const usePost = () => {
       queryClient.invalidateQueries({ queryKey: ["post"] });
       if (!res.resultCode) {
         toggleAlert(res.message);
-      } else {
-        if (res.data) {
-          router.push(`/${useInfoState.user_id}/${res.data.seq}`);
-        } else {
-          router.push("/");
-        }
-
+      } else if (res.resultCode && res.data) {
+        setPageSeq({ seq: "", pSeq: res.data.seq });
+        setType("view");
         setToast(res.message);
       }
     },
@@ -122,11 +177,55 @@ export const usePost = () => {
     }
   }, [data, setUsePostState]);
 
+  const setType = (type: string) => {
+    queryClient.setQueryData(["type"], type);
+  };
+
+  const setPageSeq = (pageSeq: { seq: string; pSeq: string }) => {
+    queryClient.setQueryData(["pageSeq"], pageSeq);
+  };
+
+  const setPathname = (
+    pathname: {
+      title: string;
+      seq: string;
+    }[]
+  ) => {
+    queryClient.setQueryData(["pathname"], pathname);
+  };
+
+  const findPostBySeq = (
+    posts: PostData[],
+    seq: string
+  ): PostData | undefined => {
+    for (const post of posts) {
+      if (post.seq === seq) {
+        return post;
+      }
+      if (post.subPost) {
+        const found = findPostBySeq(post.subPost, seq);
+        if (found) {
+          return found;
+        }
+      }
+    }
+    return undefined;
+  };
+
   return {
     usePostState,
+    editorContent,
+    type,
     pageSeq,
+    pathname,
+    auto,
+    setEditorContent,
+    setType,
     setPageSeq,
+    setPathname,
     savePost,
     deletePost,
+    setAuto,
+    findPostBySeq,
   };
 };

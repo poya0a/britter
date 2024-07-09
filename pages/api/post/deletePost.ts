@@ -38,33 +38,56 @@ export default async function handler(
           const dataSource = await AppDataSource.useFactory();
           const postRepository = dataSource.getRepository(Post);
 
-          let seq: string = "";
-          if (fields.seq) {
-            seq = fields.seq[0];
+          if (!fields.seq) {
+            return res.status(200).json({
+              message: "게시글 정보가 올바르지 않습니다.",
+              resultCode: false,
+            });
           }
 
-          const posts = await postRepository.find({
+          const seq: string = fields.seq[0];
+
+          const currentPost = await postRepository.findOne({
+            where: { seq, UID: uid },
+          });
+
+          const childPosts = await postRepository.find({
             where: [
-              { seq: seq, UID: uid },
+              { seq, UID: uid },
               { p_seq: seq, UID: uid },
             ],
           });
 
-          if (posts.length === 0) {
+          if (!currentPost) {
             return res.status(200).json({
               message: "삭제할 게시글을 찾을 수 없습니다.",
               resultCode: false,
             });
           }
 
-          let pSeq: string = "";
-          console.log(fields.p_seq);
-          if (fields.p_seq) {
-            pSeq = fields.p_seq[0];
-            console.log(fields.p_seq[0]);
+          if (childPosts.length > 0) {
+            await postRepository.remove(childPosts);
           }
 
-          await postRepository.remove(posts);
+          let pSeq: string = currentPost?.p_seq || "";
+
+          await postRepository.remove(currentPost);
+
+          // 남은 게시글 재정렬
+          const postsWithSamePSeq = await postRepository.find({
+            where: { p_seq: pSeq, UID: uid },
+          });
+
+          const postsToSort = postsWithSamePSeq.filter(
+            (post) => post.order_number
+          );
+
+          postsToSort.sort((a, b) => a.order_number - b.order_number);
+
+          for (let i = 0; i < postsToSort.length; i++) {
+            postsToSort[i].order_number = i + 1;
+            await postRepository.save(postsToSort[i]);
+          }
 
           return res.status(200).json({
             message: "게시글이 삭제되었습니다.",
