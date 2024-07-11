@@ -1,6 +1,7 @@
 "use client";
 import { useRouteAndCancelAlert } from "@/hooks/popup/useRouteAndCancelAlert";
-import commonStyles from "@styles/components/_common.module.scss";
+import styles from "@styles/components/_popup.module.scss";
+import buttonStyles from "@styles/components/_button.module.scss";
 import { useRouter } from "next/navigation";
 
 export default function RoutAndCancelAlert() {
@@ -14,16 +15,16 @@ export default function RoutAndCancelAlert() {
   };
 
   return (
-    <div className={commonStyles.alert}>
-      <div className={commonStyles.dim} />
-      <div className={commonStyles.alertWrapper}>
-        <p className={commonStyles.alertContent}>
+    <div className={styles.alert}>
+      <div className={styles.dim} />
+      <div className={styles.alertWrapper}>
+        <p className={styles.alertContent}>
           {useRouteAndCancelAlertState.content}
         </p>
-        <div className={commonStyles.alertButton}>
+        <div className={styles.alertButton}>
           <button
             type="button"
-            className={`button ${commonStyles.buttonBorderBlue}`}
+            className={`button ${buttonStyles.buttonBorderBlue}`}
             onClick={() =>
               toggleRouteAndCancelAlert({
                 isActOpen: false,
@@ -37,7 +38,7 @@ export default function RoutAndCancelAlert() {
 
           <button
             type="button"
-            className={`button ${commonStyles.buttonBlue}`}
+            className={`button ${buttonStyles.buttonBlue}`}
             onClick={handleRoute}
           >
             확인

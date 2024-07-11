@@ -1,6 +1,7 @@
 "use client";
 import { useRouteAlert } from "@/hooks/popup/useRouteAlert";
-import commonStyles from "@styles/components/_common.module.scss";
+import styles from "@styles/components/_popup.module.scss";
+import buttonStyles from "@styles/components/_button.module.scss";
 import { useRouter } from "next/navigation";
 
 export default function RoutAlert() {
@@ -13,16 +14,14 @@ export default function RoutAlert() {
   };
 
   return (
-    <div className={commonStyles.alert}>
-      <div className={commonStyles.dim} />
-      <div className={commonStyles.alertWrapper}>
-        <p className={commonStyles.alertContent}>
-          {useRouteAlertState.content}
-        </p>
-        <div className={commonStyles.alertButton}>
+    <div className={styles.alert}>
+      <div className={styles.dim} />
+      <div className={styles.alertWrapper}>
+        <p className={styles.alertContent}>{useRouteAlertState.content}</p>
+        <div className={styles.alertButton}>
           <button
             type="button"
-            className={`button ${commonStyles.buttonBlue}`}
+            className={`button ${buttonStyles.buttonBlue}`}
             onClick={handleRoute}
           >
             확인

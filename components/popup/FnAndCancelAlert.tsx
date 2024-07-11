@@ -1,6 +1,7 @@
 "use client";
 import { useFnAndCancelAlert } from "@/hooks/popup/useFnAndCancelAlert";
-import commonStyles from "@styles/components/_common.module.scss";
+import styles from "@styles/components/_popup.module.scss";
+import buttonStyles from "@styles/components/_button.module.scss";
 
 export default function FnAndCancelAlert() {
   const { useFnAndCancelAlertState, toggleFnAndCancelAlert } =
@@ -12,16 +13,16 @@ export default function FnAndCancelAlert() {
   };
 
   return (
-    <div className={commonStyles.alert}>
-      <div className={commonStyles.dim} />
-      <div className={commonStyles.alertWrapper}>
-        <p className={commonStyles.alertContent}>
+    <div className={styles.alert}>
+      <div className={styles.dim} />
+      <div className={styles.alertWrapper}>
+        <p className={styles.alertContent}>
           {useFnAndCancelAlertState.content}
         </p>
-        <div className={commonStyles.alertButton}>
+        <div className={styles.alertButton}>
           <button
             type="button"
-            className={`button ${commonStyles.buttonBorderBlue}`}
+            className={`button ${buttonStyles.buttonBorderBlue}`}
             onClick={() =>
               toggleFnAndCancelAlert({
                 isActOpen: false,
@@ -34,7 +35,7 @@ export default function FnAndCancelAlert() {
           </button>
           <button
             type="button"
-            className={`button ${commonStyles.buttonBlue}`}
+            className={`button ${buttonStyles.buttonBlue}`}
             onClick={handleFn}
           >
             확인

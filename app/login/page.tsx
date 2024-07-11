@@ -1,5 +1,6 @@
 "use client";
-import commonStyles from "@styles/components/_common.module.scss";
+import inputStyles from "@styles/components/_input.module.scss";
+import buttonStyles from "@styles/components/_button.module.scss";
 import styles from "./page.module.scss";
 import Logo from "@/components/common/Logo";
 import Link from "next/link";
@@ -112,7 +113,7 @@ export default function Login() {
       <Logo />
       <form>
         <div className={styles.loginWrapper}>
-          <div className={commonStyles.inputText}>
+          <div className={inputStyles.inputText}>
             <label htmlFor="userId">아이디</label>
             <input
               type="text"
@@ -129,7 +130,7 @@ export default function Login() {
             errors={errors}
             name="user_id"
             render={({ message }) => (
-              <p className={commonStyles.errorMessage}>{message}</p>
+              <p className={inputStyles.errorMessage}>{message}</p>
             )}
           />
           <PasswordInput
@@ -146,40 +147,40 @@ export default function Login() {
             errors={errors}
             name="user_pw"
             render={({ message }) => (
-              <p className={commonStyles.errorMessage}>{message}</p>
+              <p className={inputStyles.errorMessage}>{message}</p>
             )}
           />
         </div>
         <button
           type="submit"
-          className={`button ${commonStyles.buttonBlue}`}
+          className={`button ${buttonStyles.buttonBlue}`}
           onClick={login}
         >
           로그인
         </button>
       </form>
-      <div className={commonStyles.textLine}>
+      <div className={buttonStyles.textLine}>
         <em className="normal">간편 로그인</em>
       </div>
 
       <div className={styles.social}>
         <button
           type="button"
-          className={`button ${commonStyles.buttonCircleLine}`}
+          className={`button ${buttonStyles.buttonCircleLine}`}
           onClick={notService}
         >
           <img src="images/icon/kakao.png" alt="kakao" />
         </button>
         <button
           type="button"
-          className={`button ${commonStyles.buttonCircleLine}`}
+          className={`button ${buttonStyles.buttonCircleLine}`}
           onClick={notService}
         >
           <img src="images/icon/naver.png" alt="naver" />
         </button>
         <button
           type="button"
-          className={`button ${commonStyles.buttonCircleLine}`}
+          className={`button ${buttonStyles.buttonCircleLine}`}
           onClick={notService}
         >
           <img src="images/icon/apple.png" alt="apple" />
@@ -190,7 +191,7 @@ export default function Login() {
         아직 계정이 없으신가요? <Link href={"/join"}>회원가입</Link>
       </p>
 
-      <div className={`button ${commonStyles.buttonJustText}`}>
+      <div className={`button ${buttonStyles.buttonJustText}`}>
         <Link href={"/find-id"} className="button">
           아이디 찾기
         </Link>

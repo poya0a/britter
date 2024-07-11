@@ -1,5 +1,6 @@
 "use client";
-import commonStyles from "@styles/components/_common.module.scss";
+import inputStyles from "@styles/components/_input.module.scss";
+import buttonStyles from "@styles/components/_button.module.scss";
 import styles from "./page.module.scss";
 import AuthHeader from "@components/common/AuthHeader";
 import PasswordInput from "@components/input/PasswordInput";
@@ -129,7 +130,7 @@ export default function ResetPassword() {
             errors={errors}
             name="user_pw"
             render={({ message }) => (
-              <p className={commonStyles.errorMessage}>{message}</p>
+              <p className={inputStyles.errorMessage}>{message}</p>
             )}
           />
           <PasswordInput
@@ -159,14 +160,14 @@ export default function ResetPassword() {
             errors={errors}
             name="user_pw_check"
             render={({ message }) => (
-              <p className={commonStyles.errorMessage}>{message}</p>
+              <p className={inputStyles.errorMessage}>{message}</p>
             )}
           />
         </div>
-        <div className={commonStyles.buttonFooterWrapper}>
+        <div className={buttonStyles.buttonFooterWrapper}>
           <button
             type="submit"
-            className={`button ${commonStyles.buttonFooter}`}
+            className={`button ${buttonStyles.buttonFooter}`}
             onClick={onSubmit}
           >
             비밀번호 재설정

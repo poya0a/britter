@@ -12,6 +12,7 @@ export interface PostInterface {
   create_date: Date;
   modify_date?: Date;
   order_number: number;
+  space_uid?: string;
   comments?: CommentModel[];
   user?: EmpsModel;
   tag?: TagModel;
@@ -27,6 +28,7 @@ export class PostModel implements PostInterface {
   create_date: Date;
   modify_date?: Date;
   order_number: number;
+  space_uid?: string;
   comments?: CommentModel[];
   user?: EmpsModel;
   tag?: TagModel;
@@ -41,6 +43,7 @@ export class PostModel implements PostInterface {
     this.create_date = post.create_date;
     this.modify_date = post.modify_date;
     this.order_number = post.order_number;
+    this.space_uid = post.space_uid;
     this.comments = post.comments;
     this.user = post.user;
     this.tag = post.tag;

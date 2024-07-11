@@ -7,12 +7,11 @@ export default function Loading() {
   return (
     <div
       style={{
-        position: "absolute",
+        position: "fixed",
         top: 0,
         left: 0,
         width: "100%",
-        height: "calc(100% - 140px)",
-        margin: "60px 0",
+        height: "100%",
         backgroundColor: "rgba(255, 255, 255, 0.5)",
         opacity: 1,
         transition: "all 0.5s ease-in-out",

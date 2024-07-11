@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
-import commonStyles from "@styles/components/_common.module.scss";
+import inputStyles from "@styles/components/_input.module.scss";
+import buttonStyles from "@styles/components/_button.module.scss";
 import styles from "./page.module.scss";
 import AuthHeader from "@components/common/AuthHeader";
 import ImageCropInput from "@components/input/ImageCropInput";
@@ -432,7 +433,7 @@ export default function Join() {
       <AuthHeader type={"join"}></AuthHeader>
       <form>
         <div className={styles.joinWrapper}>
-          <div className={commonStyles.profile}>
+          <div className={inputStyles.profile}>
             <Image
               src={
                 useImageCropState.imageSource !== null
@@ -456,7 +457,7 @@ export default function Join() {
             />
             <button
               type="button"
-              className={`button ${commonStyles.buttonProfileUpload}`}
+              className={`button ${inputStyles.buttonProfileUpload}`}
               onClick={(e) => {
                 e.preventDefault();
                 if (imgUploadInput.current) {
@@ -465,11 +466,11 @@ export default function Join() {
               }}
             />
           </div>
-          <div className={commonStyles.inputText}>
-            <label htmlFor="user_id" className={commonStyles.required}>
+          <div className={inputStyles.inputText}>
+            <label htmlFor="user_id" className={inputStyles.required}>
               아이디
             </label>
-            <div className={commonStyles.inputCheckWrapper}>
+            <div className={inputStyles.inputCheckWrapper}>
               <input
                 id="userId"
                 type="text"
@@ -506,7 +507,7 @@ export default function Join() {
             errors={errors}
             name="user_id"
             render={({ message }) => (
-              <p className={commonStyles.errorMessage}>{message}</p>
+              <p className={inputStyles.errorMessage}>{message}</p>
             )}
           />
           <PasswordInput
@@ -529,7 +530,7 @@ export default function Join() {
             errors={errors}
             name="user_pw"
             render={({ message }) => (
-              <p className={commonStyles.errorMessage}>{message}</p>
+              <p className={inputStyles.errorMessage}>{message}</p>
             )}
           />
           <PasswordInput
@@ -559,11 +560,11 @@ export default function Join() {
             errors={errors}
             name="user_pw_check"
             render={({ message }) => (
-              <p className={commonStyles.errorMessage}>{message}</p>
+              <p className={inputStyles.errorMessage}>{message}</p>
             )}
           />
-          <div className={commonStyles.inputText}>
-            <label htmlFor="userName" className={commonStyles.required}>
+          <div className={inputStyles.inputText}>
+            <label htmlFor="userName" className={inputStyles.required}>
               이름
             </label>
             <input
@@ -578,7 +579,7 @@ export default function Join() {
               errors={errors}
               name="user_name"
               render={({ message }) => (
-                <p className={commonStyles.errorMessage}>{message}</p>
+                <p className={inputStyles.errorMessage}>{message}</p>
               )}
             />
           </div>
@@ -602,9 +603,9 @@ export default function Join() {
             getCertificationNumber={getCertificationNumber}
             postCertificationNumber={postCertificationNumber}
           />
-          <div className={commonStyles.inputText}>
+          <div className={inputStyles.inputText}>
             <label htmlFor="user_email">이메일</label>
-            <div className={commonStyles.inputCheckWrapper}>
+            <div className={inputStyles.inputCheckWrapper}>
               <input
                 type="text"
                 id="user_email"
@@ -632,10 +633,10 @@ export default function Join() {
             errors={errors}
             name="user_email"
             render={({ message }) => (
-              <p className={commonStyles.errorMessage}>{message}</p>
+              <p className={inputStyles.errorMessage}>{message}</p>
             )}
           />
-          <div className={commonStyles.inputText}>
+          <div className={inputStyles.inputText}>
             <label htmlFor="userNickName">닉네임</label>
             <input
               type="text"
@@ -646,7 +647,10 @@ export default function Join() {
               {...register("user_nick_name", { required: false })}
             />
           </div>
-          <div className={commonStyles.inputText}>
+          <p className={inputStyles.guideMessage}>
+            * 닉네임을 입력하지 않는 경우 임시 닉네임이 생성됩니다.
+          </p>
+          <div className={inputStyles.inputText}>
             <label htmlFor="userBirth">생년월일</label>
             <input
               type="text"
@@ -667,13 +671,13 @@ export default function Join() {
             errors={errors}
             name="user_birth"
             render={({ message }) => (
-              <p className={commonStyles.errorMessage}>{message}</p>
+              <p className={inputStyles.errorMessage}>{message}</p>
             )}
           />
         </div>
 
-        <div className={commonStyles.inputCheck}>
-          <div className={commonStyles.inputCheckWrapper}>
+        <div className={inputStyles.inputCheck}>
+          <div className={inputStyles.inputCheckWrapper}>
             <input
               type="checkbox"
               className="input"
@@ -682,17 +686,17 @@ export default function Join() {
             />
             <button
               type="button"
-              className={`button ${commonStyles.inputCheckButton}`}
+              className={`button ${inputStyles.inputCheckButton}`}
               onClick={() => toggleModal(true)}
             >
               이용 약관 동의
             </button>
           </div>
         </div>
-        <div className={commonStyles.buttonFooterWrapper}>
+        <div className={buttonStyles.buttonFooterWrapper}>
           <button
             type="submit"
-            className={`button ${commonStyles.buttonFooter}`}
+            className={`button ${buttonStyles.buttonFooter}`}
             onClick={onSubmit}
           >
             회원 가입

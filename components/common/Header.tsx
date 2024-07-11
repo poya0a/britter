@@ -4,12 +4,17 @@ import HeaderLogo from "./HeaderLogo";
 import { usePathname } from "next/navigation";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
-import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
+import storage from "@fetch/auth/storage";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAlert } from "@hooks/popup/useAlert";
 import { useRouteAlert } from "@hooks/popup/useRouteAlert";
-import storage from "@fetch/auth/storage";
+import { useRouteAndCancelAlert } from "@hooks/popup/useRouteAndCancelAlert";
+import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
+import { useSearchPopup } from "@hooks/popup/useSearchPopup";
+import { useSettingMenu } from "@/hooks/menu/useSettingMenu";
 
 export default function Header() {
+  const queryClient = useQueryClient();
   const pathname = usePathname();
   const pathWithoutLogout = [
     "/login",
@@ -20,9 +25,13 @@ export default function Header() {
     "/complete",
   ];
 
-  const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
-  const { toggleAlert } = useAlert();
-  const { toggleRouteAlert } = useRouteAlert();
+  const { useAlertState, toggleAlert } = useAlert();
+  const { useRouteAlertState, toggleRouteAlert } = useRouteAlert();
+  const { useRouteAndCancelAlertState } = useRouteAndCancelAlert();
+  const { useFnAndCancelAlertState, toggleFnAndCancelAlert } =
+    useFnAndCancelAlert();
+  const { toggleSettingMenu } = useSettingMenu();
+  const { useSearchState } = useSearchPopup();
 
   const handleLogout = () => {
     toggleFnAndCancelAlert({
@@ -46,16 +55,26 @@ export default function Header() {
         content: res.message,
         route: "/login",
       });
+      queryClient.clear();
     }
   };
 
   return (
-    <header className={styles.header}>
+    <header className={styles.header} onClick={() => toggleSettingMenu(false)}>
       <HeaderLogo />
       {!pathWithoutLogout.includes(pathname || "") && (
         <button
           className={`button ${styles.logoutButton}`}
           onClick={handleLogout}
+          disabled={
+            useAlertState.isActOpen ||
+            useRouteAlertState.isActOpen ||
+            useRouteAndCancelAlertState.isActOpen ||
+            useFnAndCancelAlertState.isActOpen ||
+            useSearchState.isActOpen
+              ? true
+              : false
+          }
         >
           <img src="/images/icon/logout.svg" alt="logout" />
         </button>

@@ -1,6 +1,11 @@
 import { usePost } from "@/hooks/usePost";
 import styles from "@styles/components/_common.module.scss";
 import { useRouter } from "next/navigation";
+import { useAlert } from "@hooks/popup/useAlert";
+import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
+import { useRouteAlert } from "@hooks/popup/useRouteAlert";
+import { useRouteAndCancelAlert } from "@hooks/popup/useRouteAndCancelAlert";
+import { useSearchPopup } from "@hooks/popup/useSearchPopup";
 
 export default function HeaderLogo() {
   const route = useRouter();
@@ -11,8 +16,26 @@ export default function HeaderLogo() {
     setPageSeq({ seq: "", pSeq: "" });
   };
 
+  const { useAlertState } = useAlert();
+  const { useRouteAlertState } = useRouteAlert();
+  const { useRouteAndCancelAlertState } = useRouteAndCancelAlert();
+  const { useFnAndCancelAlertState } = useFnAndCancelAlert();
+  const { useSearchState } = useSearchPopup();
+
   return (
-    <button className={`button ${styles.headerLogo}`} onClick={goToHome}>
+    <button
+      className={`button ${styles.headerLogo}`}
+      onClick={goToHome}
+      disabled={
+        useAlertState.isActOpen ||
+        useRouteAlertState.isActOpen ||
+        useRouteAndCancelAlertState.isActOpen ||
+        useFnAndCancelAlertState.isActOpen ||
+        useSearchState.isActOpen
+          ? true
+          : false
+      }
+    >
       <i className="normal">BRITTER</i>
     </button>
   );

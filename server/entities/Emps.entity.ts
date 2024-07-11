@@ -41,11 +41,14 @@ export class Emps {
   @Column({ type: "varchar", nullable: true })
   user_email?: string;
 
-  @Column({ type: "varchar", nullable: true })
-  user_nick_name?: string;
+  @Column({ type: "varchar", nullable: false })
+  user_nick_name: string;
 
   @Column({ type: "varchar", nullable: true })
   user_birth?: string;
+
+  @Column({ type: "boolean", nullable: false })
+  user_public!: boolean;
 
   @Column({
     type: "datetime",

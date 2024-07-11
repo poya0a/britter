@@ -1,13 +1,15 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
-import styles from "@styles/components/_common.module.scss";
-import { useMainMenuWidth } from "@hooks/useMainMenuWidth";
+import styles from "@styles/components/_menu.module.scss";
+import { useMainMenuWidth } from "@/hooks/menu/useMainMenuWidth";
 import { useRouter } from "next/navigation";
 import storage from "@fetch/auth/storage";
-import { useRouteAlert } from "@/hooks/popup/useRouteAlert";
+import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 import { PostData, usePost } from "@hooks/usePost";
 import { useInfo } from "@hooks/useInfo";
-import { useAlert } from "@/hooks/popup/useAlert";
+import { useAlert } from "@hooks/popup/useAlert";
+import { useSearchPopup } from "@hooks/popup/useSearchPopup";
+import { useSettingMenu } from "@/hooks/menu/useSettingMenu";
 
 export default function MainMenu() {
   const { useMainMenuWidthState, handleMainMenuWidth } = useMainMenuWidth();
@@ -16,9 +18,11 @@ export default function MainMenu() {
   const router = useRouter();
   const { toggleAlert } = useAlert();
   const { toggleRouteAlert } = useRouteAlert();
+  const { toggleSearchPopup } = useSearchPopup();
   const { usePostState, pageSeq, setPageSeq, setType } = usePost();
   const { useInfoState } = useInfo();
   const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
+  const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
   let startX: number, startWidth: number;
 
   const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
@@ -58,6 +62,7 @@ export default function MainMenu() {
 
   // 페이지 생성
   const handleCreate = (seq?: string) => {
+    toggleSettingMenu(false);
     if (!useInfoState.user_id) {
       return toggleRouteAlert({
         isActOpen: true,
@@ -153,6 +158,7 @@ export default function MainMenu() {
 
   // 페이지 이동
   const handleView = (seq: string) => {
+    toggleSettingMenu(false);
     const newExpandedPosts = expandedPosts.includes(seq)
       ? expandedPosts.filter((item) => item !== seq)
       : [...expandedPosts, seq];
@@ -166,11 +172,26 @@ export default function MainMenu() {
     router.push(`/${useInfoState.user_id}`);
   };
 
-  // 게시글 검색
-  const handleSearch = () => {};
+  const handleSetting = (e: React.MouseEvent<HTMLButtonElement>) => {
+    toggleSettingMenu({
+      isActOpen: true,
+      position: { x: e.clientX, y: e.clientY },
+    });
+  };
+
+  const handleHome = () => {
+    router.push("/");
+    toggleSettingMenu(false);
+  };
+
+  const handleSearch = () => {
+    toggleSearchPopup(true);
+    toggleSettingMenu(false);
+  };
 
   const notService = () => {
     toggleAlert("서비스 준비 중입니다.");
+    toggleSettingMenu(false);
   };
 
   return (
@@ -181,14 +202,22 @@ export default function MainMenu() {
       <div className={styles.mainMenuWrapper}>
         <div className={styles.mainMenuFixed}>
           <div className={styles.pageNameButtonWrapper}>
-            <button type="button" className={`button ${styles.pageNameButton}`}>
+            <button
+              type="button"
+              className={`button ${styles.pageNameButton} ${
+                useSettingMenuState.isActOpen ? styles.active : ""
+              }`}
+              onClick={handleSetting}
+            >
               {useInfoState.user_profile_path ? (
                 <img src={useInfoState.user_profile_path} alt="" />
               ) : (
-                <i className="normal">{useInfoState.user_name.charAt(0)}</i>
+                <i className="normal">
+                  {useInfoState.user_nick_name.charAt(0)}
+                </i>
               )}
 
-              <em className="normal">{useInfoState.user_name}</em>
+              <em className="normal">{useInfoState.user_nick_name}</em>
             </button>
             <button
               type="button"
@@ -201,7 +230,7 @@ export default function MainMenu() {
           <button
             type="button"
             className={`button ${styles.mainMenuDefault}`}
-            onClick={() => router.push("/")}
+            onClick={handleHome}
           >
             <img src="/images/icon/home.svg" alt="" />
             <em className="normal">홈</em>
@@ -226,7 +255,7 @@ export default function MainMenu() {
 
         <div className={styles.pageMenu}>
           <h6 className={styles.pageMenuName}>페이지</h6>
-          <ul className={`list ${styles.pageList}`}>
+          <ul className={`list ${styles.pageList} ${styles.pageListWrap}`}>
             {usePostState.map((post: PostData, idx: number) => (
               <li className={`list ${styles.pageItem}`} key={`post-${idx}`}>
                 <div className={styles.pageWrapper}>

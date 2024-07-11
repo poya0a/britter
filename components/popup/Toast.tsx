@@ -1,11 +1,11 @@
 import { useToast } from "@/hooks/popup/useToast";
-import commonStyles from "@styles/components/_common.module.scss";
+import styles from "@styles/components/_popup.module.scss";
 
 export default function Toast() {
   const { useToastState } = useToast();
   return (
-    <div className={commonStyles.toast}>
-      <p className={commonStyles.toastContent}>{useToastState.content}</p>
+    <div className={styles.toast}>
+      <p className={styles.toastContent}>{useToastState.content}</p>
     </div>
   );
 }

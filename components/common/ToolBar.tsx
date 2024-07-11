@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Editor } from "@tiptap/core";
 import { useEditor } from "@hooks/useEditor";
 import { SketchPicker, ColorResult } from "react-color";
-import { useMainMenuWidth } from "@hooks/useMainMenuWidth";
+import { useMainMenuWidth } from "@/hooks/menu/useMainMenuWidth";
 import { useToolBarHeight } from "@hooks/useToolBarHeight";
 import { usePost } from "@hooks/usePost";
 import { useUpdateEffect } from "@/utils/useUpdateEffect";

@@ -1,6 +1,6 @@
 "use client";
 import styles from "./page.module.scss";
-import commonStyles from "@styles/components/_common.module.scss";
+import buttonStyles from "@styles/components/_button.module.scss";
 import { useSearchParams, useRouter } from "next/navigation";
 
 export default function Complete() {
@@ -16,10 +16,10 @@ export default function Complete() {
           {userId} 님, 환영합니다.
         </p>
       </div>
-      <div className={commonStyles.buttonFooterWrapper}>
+      <div className={buttonStyles.buttonFooterWrapper}>
         <button
           type="button"
-          className={`button ${commonStyles.buttonFooter}`}
+          className={`button ${buttonStyles.buttonFooter}`}
           onClick={() => router.push("/login")}
         >
           로그인

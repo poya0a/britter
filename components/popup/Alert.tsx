@@ -1,17 +1,18 @@
 import { useAlert } from "@/hooks/popup/useAlert";
-import commonStyles from "@styles/components/_common.module.scss";
+import styles from "@styles/components/_popup.module.scss";
+import buttonStyles from "@styles/components/_button.module.scss";
 
 export default function Alert() {
   const { useAlertState, toggleAlert } = useAlert();
   return (
-    <div className={commonStyles.alert}>
-      <div className={commonStyles.dim} />
-      <div className={commonStyles.alertWrapper}>
-        <p className={commonStyles.alertContent}>{useAlertState.content}</p>
-        <div className={commonStyles.alertButton}>
+    <div className={styles.alert}>
+      <div className={styles.dim} />
+      <div className={styles.alertWrapper}>
+        <p className={styles.alertContent}>{useAlertState.content}</p>
+        <div className={styles.alertButton}>
           <button
             type="button"
-            className={`button ${commonStyles.buttonBlue}`}
+            className={`button ${buttonStyles.buttonBlue}`}
             onClick={() => toggleAlert(false)}
           >
             확인

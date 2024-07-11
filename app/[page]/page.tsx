@@ -1,5 +1,5 @@
 "use client";
-import MainMenu from "@components/common/MainMenu";
+import MainMenu from "@components/menu/MainMenu";
 import { EditorProvider } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Color } from "@tiptap/extension-color";
@@ -24,7 +24,8 @@ import ToolBar from "@components/common/ToolBar";
 import { useEffect, useRef, useState } from "react";
 import styles from "./page.module.scss";
 import commonStyles from "@styles/components/_common.module.scss";
-import { useMainMenuWidth } from "@hooks/useMainMenuWidth";
+import buttonStyles from "@styles/components/_button.module.scss";
+import { useMainMenuWidth } from "@/hooks/menu/useMainMenuWidth";
 import { useEditor } from "@hooks/useEditor";
 import { useRouter } from "next/navigation";
 import { useToolBarHeight } from "@hooks/useToolBarHeight";
@@ -40,6 +41,8 @@ import FnAndCancelAlert from "@components/popup/FnAndCancelAlert";
 import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
 import { useUpdateEffect } from "@utils/useUpdateEffect";
+import SettingMenu from "@/components/menu/SettingMenu";
+import { useSettingMenu } from "@/hooks/menu/useSettingMenu";
 
 const lowlight = createLowlight(common);
 
@@ -155,6 +158,7 @@ export default function Page() {
   const { useFnAndCancelAlertState, toggleFnAndCancelAlert } =
     useFnAndCancelAlert();
   const { useToastState } = useToast();
+  const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
   const {
     usePostState,
     editorContent,
@@ -307,6 +311,7 @@ export default function Page() {
     } else {
       setHasTableTag(false);
     }
+    toggleSettingMenu(false);
   };
 
   const handleDeletePost = () => {
@@ -393,11 +398,12 @@ export default function Page() {
           width: `calc(100% - ${useMainMenuWidthState}px)`,
           left: `${useMainMenuWidthState}px`,
         }}
+        onClick={() => toggleSettingMenu(false)}
       >
         <div className={styles.createButtonWrapper}>
           <button
             type="button"
-            className={`button ${commonStyles.buttonBorderBlue}`}
+            className={`button ${buttonStyles.buttonBorderBlue}`}
             onClick={() =>
               type === "create" ? router.back() : handleDeletePost()
             }
@@ -406,7 +412,7 @@ export default function Page() {
           </button>
           <button
             type="button"
-            className={`button ${commonStyles.buttonBlue}`}
+            className={`button ${buttonStyles.buttonBlue}`}
             onClick={
               type === "create" ? () => setAuto(false) : () => setType("create")
             }
@@ -419,6 +425,7 @@ export default function Page() {
       {useRouteAlertState.isActOpen && <RoutAlert />}
       {useFnAndCancelAlertState.isActOpen && <FnAndCancelAlert />}
       {useToastState.isActOpen && <Toast />}
+      {useSettingMenuState.isActOpen && <SettingMenu />}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import commonStyles from "@styles/components/_common.module.scss";
+import styles from "@styles/components/_input.module.scss";
 
 interface InputProps {
   id: string;
@@ -30,14 +30,14 @@ export default function PasswordInput({
   };
 
   return (
-    <div className={commonStyles.inputPassword}>
+    <div className={styles.inputPassword}>
       <label
         htmlFor={id}
-        className={pathName === "/login" ? "" : commonStyles.required}
+        className={pathName === "/login" ? "" : styles.required}
       >
         {name}
       </label>
-      <div className={commonStyles.inputPasswordWrapper}>
+      <div className={styles.inputPasswordWrapper}>
         <input
           type={type}
           id={id}
@@ -50,7 +50,7 @@ export default function PasswordInput({
         />
         <button
           type="button"
-          className={`button ${commonStyles.buttonPasswordType}`}
+          className={`button ${styles.buttonPasswordType}`}
           onClick={handleShowHide}
         >
           <img

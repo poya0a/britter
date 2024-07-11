@@ -42,6 +42,9 @@ export class Post {
   @Column({ type: "int", nullable: false })
   order_number: number;
 
+  @Column({ type: "varchar", nullable: true })
+  space_uid?: string;
+
   @ManyToOne(() => Emps, { onDelete: "CASCADE" })
   @JoinColumn({ name: "UID" })
   user!: string;

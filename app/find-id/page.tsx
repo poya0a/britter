@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
-import commonStyles from "@styles/components/_common.module.scss";
+import inputStyles from "@styles/components/_input.module.scss";
+import buttonStyles from "@styles/components/_button.module.scss";
 import styles from "./page.module.scss";
 import AuthHeader from "@components/common/AuthHeader";
 import PhoneNumberInput from "@components/input/PhoneNumberInput";
@@ -217,8 +218,8 @@ export default function FindId() {
       <AuthHeader type={"id"}></AuthHeader>
       <form>
         <div className={styles.findIdWrapper}>
-          <div className={commonStyles.inputText}>
-            <label htmlFor="userName" className={commonStyles.required}>
+          <div className={inputStyles.inputText}>
+            <label htmlFor="userName" className={inputStyles.required}>
               이름
             </label>
             <input
@@ -235,7 +236,7 @@ export default function FindId() {
             errors={errors}
             name="user_name"
             render={({ message }) => (
-              <p className={commonStyles.errorMessage}>{message}</p>
+              <p className={inputStyles.errorMessage}>{message}</p>
             )}
           />
           <PhoneNumberInput
@@ -260,10 +261,10 @@ export default function FindId() {
           />
         </div>
 
-        <div className={commonStyles.buttonFooterWrapper}>
+        <div className={buttonStyles.buttonFooterWrapper}>
           <button
             type="submit"
-            className={`button ${commonStyles.buttonFooter}`}
+            className={`button ${buttonStyles.buttonFooter}`}
             onClick={onSubmit}
           >
             아이디 찾기

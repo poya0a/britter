@@ -4,7 +4,8 @@ import ReactCrop, { type Crop, PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { useImageCrop } from "@hooks/useImageCrop";
 import { useScrollLock } from "@hooks/useScrollLock";
-import commonStyles from "@styles/components/_common.module.scss";
+import styles from "@styles/components/_input.module.scss";
+import buttonStyles from "@styles/components/_button.module.scss";
 
 export default function ImageCropInput() {
   const { useImageCropState, setImageCustom, setImageSource, updateImageFile } =
@@ -127,13 +128,13 @@ export default function ImageCropInput() {
   };
 
   return (
-    <div className={commonStyles.imageCrop}>
+    <div className={styles.imageCrop}>
       <ReactCrop
         crop={crop}
         onChange={handleCropChange}
         onComplete={(c) => setCompletedCrop(c)}
         aspect={1}
-        circularCrop
+        style={{ borderRadius: "5px" }}
       >
         <img
           ref={imgRef}
@@ -142,15 +143,15 @@ export default function ImageCropInput() {
         />
       </ReactCrop>
       <p>드래그하여 이미지를 잘라주세요.</p>
-      <div className={commonStyles.imageCropButton}>
+      <div className={styles.imageCropButton}>
         <button
-          className={`button ${commonStyles.buttonWhite}`}
+          className={`button ${buttonStyles.buttonWhite}`}
           onClick={onClickCancel}
         >
           취 소
         </button>
         <button
-          className={`button ${commonStyles.buttonBlue}`}
+          className={`button ${buttonStyles.buttonBlue}`}
           onClick={handleSaveImage}
         >
           저 장

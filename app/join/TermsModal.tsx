@@ -1,6 +1,7 @@
 import { useModal } from "@/hooks/popup/useModal";
 import { TermsData, useTerms } from "@hooks/useTerms";
-import commonStyles from "@styles/components/_common.module.scss";
+import popupStyles from "@styles/components/_popup.module.scss";
+import inputStyles from "@styles/components/_input.module.scss";
 import styles from "./page.module.scss";
 
 function ModalTerms() {
@@ -20,8 +21,8 @@ function ModalTerms() {
   };
 
   return (
-    <div className={commonStyles.modal}>
-      <div className={commonStyles.modalWrapper}>
+    <div className={popupStyles.modal}>
+      <div className={popupStyles.modalWrapper}>
         <div className={styles.termsWrapper}>
           <h1>이용약관 동의</h1>
           <h3>
@@ -30,7 +31,7 @@ function ModalTerms() {
             <em className="normal">이용약관 동의</em>가 필요합니다.
           </h3>
           <div className={styles.terms}>
-            <div className={commonStyles.inputCheckAll}>
+            <div className={inputStyles.inputCheckAll}>
               <input
                 id="all"
                 type="checkbox"
@@ -43,10 +44,10 @@ function ModalTerms() {
               </label>
             </div>
             <div style={{ paddingLeft: "30px" }}>
-              <div className={commonStyles.inputCheck}>
+              <div className={inputStyles.inputCheck}>
                 {useTermsState?.map((term: TermsData, idx: number) => (
                   <div
-                    className={commonStyles.inputCheckWrapper}
+                    className={inputStyles.inputCheckWrapper}
                     key={`term_${idx}`}
                   >
                     <input
@@ -58,7 +59,7 @@ function ModalTerms() {
                     />
                     <button
                       type="button"
-                      className={`button ${commonStyles.inputCheckButton}`}
+                      className={`button ${inputStyles.inputCheckButton}`}
                       onClick={() => {
                         selectTerms(term.seq);
                       }}
@@ -80,24 +81,24 @@ function ModalTerms() {
             </div>
           </div>
         </div>
-        <div className={commonStyles.buttonFooterTerms}>
+        <div className={popupStyles.buttonFooterTerms}>
           <button
             type="button"
-            className={`button ${commonStyles.buttonTerms}`}
+            className={`button ${popupStyles.buttonTerms}`}
             onClick={() => toggleModal(false)}
           >
             닫 기
           </button>
           <button
             type="button"
-            className={`button ${commonStyles.buttonTerms}`}
+            className={`button ${popupStyles.buttonTerms}`}
             onClick={handleCheckedAll}
           >
             모두 동의
           </button>
         </div>
       </div>
-      <div className={commonStyles.dim} onClick={() => toggleModal(false)} />
+      <div className={popupStyles.dim} onClick={() => toggleModal(false)} />
     </div>
   );
 }

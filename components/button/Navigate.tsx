@@ -1,5 +1,5 @@
 "use client";
-import styles from "@styles/components/_common.module.scss";
+import styles from "@styles/components/_button.module.scss";
 
 interface NavigateProps {
   fn: () => void;

@@ -1,4 +1,4 @@
-import commonStyles from "@styles/components/_common.module.scss";
+import styles from "@styles/components/_input.module.scss";
 import { ErrorMessage } from "@hookform/error-message";
 import { useVerify } from "@/hooks/useVerify";
 
@@ -21,11 +21,11 @@ export default function PhoneNumberInput({
 
   return (
     <>
-      <div className={commonStyles.inputPhoneNumber}>
-        <label htmlFor="userHP" className={commonStyles.required}>
+      <div className={styles.inputPhoneNumber}>
+        <label htmlFor="userHP" className={styles.required}>
           전화번호
         </label>
-        <div className={commonStyles.inputPhoneNumberWrapper}>
+        <div className={styles.inputPhoneNumberWrapper}>
           <input
             type="text"
             id="userHp"
@@ -36,7 +36,7 @@ export default function PhoneNumberInput({
           />
           <button
             type="button"
-            className={`button ${commonStyles.buttonPasswordType}`}
+            className={`button ${styles.buttonPasswordType}`}
             onClick={() => getCertificationNumber()}
           >
             인증 번호 받기
@@ -47,14 +47,14 @@ export default function PhoneNumberInput({
         errors={errors}
         name="user_hp"
         render={({ message }) => (
-          <p className={commonStyles.errorMessage}>{message}</p>
+          <p className={styles.errorMessage}>{message}</p>
         )}
       />
-      <div className={commonStyles.inputPhoneNumber}>
-        <label htmlFor="verifyNumber" className={commonStyles.required}>
+      <div className={styles.inputPhoneNumber}>
+        <label htmlFor="verifyNumber" className={styles.required}>
           인증번호
         </label>
-        <div className={commonStyles.inputPhoneNumberWrapper}>
+        <div className={styles.inputPhoneNumberWrapper}>
           <input
             type="text"
             id="verifyNumber"
@@ -66,12 +66,12 @@ export default function PhoneNumberInput({
               typeof useVerifyState.timeLimit === "number" ? false : true
             }
           />
-          <p className={commonStyles.timeLimit}>
+          <p className={styles.timeLimit}>
             {formatTime(useVerifyState.timeLimit)}
           </p>
           <button
             type="button"
-            className={`button ${commonStyles.buttonPasswordType}`}
+            className={`button ${styles.buttonPasswordType}`}
             onClick={() => postCertificationNumber()}
           >
             인증 번호 확인
@@ -81,7 +81,7 @@ export default function PhoneNumberInput({
           errors={errors}
           name="verify_number"
           render={({ message }) => (
-            <p className={commonStyles.errorMessage}>{message}</p>
+            <p className={styles.errorMessage}>{message}</p>
           )}
         />
       </div>
