@@ -5,7 +5,7 @@ import buttonStyles from "@styles/components/_button.module.scss";
 import styles from "./page.module.scss";
 import AuthHeader from "@components/common/AuthHeader";
 import PhoneNumberInput from "@components/input/PhoneNumberInput";
-import { useVerify } from "@hooks/useVerify";
+import { useVerify } from "@/hooks/auth/useVerify";
 import { useForm } from "react-hook-form";
 import { getErrorMassage, getValidMassage } from "@utils/errorMessage";
 import { onlyNumPattern, phonePattern, regexValue } from "@utils/regex";

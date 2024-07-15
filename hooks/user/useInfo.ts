@@ -4,10 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { atom } from "recoil";
-import { useAlert } from "./popup/useAlert";
+import { useAlert } from "../popup/useAlert";
 import { FetchError } from "@fetch/types";
-import { useRouteAlert } from "./popup/useRouteAlert";
+import { useRouteAlert } from "../popup/useRouteAlert";
 import storage from "@fetch/auth/storage";
+import fetchFile from "@fetch/fetchFile";
 
 export interface InfoData {
   user_profile_seq: number;
@@ -18,6 +19,8 @@ export interface InfoData {
   user_email?: string;
   user_nick_name: string;
   user_birth?: string;
+  user_public: boolean;
+  user_level: number;
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
@@ -34,6 +37,8 @@ export const infoState = atom<InfoData>({
     user_email: "",
     user_nick_name: "",
     user_birth: "",
+    user_public: true,
+    user_level: 1,
     create_date: new Date(),
     status_emoji: "",
     status_message: "",
@@ -74,36 +79,29 @@ export const useInfo = () => {
     }
   };
 
-  const fetchFile = async (seq: number): Promise<void> => {
-    try {
-      const res = await fetchApi({
-        method: "GET",
-        url: `${requests.GET_FILE}?seq=${seq}`,
-      });
-
-      if (!res.resultCode) {
-        throw new Error(res.message);
-      }
-      setUseInfoState((prev) => ({
-        ...prev,
-        user_profile_path: res.data.file_path || "",
-      }));
-    } catch (error) {
-      toggleAlert(error as string);
-    }
-  };
-
   const { data } = useQuery<InfoData, Error>({
     queryKey: ["info"],
     queryFn: fetchInfo,
     staleTime: 5 * 60 * 1000,
   });
 
+  const fetchDataAndUpdateState = async (seq: number) => {
+    try {
+      const filePath = await fetchFile(seq);
+      setUseInfoState((prev) => ({
+        ...prev,
+        user_profile_path: filePath || "",
+      }));
+    } catch (error: any) {
+      toggleAlert(error);
+    }
+  };
+
   useEffect(() => {
     if (data) {
       setUseInfoState(data);
       if (useInfoState.user_profile_path === "") {
-        fetchFile(data.user_profile_seq);
+        fetchDataAndUpdateState(data.user_profile_seq);
       }
     }
   }, [data]);

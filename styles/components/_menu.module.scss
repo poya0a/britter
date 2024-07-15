@@ -60,6 +60,7 @@
           }
 
           > i {
+            display: block;
             width: 30px;
             height: 30px;
             margin-right: 5px;
@@ -91,7 +92,7 @@
       }
     }
     .pageMenu {
-      margin-top: 180px;
+      margin-top: 220px;
       padding: 5px;
       overflow: auto;
       .pageMenuName {
@@ -104,7 +105,7 @@
      
       .pageList {
         &.pageListWrap {
-          height: calc(100vh - 260px);
+          height: calc(100vh - 300px);
           overflow-y: scroll;
           &::-webkit-scrollbar {
             width: 2px;
@@ -174,6 +175,13 @@
     &.active {
       color: $background-color;
       background-color: $main-color;
+      .spaceProfile {
+        > i {
+          color: $sub-color;
+          background-color: $background-color;
+        }
+      }
+
     }
   }
   .border {
@@ -188,18 +196,47 @@
     .space {
       width: 100%;
       display: flex;
-      padding: 15px 15px 25px 15px;
+      padding: 15px ;
       position: relative;
-      justify-content: space-between;
-      img {
-        width: 20px;
-        height: 20px;
+      
+      .spaceProfile {
+        width: 30px;
+        height: 30px;
+        margin-right: 5px;
+        > img {
+          width: 30px;
+          height: 30px;
+          border-radius: 5px;
+        }
+
+        > i {
+          display: block;
+          width: 30px;
+          height: 30px;
+          margin-right: 5px;
+          border-radius: 5px;
+          color: #fff;
+          font-size: 20px;
+          line-height: 30px;
+          background-color: $sub-color;
+          transition: all .2s ease-out;
+        }
       }
-      i {
-        position: absolute;
-        bottom: 10px;
-        font-size: 12px;
+      .spaceInfo {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        img {
+          width: 20px;
+          height: 20px;
+        }
+        i {
+          position: absolute;
+          bottom: 10px;
+          font-size: 12px;
+        }
       }
+      
     }
   }
 }

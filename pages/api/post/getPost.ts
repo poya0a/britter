@@ -1,5 +1,5 @@
 "use server";
-import { NextApiResponse } from "next";
+import { NextApiRequest, NextApiResponse } from "next";
 import { AppDataSource } from "@database/typeorm.config";
 import { Post } from "@entities/Post.entity";
 import {
@@ -12,23 +12,24 @@ interface PostData extends Post {
 }
 
 export default async function handler(
-  req: AuthenticatedRequest,
+  req: AuthenticatedRequest & NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== "GET") {
+  if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
+
+  const { postUid } = JSON.parse(req.body);
+
   authenticateToken(req, res, async () => {
     if (req.user) {
-      // 토큰 이용하여 UID GET
-      const uid = req.user.claims.UID;
       try {
         const dataSource = await AppDataSource.useFactory();
         const postRepository = dataSource.getRepository(Post);
 
         const posts = await postRepository
           .createQueryBuilder("post")
-          .where("post.UID = :uid", { uid })
+          .where("post.space_uid = :postUid", { postUid })
           .orderBy("post.p_seq", "ASC")
           .addOrderBy("post.order_number", "ASC")
           .getMany();

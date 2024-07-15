@@ -7,8 +7,8 @@ import requests from "@fetch/requests";
 import { useAlert } from "./popup/useAlert";
 import { useRouteAlert } from "./popup/useRouteAlert";
 import { useToast } from "./popup/useToast";
-import { FetchError } from "@fetch/types";
 import storage from "@fetch/auth/storage";
+import { useSpace } from "./user/useSpace";
 
 export interface PostData {
   seq: string;
@@ -87,39 +87,38 @@ export const usePost = () => {
     },
   });
 
-  const fetchPost = async (): Promise<PostData[]> => {
-    try {
-      const res = await fetchApi({
-        method: "GET",
-        url: requests.GET_POST,
-      });
-
-      if (!res.resultCode) {
-        toggleAlert(res.message);
-        throw new Error(res.message);
-      }
-      return res.data;
-    } catch (error) {
-      if (error instanceof FetchError) {
-        if (error.code === 403 || error.code === 401) {
-          toggleRouteAlert({
-            isActOpen: true,
-            content: error.message,
-            route: "/login",
-          });
-          storage.removeToken();
-        } else {
-          alert(error.message);
-        }
-      }
-      throw error;
-    }
-  };
-
   const { data } = useQuery<PostData[], Error>({
     queryKey: ["post"],
-    queryFn: fetchPost,
     staleTime: 5 * 60 * 1000,
+  });
+
+  const { mutate: fetchPost } = useMutation({
+    mutationFn: (postUid: string) =>
+      fetchApi({
+        method: "POST",
+        url: requests.GET_POST,
+        body: JSON.stringify({ postUid }),
+      }),
+    onSuccess: (res: PostResponse) => {
+      queryClient.invalidateQueries({ queryKey: ["post"] });
+      if (!res.resultCode) {
+        toggleAlert(res.message);
+      } else if (res.resultCode && res.data) {
+        queryClient.setQueryData(["post"], res.data);
+      }
+    },
+    onError: (error: any) => {
+      if (error.code === 403 || error.code === 401) {
+        toggleRouteAlert({
+          isActOpen: true,
+          content: error.message,
+          route: "/login",
+        });
+        storage.removeToken();
+      } else {
+        alert(error.message);
+      }
+    },
   });
 
   const { mutate: savePost } = useMutation({
@@ -223,6 +222,7 @@ export const usePost = () => {
     setType,
     setPageSeq,
     setPathname,
+    fetchPost,
     savePost,
     deletePost,
     setAuto,

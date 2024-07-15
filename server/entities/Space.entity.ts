@@ -23,8 +23,21 @@ export class Space {
   })
   space_public!: boolean;
 
-  @Column({ type: "json", nullable: false, comment: "사용자 uid" })
-  space_users!: any;
+  @Column({
+    type: "json",
+    nullable: false,
+    default: "[]",
+    comment: "사용자 uid",
+  })
+  space_users!: string[];
+
+  @Column({
+    type: "datetime",
+    nullable: false,
+    default: () => "CURRENT_TIMESTAMP",
+    comment: "생성일",
+  })
+  create_date!: Date;
 
   @ManyToOne(() => File, { onDelete: "CASCADE" })
   @JoinColumn({ name: "space_profile_seq" })

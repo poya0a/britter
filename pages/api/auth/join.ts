@@ -13,6 +13,9 @@ import { validationRules } from "@utils/errorMessage";
 import { DeepPartial } from "typeorm";
 import { EmpsInterface } from "@models/Emps.model";
 import { handleFileUpload } from "@/server/utils/fileUpload";
+import { Space } from "@entities/Space.entity";
+import { Terms } from "@entities/Terms.entity";
+import { SpaceList } from "@/server/entities/SpaceList.entity";
 
 type NextApiRequestWithFormData = NextApiRequest &
   Request & {
@@ -57,7 +60,6 @@ const requiredField = [
   "user_name",
   "user_hp",
   "user_certification",
-  "terms",
 ];
 
 export default async function handler(
@@ -85,6 +87,45 @@ export default async function handler(
   if (emptyFields.length > 0) {
     return res.status(200).json({
       message: getErrorMassage(emptyFields[0]),
+      resultCode: false,
+    });
+  }
+
+  // 필수 이용 약관 동의 확인
+  try {
+    const dataSource = await AppDataSource.useFactory();
+    const termsRepository = dataSource.getRepository(Terms);
+    const terms = await termsRepository.find({
+      where: {
+        in_used: true,
+        required: true,
+      },
+    });
+
+    const requiredTermsIds = terms.map((term) => term.seq);
+    const agreedTermsIds = data.terms;
+
+    if (!agreedTermsIds) {
+      return res.status(200).json({
+        message: "필수 이용약관에 동의해 주세요.",
+        resultCode: false,
+      });
+    }
+
+    const hasAgreedToAllRequiredTerms = requiredTermsIds.every((seq: number) =>
+      agreedTermsIds.includes(seq.toString())
+    );
+
+    if (!hasAgreedToAllRequiredTerms) {
+      return res.status(200).json({
+        message: "필수 이용약관에 동의해 주세요.",
+        resultCode: false,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      message: "서버 에러가 발생하였습니다.",
+      error: error,
       resultCode: false,
     });
   }
@@ -149,11 +190,10 @@ export default async function handler(
         .json({ message: `이미 사용 중인 ${name}입니다.`, resultCode: false });
     }
 
-    const uid = uuidv4();
     const hashedPassword = await bcrypt.hash(data.user_pw!, 10);
 
     const emp: DeepPartial<Emps> = {
-      UID: uid,
+      UID: uuidv4(),
       user_profile_seq: 0,
       user_id: data.user_id,
       user_pw: hashedPassword,
@@ -166,44 +206,92 @@ export default async function handler(
         : generateRandomString(),
       user_birth: data.user_birth ? data.user_birth : undefined,
       user_public: data.user_public ? data.user_public : true,
+      user_level: 1,
       create_date: new Date(),
       terms: data.terms,
     };
 
     const newUser = empsRepository.create(emp);
-
     const saveUser = await empsRepository.save(newUser);
 
-    if (saveUser) {
-      if (file !== undefined) {
-        const saveFile = await handleFileUpload(file);
-        if (saveFile.resultCode) {
+    // 개인 스페이스 생성
+    const spaceRepository = dataSource.getRepository(Space);
+
+    const space: DeepPartial<Space> = {
+      UID: uuidv4(),
+      space_profile_seq: 0,
+      space_name: emp.user_nick_name,
+      space_manager: emp.UID,
+      space_public: emp.user_public,
+      space_users: [],
+      create_date: new Date(),
+    };
+
+    const newSpace = spaceRepository.create(space);
+    const saveSpace = await spaceRepository.save(newSpace);
+
+    if (saveUser && saveSpace) {
+      // 스페이스 리스트 생성
+      const spaceListRepository = dataSource.getRepository(SpaceList);
+
+      const spaceList: DeepPartial<SpaceList> = {
+        UID: emp.UID,
+        space: [`${space.UID}`],
+      };
+
+      const newSpaceList = spaceListRepository.create(spaceList);
+      const saveSpaceList = await spaceListRepository.save(newSpaceList);
+
+      if (saveSpaceList) {
+        if (file !== undefined) {
+          const saveFile = await handleFileUpload(file);
+
+          // 프로필 업데이트
           saveUser.user_profile_seq = saveFile.seq;
           const updateUser = await empsRepository.save(saveUser);
-          if (updateUser) {
+
+          // 스페이스 프로필 업데이트
+          saveSpace.space_profile_seq = saveFile.seq;
+          const updateSpace = await spaceRepository.save(saveSpace);
+
+          if (updateUser && updateSpace) {
             return res.status(200).json({
               message: "회원 가입이 완료되었습니다.",
               resultCode: true,
             });
           } else {
             return res.status(200).json({
-              message: "회원 가입에 실패하였습니다. 다시 시도해 주세요.",
+              message:
+                "프로필 이미지 저장에 실패하였습니다. 개인 정보 수정에서 다시 시도해 주세요.",
               resultCode: false,
             });
           }
         } else {
           return res.status(200).json({
-            message:
-              "프로필 이미지 저장에 실패하였습니다. 개인 정보 수정에서 다시 시도해 주세요.",
-            resultCode: false,
+            message: "회원 가입이 완료되었습니다.",
+            resultCode: true,
           });
         }
       } else {
         return res.status(200).json({
-          message: "회원 가입이 완료되었습니다.",
+          message: "회원 가입에 실패하였습니다. 다시 시도해 주세요.",
           resultCode: true,
         });
       }
+    } else {
+      // 실패 시 정보 삭제 처리
+      if (saveUser) {
+        await empsRepository.delete(saveUser.UID);
+      }
+
+      if (saveSpace) {
+        await spaceRepository.delete(saveSpace.UID);
+      }
+
+      return res.status(200).json({
+        message: "회원 가입에 실패하였습니다. 다시 시도해 주세요.",
+        resultCode: true,
+      });
     }
   } catch (error) {
     return res.status(500).json({

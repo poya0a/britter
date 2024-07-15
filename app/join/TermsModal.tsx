@@ -1,5 +1,5 @@
 import { useModal } from "@/hooks/popup/useModal";
-import { TermsData, useTerms } from "@hooks/useTerms";
+import { TermsData, useTerms } from "@/hooks/auth/useTerms";
 import popupStyles from "@styles/components/_popup.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
 import styles from "./page.module.scss";

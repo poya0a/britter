@@ -50,6 +50,9 @@ export class Emps {
   @Column({ type: "boolean", nullable: false })
   user_public!: boolean;
 
+  @Column({ type: "int", nullable: false })
+  user_level!: number;
+
   @Column({
     type: "datetime",
     nullable: false,

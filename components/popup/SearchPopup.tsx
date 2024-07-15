@@ -5,9 +5,9 @@ export default function SearchPopup() {
   const { useSearchState, toggleSearchPopup, toggleTap } = useSearchPopup();
 
   return (
-    <div className={styles.searchPopup}>
+    <div className={styles.popup}>
       <div className={styles.dim} />
-      <div className={styles.searchPopupWrapper}></div>
+      <div className={styles.popupWrapper}></div>
     </div>
   );
 }

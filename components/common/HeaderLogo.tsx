@@ -6,6 +6,7 @@ import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
 import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 import { useRouteAndCancelAlert } from "@hooks/popup/useRouteAndCancelAlert";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
+import { useCreatePopup } from "@hooks/popup/useCreatePopup";
 
 export default function HeaderLogo() {
   const route = useRouter();
@@ -21,6 +22,7 @@ export default function HeaderLogo() {
   const { useRouteAndCancelAlertState } = useRouteAndCancelAlert();
   const { useFnAndCancelAlertState } = useFnAndCancelAlert();
   const { useSearchState } = useSearchPopup();
+  const { useCreateState } = useCreatePopup();
 
   return (
     <button
@@ -31,7 +33,8 @@ export default function HeaderLogo() {
         useRouteAlertState.isActOpen ||
         useRouteAndCancelAlertState.isActOpen ||
         useFnAndCancelAlertState.isActOpen ||
-        useSearchState.isActOpen
+        useSearchState.isActOpen ||
+        useCreateState.isActOpen
           ? true
           : false
       }

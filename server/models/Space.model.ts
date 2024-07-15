@@ -4,7 +4,8 @@ export interface SpaceInterface {
   space_name: string;
   space_manager: string;
   space_public: boolean;
-  space_users: any;
+  space_users: string[];
+  create_date: Date;
 }
 
 export class SpaceModel implements SpaceInterface {
@@ -13,7 +14,8 @@ export class SpaceModel implements SpaceInterface {
   space_name: string;
   space_manager: string;
   space_public: boolean;
-  space_users: any;
+  space_users: string[];
+  create_date: Date;
 
   constructor(space: SpaceInterface) {
     this.UID = space.UID;
@@ -22,5 +24,6 @@ export class SpaceModel implements SpaceInterface {
     this.space_manager = space.space_manager;
     this.space_public = space.space_public;
     this.space_users = space.space_users;
+    this.create_date = space.create_date;
   }
 }

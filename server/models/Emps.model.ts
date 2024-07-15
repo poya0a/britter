@@ -16,6 +16,7 @@ export interface EmpsInterface {
   user_nick_name: string;
   user_birth?: string;
   user_public: boolean;
+  user_level: number;
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
@@ -39,6 +40,7 @@ export class EmpsModel implements EmpsInterface {
   user_nick_name: string;
   user_birth?: string;
   user_public: boolean;
+  user_level: number;
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
@@ -61,6 +63,7 @@ export class EmpsModel implements EmpsInterface {
     this.user_nick_name = emps.user_nick_name;
     this.user_birth = emps.user_birth;
     this.user_public = emps.user_public;
+    this.user_level = emps.user_level;
     this.create_date = emps.create_date;
     this.status_emoji = emps.status_emoji;
     this.status_message = emps.status_message;

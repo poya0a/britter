@@ -1,11 +1,11 @@
 export interface SpaceListInterface {
   UID: string;
-  space: any;
+  space: string[];
 }
 
 export class SpaceListModel implements SpaceListInterface {
   UID: string;
-  space: any;
+  space: string[];
 
   constructor(space: SpaceListInterface) {
     this.UID = space.UID;

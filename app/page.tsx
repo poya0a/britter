@@ -13,9 +13,11 @@ import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
 import { usePathname } from "next/navigation";
 import storage from "@fetch/auth/storage";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
-import { useSettingMenu } from "@/hooks/menu/useSettingMenu";
+import { useSettingMenu } from "@hooks/menu/useSettingMenu";
 import SearchPopup from "@components/popup/SearchPopup";
-import SettingMenu from "@/components/menu/SettingMenu";
+import SettingMenu from "@components/menu/SettingMenu";
+import CreatePopup from "@/components/popup/CreatePopup";
+import { useCreatePopup } from "@/hooks/popup/useCreatePopup";
 
 export default function Home() {
   const { useAlertState } = useAlert();
@@ -24,6 +26,7 @@ export default function Home() {
   const { useToastState } = useToast();
   const { useSearchState } = useSearchPopup();
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
+  const { useCreateState } = useCreatePopup();
   const pathname = usePathname();
   const userToken = storage.getAccessToken();
 
@@ -41,7 +44,7 @@ export default function Home() {
     <>
       <div className={styles.home}>
         <MainMenu />
-        <div onClick={() => toggleSettingMenu(false)}></div>
+        <div onClick={() => toggleSettingMenu(false)} />
       </div>
       {useAlertState.isActOpen && <Alert />}
       {useRouteAlertState.isActOpen && <RoutAlert />}
@@ -49,6 +52,7 @@ export default function Home() {
       {useToastState.isActOpen && <Toast />}
       {useSearchState.isActOpen && <SearchPopup />}
       {useSettingMenuState.isActOpen && <SettingMenu />}
+      {useCreateState.isActOpen && <CreatePopup />}
     </>
   );
 }

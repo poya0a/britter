@@ -5,7 +5,7 @@ import buttonStyles from "@styles/components/_button.module.scss";
 import styles from "./page.module.scss";
 import AuthHeader from "@components/common/AuthHeader";
 import PhoneNumberInput from "@components/input/PhoneNumberInput";
-import { useVerify } from "@hooks/useVerify";
+import { useVerify } from "@/hooks/auth/useVerify";
 import { useForm } from "react-hook-form";
 import { getErrorMassage, getValidMassage } from "@utils/errorMessage";
 import { onlyNumPattern, phonePattern, regexValue } from "@utils/regex";
@@ -13,7 +13,7 @@ import { useAlert } from "@/hooks/popup/useAlert";
 import Alert from "@components/popup/Alert";
 import { ErrorMessage } from "@hookform/error-message";
 import { useRouter } from "next/navigation";
-import { UserData, useResetPassword } from "@hooks/useResetPassword";
+import { UserData, useResetPassword } from "@/hooks/auth/useResetPassword";
 import { useRouteAlert } from "@/hooks/popup/useRouteAlert";
 import RoutAlert from "@components/popup/RouteAlert";
 

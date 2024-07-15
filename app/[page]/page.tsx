@@ -41,8 +41,10 @@ import FnAndCancelAlert from "@components/popup/FnAndCancelAlert";
 import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
 import { useUpdateEffect } from "@utils/useUpdateEffect";
-import SettingMenu from "@/components/menu/SettingMenu";
-import { useSettingMenu } from "@/hooks/menu/useSettingMenu";
+import SettingMenu from "@components/menu/SettingMenu";
+import { useSettingMenu } from "@hooks/menu/useSettingMenu";
+import CreatePopup from "@components/popup/CreatePopup";
+import { useCreatePopup } from "@hooks/popup/useCreatePopup";
 
 const lowlight = createLowlight(common);
 
@@ -159,6 +161,7 @@ export default function Page() {
     useFnAndCancelAlert();
   const { useToastState } = useToast();
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
+  const { useCreateState } = useCreatePopup();
   const {
     usePostState,
     editorContent,
@@ -426,6 +429,7 @@ export default function Page() {
       {useFnAndCancelAlertState.isActOpen && <FnAndCancelAlert />}
       {useToastState.isActOpen && <Toast />}
       {useSettingMenuState.isActOpen && <SettingMenu />}
+      {useCreateState.isActOpen && <CreatePopup />}
     </div>
   );
 }

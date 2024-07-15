@@ -7,8 +7,8 @@ export class SpaceList {
 
   @Column({
     type: "json",
-    nullable: true,
+    nullable: false,
     comment: "사용자가 속한 공간 리스트",
   })
-  space!: any;
+  space!: string[];
 }

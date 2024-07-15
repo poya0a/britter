@@ -1,15 +1,16 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
 import styles from "@styles/components/_menu.module.scss";
-import { useMainMenuWidth } from "@/hooks/menu/useMainMenuWidth";
+import { useMainMenuWidth } from "@hooks/menu/useMainMenuWidth";
 import { useRouter } from "next/navigation";
 import storage from "@fetch/auth/storage";
 import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 import { PostData, usePost } from "@hooks/usePost";
-import { useInfo } from "@hooks/useInfo";
+import { useInfo } from "@hooks/user/useInfo";
 import { useAlert } from "@hooks/popup/useAlert";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
-import { useSettingMenu } from "@/hooks/menu/useSettingMenu";
+import { useSettingMenu } from "@hooks/menu/useSettingMenu";
+import { useSpace } from "@hooks/user/useSpace";
 
 export default function MainMenu() {
   const { useMainMenuWidthState, handleMainMenuWidth } = useMainMenuWidth();
@@ -19,8 +20,9 @@ export default function MainMenu() {
   const { toggleAlert } = useAlert();
   const { toggleRouteAlert } = useRouteAlert();
   const { toggleSearchPopup } = useSearchPopup();
-  const { usePostState, pageSeq, setPageSeq, setType } = usePost();
   const { useInfoState } = useInfo();
+  const { useSpaceState, selectedSpace } = useSpace();
+  const { usePostState, pageSeq, setPageSeq, setType } = usePost();
   const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
   let startX: number, startWidth: number;
@@ -251,10 +253,24 @@ export default function MainMenu() {
             <img src="/images/icon/inbox.svg" alt="" />
             <em className="normal">수신함</em>
           </button>
+          <button
+            type="button"
+            className={`button ${styles.mainMenuDefault}`}
+            onClick={notService}
+          >
+            <img src="/images/icon/settings.svg" alt="" />
+            <em className="normal">설정</em>
+          </button>
         </div>
 
         <div className={styles.pageMenu}>
-          <h6 className={styles.pageMenuName}>페이지</h6>
+          <h6 className={styles.pageMenuName}>
+            {
+              useSpaceState.find((space) => space.UID === selectedSpace)
+                ?.space_name
+            }{" "}
+            스페이스
+          </h6>
           <ul className={`list ${styles.pageList} ${styles.pageListWrap}`}>
             {usePostState.map((post: PostData, idx: number) => (
               <li className={`list ${styles.pageItem}`} key={`post-${idx}`}>

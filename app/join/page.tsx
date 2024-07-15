@@ -27,10 +27,11 @@ import { JoinForm } from "./interface/join.interface";
 import { useAlert } from "@/hooks/popup/useAlert";
 import Alert from "@components/popup/Alert";
 import TermsModal from "./TermsModal";
-import { useVerify } from "@hooks/useVerify";
+import { useVerify } from "@/hooks/auth/useVerify";
 import { getErrorMassage, getValidMassage } from "../../utils/errorMessage";
-import { useTerms } from "@hooks/useTerms";
+import { TermsData, useTerms } from "@/hooks/auth/useTerms";
 import { useModal } from "@/hooks/popup/useModal";
+import { useUpdateEffect } from "@/utils/useUpdateEffect";
 
 export default function Join() {
   const {
@@ -52,10 +53,11 @@ export default function Join() {
   const { useModalState, toggleModal } = useModal();
   const { useTermsState, toggleCheckAll } = useTerms();
   const [checked, setChecked] = useState<boolean>(false);
-  const termsChecked =
-    useTermsState
-      ?.filter((term: any) => term.required)
-      .every((term) => term.checked) ?? false;
+  const termsChecked = useTermsState
+    ? useTermsState
+        .filter((term: TermsData) => term.required)
+        .every((term) => term.checked)
+    : false;
   const imgUploadInput = useRef<HTMLInputElement | null>(null);
   const [dupleCheck, setDupleCheck] = useState<{
     userId: boolean;
@@ -66,8 +68,8 @@ export default function Join() {
   });
   const { useVerifyState, toggleVerify } = useVerify();
 
-  useEffect(() => {
-    setChecked(termsChecked ?? false);
+  useUpdateEffect(() => {
+    setChecked(termsChecked);
   }, [termsChecked]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {

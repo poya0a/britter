@@ -1,6 +1,6 @@
 import styles from "@styles/components/_input.module.scss";
 import { ErrorMessage } from "@hookform/error-message";
-import { useVerify } from "@/hooks/useVerify";
+import { useVerify } from "@/hooks/auth/useVerify";
 
 interface InputProps {
   hpRegister: any;

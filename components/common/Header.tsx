@@ -11,7 +11,8 @@ import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 import { useRouteAndCancelAlert } from "@hooks/popup/useRouteAndCancelAlert";
 import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
-import { useSettingMenu } from "@/hooks/menu/useSettingMenu";
+import { useSettingMenu } from "@hooks/menu/useSettingMenu";
+import { useCreatePopup } from "@hooks/popup/useCreatePopup";
 
 export default function Header() {
   const queryClient = useQueryClient();
@@ -32,6 +33,7 @@ export default function Header() {
     useFnAndCancelAlert();
   const { toggleSettingMenu } = useSettingMenu();
   const { useSearchState } = useSearchPopup();
+  const { useCreateState } = useCreatePopup();
 
   const handleLogout = () => {
     toggleFnAndCancelAlert({
@@ -71,7 +73,8 @@ export default function Header() {
             useRouteAlertState.isActOpen ||
             useRouteAndCancelAlertState.isActOpen ||
             useFnAndCancelAlertState.isActOpen ||
-            useSearchState.isActOpen
+            useSearchState.isActOpen ||
+            useCreateState.isActOpen
               ? true
               : false
           }
