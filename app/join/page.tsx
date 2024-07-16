@@ -432,7 +432,7 @@ export default function Join() {
   return (
     <div className={styles.join}>
       {isLocked && <ImageCropInput />}
-      <AuthHeader type={"join"}></AuthHeader>
+      <AuthHeader type={"join"} />
       <form>
         <div className={styles.joinWrapper}>
           <div className={inputStyles.profile}>

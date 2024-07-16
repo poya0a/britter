@@ -3,12 +3,16 @@ import { useSettingMenu } from "@hooks/menu/useSettingMenu";
 import { SpaceData, useSpace } from "@hooks/user/useSpace";
 import { useCreatePopup } from "@hooks/popup/useCreatePopup";
 import { useInfo } from "@hooks/user/useInfo";
-import { useAlert } from "@/hooks/popup/useAlert";
+import { useAlert } from "@hooks/popup/useAlert";
+import { useRouter } from "next/navigation";
+import { usePost } from "@hooks/usePost";
 
 export default function SettingMenu() {
-  const { useSettingMenuState } = useSettingMenu();
+  const router = useRouter();
+  const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
   const { useInfoState } = useInfo();
   const { useSpaceState, selectedSpace, setSpace } = useSpace();
+  const { setPageSeq } = usePost();
   const { toggleAlert } = useAlert();
   const { toggleCreatePopup } = useCreatePopup();
 
@@ -18,6 +22,14 @@ export default function SettingMenu() {
     }
     toggleCreatePopup({ isActOpen: true, mode: "create" });
   };
+
+  const handleSetSpace = (uid: string) => {
+    setSpace(uid);
+    router.push("/");
+    toggleSettingMenu(false);
+    setPageSeq({ seq: "", pSeq: "" });
+  };
+
   return (
     <div
       className={styles.settingMenu}
@@ -34,7 +46,7 @@ export default function SettingMenu() {
               space.UID === selectedSpace && styles.active
             }`}
             key={`space-${idx}`}
-            onClick={() => setSpace(space.UID)}
+            onClick={() => handleSetSpace(space.UID)}
           >
             <div className={styles.spaceProfile}>
               {space.space_profile_path ? (

@@ -228,7 +228,7 @@ export default function FindPassword() {
 
   return (
     <div className={styles.findPassword}>
-      <AuthHeader type={"pw"}></AuthHeader>
+      <AuthHeader type={"pw"} />
       <form action="">
         <div className={styles.findPasswordWrapper}>
           <div className={inputStyles.inputText}>

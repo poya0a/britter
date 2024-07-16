@@ -11,6 +11,7 @@ import { useAlert } from "@hooks/popup/useAlert";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
 import { useSettingMenu } from "@hooks/menu/useSettingMenu";
 import { useSpace } from "@hooks/user/useSpace";
+import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
 
 export default function MainMenu() {
   const { useMainMenuWidthState, handleMainMenuWidth } = useMainMenuWidth();
@@ -25,6 +26,7 @@ export default function MainMenu() {
   const { usePostState, pageSeq, setPageSeq, setType } = usePost();
   const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
+  const { toggleSpaceSettingPopup } = useSpaceSettingPopup();
   let startX: number, startWidth: number;
 
   const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
@@ -253,23 +255,35 @@ export default function MainMenu() {
             <img src="/images/icon/inbox.svg" alt="" />
             <em className="normal">수신함</em>
           </button>
-          <button
-            type="button"
-            className={`button ${styles.mainMenuDefault}`}
-            onClick={notService}
-          >
-            <img src="/images/icon/settings.svg" alt="" />
-            <em className="normal">설정</em>
-          </button>
+          {useSpaceState.find((space) => space.UID === selectedSpace)
+            ?.space_manager === useInfoState.UID ? (
+            <button
+              type="button"
+              className={`button ${styles.mainMenuDefault}`}
+              onClick={() =>
+                toggleSpaceSettingPopup({ isActOpen: true, mode: "setting" })
+              }
+            >
+              <img src="/images/icon/settings.svg" alt="" />
+              <em className="normal">설정과 멤버</em>
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={`button ${styles.mainMenuDefault}`}
+            >
+              <img src="/images/icon/exit.svg" alt="" />
+              <em className="normal">스페이스 나가기</em>
+            </button>
+          )}
         </div>
-
         <div className={styles.pageMenu}>
           <h6 className={styles.pageMenuName}>
             {
               useSpaceState.find((space) => space.UID === selectedSpace)
                 ?.space_name
-            }{" "}
-            스페이스
+            }
+            &nbsp;스페이스
           </h6>
           <ul className={`list ${styles.pageList} ${styles.pageListWrap}`}>
             {usePostState.map((post: PostData, idx: number) => (

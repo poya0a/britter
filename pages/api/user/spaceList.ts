@@ -40,6 +40,7 @@ export default async function handler(
                   "UID",
                   "space_profile_seq",
                   "space_name",
+                  "space_manager",
                   "space_public",
                   "space_users",
                 ],

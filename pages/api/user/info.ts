@@ -24,6 +24,7 @@ export default async function handler(
         const findUser = await empsRepository.findOne({
           where: { UID: uid },
           select: [
+            "UID",
             "user_profile_seq",
             "user_id",
             "user_name",

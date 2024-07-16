@@ -9,6 +9,7 @@ import { useRouteAlert } from "./popup/useRouteAlert";
 import { useToast } from "./popup/useToast";
 import storage from "@fetch/auth/storage";
 import { useSpace } from "./user/useSpace";
+import { useUpdateEffect } from "@/utils/useUpdateEffect";
 
 export interface PostData {
   seq: string;
@@ -49,6 +50,7 @@ export const usePost = () => {
   const { toggleRouteAlert } = useRouteAlert();
   const { setToast } = useToast();
 
+  const postUid = queryClient.getQueryData(["selectedSpace"]);
   const [auto, setAuto] = useState<boolean | null>(null);
   const { data: type = "view" } = useQuery<string>({
     queryKey: ["type"],
@@ -93,7 +95,7 @@ export const usePost = () => {
   });
 
   const { mutate: fetchPost } = useMutation({
-    mutationFn: (postUid: string) =>
+    mutationFn: () =>
       fetchApi({
         method: "POST",
         url: requests.GET_POST,
@@ -129,18 +131,18 @@ export const usePost = () => {
         body: formData,
       }),
     onSuccess: (res: PostResponse) => {
-      queryClient.invalidateQueries({ queryKey: ["post"] });
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode && res.data) {
-        setPageSeq({ seq: res.data.seq, pSeq: "" });
-        setAuto(null);
         if (!auto) {
           toggleAlert(res.message);
           setType("view");
         } else {
           setToast(res.message);
         }
+        fetchPost();
+        setPageSeq({ seq: res.data.seq, pSeq: "" });
+        setAuto(null);
       }
     },
     onError: (error: any) => {
@@ -149,17 +151,17 @@ export const usePost = () => {
   });
 
   const { mutate: deletePost } = useMutation({
-    mutationFn: (formData: FormData) =>
+    mutationFn: (seq: string) =>
       fetchApi({
         method: "POST",
         url: requests.DELETE_POST,
-        body: formData,
+        body: JSON.stringify({ seq }),
       }),
     onSuccess: (res: PostResponse) => {
-      queryClient.invalidateQueries({ queryKey: ["post"] });
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode && res.data) {
+        fetchPost();
         setPageSeq({ seq: "", pSeq: res.data.seq });
         setType("view");
         setToast(res.message);
@@ -210,6 +212,12 @@ export const usePost = () => {
     }
     return undefined;
   };
+
+  useUpdateEffect(() => {
+    if (postUid !== "") {
+      fetchPost();
+    }
+  }, [postUid]);
 
   return {
     usePostState,

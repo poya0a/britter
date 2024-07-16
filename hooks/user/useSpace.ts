@@ -11,12 +11,16 @@ import storage from "@fetch/auth/storage";
 import { usePost } from "../usePost";
 import { useAlert } from "../popup/useAlert";
 import { useCreatePopup } from "../popup/useCreatePopup";
+import { useToast } from "../popup/useToast";
+import { useSpaceSettingPopup } from "../popup/useSpaceSettingPopup";
+import { useSettingMenu } from "../menu/useSettingMenu";
 
 export interface SpaceData {
   UID: string;
   space_profile_seq: number;
   space_profile_path: string;
   space_name: string;
+  space_manager: string;
   space_public: boolean;
   space_users: string[];
 }
@@ -28,7 +32,7 @@ interface SpaceListResponse {
 }
 
 export const spaceState = atom<SpaceData[]>({
-  key: "spaceListState",
+  key: "spaceState",
   default: [],
 });
 
@@ -37,10 +41,12 @@ export const useSpace = () => {
   const [useSpaceState, setUseSpaceState] =
     useRecoilState<SpaceData[]>(spaceState);
 
-  const { fetchPost } = usePost();
   const { toggleAlert } = useAlert();
+  const { setToast } = useToast();
   const { toggleRouteAlert } = useRouteAlert();
   const { toggleCreatePopup } = useCreatePopup();
+  const { toggleSettingMenu } = useSettingMenu();
+  const { toggleSpaceSettingPopup } = useSpaceSettingPopup();
 
   const fetchSpace = async (): Promise<SpaceData[]> => {
     try {
@@ -102,7 +108,31 @@ export const useSpace = () => {
           mode: "",
           spaceList: [],
         });
+        toggleSettingMenu(false);
         setSpace(res.data.spaceUid);
+        queryClient.invalidateQueries({ queryKey: ["selectedSpace"] });
+      }
+    },
+    onError: (error: any) => {
+      toggleAlert(error);
+    },
+  });
+
+  const { mutate: deleteSpace } = useMutation({
+    mutationFn: () =>
+      fetchApi({
+        method: "POST",
+        url: requests.DELETE_SPACE,
+        body: JSON.stringify({ spaceUid: selectedSpace }),
+      }),
+    onSuccess: (res: SpaceListResponse) => {
+      if (!res.resultCode) {
+        toggleAlert(res.message);
+      } else {
+        setSpace("");
+        toggleSpaceSettingPopup(false);
+        setToast(res.message);
+        queryClient.invalidateQueries({ queryKey: ["space"] });
       }
     },
     onError: (error: any) => {
@@ -115,30 +145,26 @@ export const useSpace = () => {
       if (data) {
         const updatedList = await Promise.all(
           data.map(async (space: SpaceData) => {
-            if (space.space_profile_seq !== null) {
-              const space_profile_path = await fetchFile(
-                space.space_profile_seq
-              );
-              return { ...space, space_profile_path };
-            } else {
-              return { ...space, space_profile_path: "" };
-            }
+            const space_profile_path = space.space_profile_seq
+              ? await fetchFile(space.space_profile_seq)
+              : "";
+            return { ...space, space_profile_path };
           })
         );
         setUseSpaceState(updatedList);
-
         if (selectedSpace === "") {
-          setSpace(updatedList[0].UID);
+          setSpace(data[0].UID);
         }
       }
     };
 
     updateSpace();
-  }, [data]);
+  }, [data, selectedSpace]);
 
   const setSpace = (uid: string) => {
-    queryClient.setQueryData(["selectedSpace"], uid);
-    fetchPost(uid);
+    if (uid !== queryClient.getQueryData(["selectedSpace"])) {
+      queryClient.setQueryData(["selectedSpace"], uid);
+    }
   };
 
   return {
@@ -146,5 +172,6 @@ export const useSpace = () => {
     selectedSpace,
     setSpace,
     createSpace,
+    deleteSpace,
   };
 };

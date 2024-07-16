@@ -11,6 +11,7 @@ import storage from "@fetch/auth/storage";
 import fetchFile from "@fetch/fetchFile";
 
 export interface InfoData {
+  UID: string;
   user_profile_seq: number;
   user_profile_path?: string;
   user_id: string;
@@ -29,6 +30,7 @@ export interface InfoData {
 export const infoState = atom<InfoData>({
   key: "infoState",
   default: {
+    UID: "",
     user_profile_seq: 0,
     user_profile_path: "",
     user_id: "",

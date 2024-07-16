@@ -23,7 +23,6 @@ import ImageResize from "tiptap-extension-resize-image";
 import ToolBar from "@components/common/ToolBar";
 import { useEffect, useRef, useState } from "react";
 import styles from "./page.module.scss";
-import commonStyles from "@styles/components/_common.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import { useMainMenuWidth } from "@/hooks/menu/useMainMenuWidth";
 import { useEditor } from "@hooks/useEditor";
@@ -45,6 +44,9 @@ import SettingMenu from "@components/menu/SettingMenu";
 import { useSettingMenu } from "@hooks/menu/useSettingMenu";
 import CreatePopup from "@components/popup/CreatePopup";
 import { useCreatePopup } from "@hooks/popup/useCreatePopup";
+import { useSpace } from "@hooks/user/useSpace";
+import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
+import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
 
 const lowlight = createLowlight(common);
 
@@ -161,7 +163,9 @@ export default function Page() {
     useFnAndCancelAlert();
   const { useToastState } = useToast();
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
+  const { selectedSpace } = useSpace();
   const { useCreateState } = useCreatePopup();
+  const { useSpaceSettingState } = useSpaceSettingPopup();
   const {
     usePostState,
     editorContent,
@@ -237,6 +241,7 @@ export default function Page() {
 
       if (pageSeq.pSeq !== "") formData.append("p_seq", pageSeq.pSeq);
       if (pageSeq.seq !== "") formData.append("seq", pageSeq.seq);
+      formData.append("space", selectedSpace);
       formData.append(
         "title",
         useEditorState.title === "" ? "제목 없음" : useEditorState.title
@@ -318,20 +323,19 @@ export default function Page() {
   };
 
   const handleDeletePost = () => {
-    const formData = new FormData();
-    if (viewPost) formData.append("seq", viewPost?.seq);
-
     let content = "삭제하시겠습니까?";
 
     if (viewPost?.subPost && viewPost?.subPost?.length > 0) {
       content = "하위 게시글도 함께 삭제됩니다. 삭제하시겠습니까?";
     }
 
-    toggleFnAndCancelAlert({
-      isActOpen: true,
-      content: content,
-      fn: () => deletePost(formData),
-    });
+    if (viewPost) {
+      toggleFnAndCancelAlert({
+        isActOpen: true,
+        content: content,
+        fn: () => deletePost(viewPost?.seq),
+      });
+    }
   };
 
   return (
@@ -430,6 +434,7 @@ export default function Page() {
       {useToastState.isActOpen && <Toast />}
       {useSettingMenuState.isActOpen && <SettingMenu />}
       {useCreateState.isActOpen && <CreatePopup />}
+      {useSpaceSettingState.isActOpen && <SpaceSettingPopup />}
     </div>
   );
 }

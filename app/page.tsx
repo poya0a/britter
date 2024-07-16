@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import styles from "./page.module.scss";
-import MainMenu from "@/components/menu/MainMenu";
+import MainMenu from "@components/menu/MainMenu";
 import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 import RoutAlert from "@components/popup/RouteAlert";
 import FnAndCancelAlert from "@components/popup/FnAndCancelAlert";
@@ -16,8 +16,10 @@ import { useSearchPopup } from "@hooks/popup/useSearchPopup";
 import { useSettingMenu } from "@hooks/menu/useSettingMenu";
 import SearchPopup from "@components/popup/SearchPopup";
 import SettingMenu from "@components/menu/SettingMenu";
-import CreatePopup from "@/components/popup/CreatePopup";
-import { useCreatePopup } from "@/hooks/popup/useCreatePopup";
+import CreatePopup from "@components/popup/CreatePopup";
+import { useCreatePopup } from "@hooks/popup/useCreatePopup";
+import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
+import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
 
 export default function Home() {
   const { useAlertState } = useAlert();
@@ -27,6 +29,7 @@ export default function Home() {
   const { useSearchState } = useSearchPopup();
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
   const { useCreateState } = useCreatePopup();
+  const { useSpaceSettingState } = useSpaceSettingPopup();
   const pathname = usePathname();
   const userToken = storage.getAccessToken();
 
@@ -53,6 +56,7 @@ export default function Home() {
       {useSearchState.isActOpen && <SearchPopup />}
       {useSettingMenuState.isActOpen && <SettingMenu />}
       {useCreateState.isActOpen && <CreatePopup />}
+      {useSpaceSettingState.isActOpen && <SpaceSettingPopup />}
     </>
   );
 }

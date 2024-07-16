@@ -282,17 +282,31 @@
   height: 120px;
   margin: 16px auto auto auto;
   position: relative;
+
   > img {
     width: 120px;
     height: 120px;
     border-radius: 5px;
   }
+
+  > i {
+    display: block;
+    width: 120px;
+    height: 120px;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 80px;
+    line-height: 120px;
+    text-align: center;
+    background-color: $sub-color;
+  }
+
   .buttonProfileUpload {
     position: absolute;
     z-index: 1;
     bottom: 0;
     right: 0;
-    width: 28px;
+    width: 28px !important;
     height: 28px;
     border-radius: 5px;
     border: 1px solid $background-color;

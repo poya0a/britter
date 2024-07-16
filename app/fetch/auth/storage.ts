@@ -1,5 +1,7 @@
 const getStorage = (key: string) => {
-  return localStorage.getItem(key);
+  if (typeof window !== "undefined") {
+    return localStorage.getItem(key);
+  }
 };
 
 const setStorage = (key: string, value: string) => {

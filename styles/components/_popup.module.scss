@@ -205,3 +205,44 @@
    
   }
 }
+
+.setting {
+  position: relative;
+  padding-bottom: 51px;
+  h1 {
+    margin-bottom: 20px;
+    font-size: 20px;
+  }
+  .settingMenu {
+    position: relative;
+    border-top: 1px solid $border-color;
+    padding: 20px 0;
+    p {
+      font-size: 14px;
+      margin: 0;
+    }
+    .buttonDelete {
+      width: 120px;
+    }
+  }
+  .settingButton {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    right: 0;
+    padding-top: 10px;
+    border-top: 1px solid $border-color;
+    display: inline-block;
+    display: flex;
+    justify-content: flex-end;
+    background-color: $background-color;
+    button {
+      width: 80px;
+      height: 40px;
+      padding: 0 16px;
+      &:last-child {
+          margin-left: 10px;
+      }
+    }
+  }
+}

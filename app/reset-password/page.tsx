@@ -107,7 +107,7 @@ export default function ResetPassword() {
 
   return (
     <div className={styles.resetPassword}>
-      <AuthHeader type={"reset"}></AuthHeader>
+      <AuthHeader type={"reset"} />
       <form action="">
         <div className={styles.resetPasswordWrapper}>
           <PasswordInput

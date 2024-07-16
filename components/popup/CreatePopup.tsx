@@ -113,6 +113,7 @@ export default function CreatePopup() {
           </button>
         </div>
         <button
+          type="button"
           className={`button ${buttonStyles.closeButton}`}
           title="닫 기"
           onClick={handleClose}

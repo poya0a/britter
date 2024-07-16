@@ -11,6 +11,7 @@ const requests = {
   GET_SPACE_LIST: "api/space/getSpaceList",
   GET_SPACE_DETAIL: "api/space/getSpaceDetail",
   SAVE_SPACE: "api/space/saveSpace",
+  UPDATE_SPACE: "api/space/updateSpace",
   DELETE_SPACE: "api/space/deleteSpace",
 };
 

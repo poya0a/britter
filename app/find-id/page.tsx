@@ -215,7 +215,7 @@ export default function FindId() {
 
   return (
     <div className={styles.findId}>
-      <AuthHeader type={"id"}></AuthHeader>
+      <AuthHeader type={"id"} />
       <form>
         <div className={styles.findIdWrapper}>
           <div className={inputStyles.inputText}>

@@ -67,6 +67,12 @@ export default async function handler(
             orderNumber = parent.length;
           }
 
+          var spaceUid: string = "";
+
+          if (fields.space) {
+            spaceUid = fields.space[0];
+          }
+
           var title: string = "";
 
           if (fields.title) {
@@ -119,6 +125,7 @@ export default async function handler(
               content: content,
               create_date: new Date(),
               order_number: orderNumber,
+              space_uid: spaceUid,
             };
 
             const newPost = postRepository.create(post);
