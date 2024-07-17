@@ -110,8 +110,13 @@ export default function ImageCropInput() {
   };
 
   const processCroppedImage = (croppedBlob: Blob) => {
-    const croppedFile = new File([croppedBlob], "cropped_image.jpg", {
-      type: "image/jpeg",
+    const url = new URL(useImageCropState.imageCustom as string);
+    const originalFileName: string =
+      url.pathname.split("/").pop() || "cropped_image";
+    const originalFileType = croppedBlob.type;
+
+    const croppedFile = new File([croppedBlob], `${originalFileName}.jpg`, {
+      type: originalFileType,
     });
     updateImageFile(croppedFile);
     setImageSource(URL.createObjectURL(croppedFile));

@@ -16,14 +16,15 @@ import Alert from "./Alert";
 export default function SpaceSettingPopup() {
   const { useSpaceSettingState, toggleSpaceSettingPopup } =
     useSpaceSettingPopup();
-  const { useSpaceState, selectedSpace, deleteSpace } = useSpace();
+  const { useSpaceState, selectedSpace, updateSpace, deleteSpace } = useSpace();
   const [spaceInfo, setSpaceInfo] = useState<SpaceData | null>(
     useSpaceState.find((space: SpaceData) => space.UID === selectedSpace) ||
       null
   );
-  const { useImageCropState, setImageCustom } = useImageCrop();
+  const { useImageCropState, setImageCustom, setImageSource } = useImageCrop();
   const imgUploadInput = useRef<HTMLInputElement | null>(null);
   const { isLocked, toggleScrollLock } = useScrollLock();
+  const [spaceName, setSpaceName] = useState<string>("");
   const [spacePublic, setSpacePublic] = useState<boolean>(true);
   const { useAlertState, toggleAlert } = useAlert();
   const { useFnAndCancelAlertState, toggleFnAndCancelAlert } =
@@ -35,7 +36,15 @@ export default function SpaceSettingPopup() {
     );
     if (foundSpace) {
       setSpaceInfo(foundSpace);
+      setSpaceName(foundSpace.space_name);
       setSpacePublic(foundSpace.space_public);
+      setImageSource(foundSpace.space_profile_path);
+    } else {
+      toggleFnAndCancelAlert({
+        isActOpen: true,
+        content: "스페이스 정보를 찾을 수 없습니다.",
+        fn: () => toggleSpaceSettingPopup(false),
+      });
     }
   }, [selectedSpace, useSpaceState]);
 
@@ -65,7 +74,35 @@ export default function SpaceSettingPopup() {
     return validTypes.includes(file.type);
   };
 
-  const handleUpdateSpace = () => {};
+  const handleUpdateSpace = () => {
+    if (
+      spaceName === spaceInfo?.space_name &&
+      spacePublic === spaceInfo?.space_public &&
+      (useImageCropState.imageSource === null ||
+        useImageCropState.imageSource! == "" ||
+        !useImageCropState.imageFile)
+    ) {
+      return toggleAlert("변경된 정보가 없습니다.");
+    }
+
+    const formData = new FormData();
+
+    formData.append("spaceUid", JSON.stringify(spaceInfo?.UID));
+
+    if (spaceName !== spaceInfo?.space_name) {
+      formData.append("spaceName", JSON.stringify(spaceName));
+    }
+    if (spacePublic !== spaceInfo?.space_public) {
+      formData.append("spacePublic", JSON.stringify(spacePublic));
+    }
+    if (
+      useImageCropState.imageSource !== spaceInfo?.space_profile_path &&
+      useImageCropState.imageFile
+    ) {
+      formData.append("spaceProfile", useImageCropState.imageFile);
+    }
+    updateSpace(formData);
+  };
 
   const handleDeleteSpace = () => {
     // 스페이스가 하나인 경우 삭제 불가
@@ -129,14 +166,16 @@ export default function SpaceSettingPopup() {
                       type="text"
                       className="input"
                       style={{ width: "calc(100% - 22px)" }}
-                      value={spaceInfo?.space_name}
+                      value={spaceName}
+                      onChange={(e) => setSpaceName(e.target.value)}
                     />
                   </div>
                 </div>
                 <div className={styles.settingMenu}>
                   <p>프로필 이미지</p>
                   <div className={inputStyles.profile}>
-                    {useImageCropState.imageSource !== null ? (
+                    {useImageCropState.imageSource !== null &&
+                    useImageCropState.imageSource !== "" ? (
                       <Image
                         src={useImageCropState.imageSource as string}
                         alt="profile"

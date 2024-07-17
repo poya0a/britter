@@ -118,6 +118,26 @@ export const useSpace = () => {
     },
   });
 
+  const { mutate: updateSpace } = useMutation({
+    mutationFn: (formData: FormData) =>
+      fetchApi({
+        method: "POST",
+        url: requests.UPDATE_SPACE,
+        body: formData,
+      }),
+    onSuccess: (res: SpaceListResponse) => {
+      if (!res.resultCode) {
+        toggleAlert(res.message);
+      } else {
+        setToast(res.message);
+        queryClient.invalidateQueries({ queryKey: ["space"] });
+      }
+    },
+    onError: (error: any) => {
+      toggleAlert(error);
+    },
+  });
+
   const { mutate: deleteSpace } = useMutation({
     mutationFn: () =>
       fetchApi({
@@ -172,6 +192,7 @@ export const useSpace = () => {
     selectedSpace,
     setSpace,
     createSpace,
+    updateSpace,
     deleteSpace,
   };
 };

@@ -6,8 +6,8 @@ export class Space {
   @PrimaryColumn({ type: "varchar", comment: "고유번호" })
   UID!: string;
 
-  @Column({ type: "int", nullable: false, comment: "이미지" })
-  space_profile_seq!: number;
+  @Column({ type: "int", nullable: true, comment: "이미지" })
+  space_profile_seq?: number | null;
 
   @Column({ type: "varchar", nullable: false, comment: "이름" })
   space_name!: string;

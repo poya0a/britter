@@ -31,7 +31,7 @@ export const config = {
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      const uploadDirectory = path.join(process.cwd(), "files");
+      const uploadDirectory = path.join(process.cwd(), "public/files");
       if (!fs.existsSync(uploadDirectory)) {
         fs.mkdirSync(uploadDirectory, { recursive: true });
       }
@@ -219,7 +219,7 @@ export default async function handler(
 
     const space: DeepPartial<Space> = {
       UID: uuidv4(),
-      space_profile_seq: 0,
+      space_profile_seq: null,
       space_name: emp.user_nick_name,
       space_manager: emp.UID,
       space_public: emp.user_public,
@@ -250,11 +250,7 @@ export default async function handler(
           saveUser.user_profile_seq = saveFile.seq;
           const updateUser = await empsRepository.save(saveUser);
 
-          // 스페이스 프로필 업데이트
-          saveSpace.space_profile_seq = saveFile.seq;
-          const updateSpace = await spaceRepository.save(saveSpace);
-
-          if (updateUser && updateSpace) {
+          if (updateUser) {
             return res.status(200).json({
               message: "회원 가입이 완료되었습니다.",
               resultCode: true,
