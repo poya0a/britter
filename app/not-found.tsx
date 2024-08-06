@@ -1,7 +1,7 @@
 "use client";
 import { Metadata } from "next";
 import styles from "./page.module.scss";
-import commonStyles from "@styles/components/_common.module.scss";
+import buttonStyles from "@styles/components/_button.module.scss";
 import { useRouter } from "next/navigation";
 
 export const metadata: Metadata = {
@@ -16,7 +16,7 @@ export default function NotFound() {
       <div className={styles.goToHome}>
         <button
           type="button"
-          className={`button ${commonStyles.buttonBlue}`}
+          className={`button ${buttonStyles.buttonBlue}`}
           onClick={() => router.push("/")}
         >
           홈으로

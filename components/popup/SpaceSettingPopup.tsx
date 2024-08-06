@@ -2,7 +2,7 @@ import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
 import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
-import { SpaceData, useSpace } from "@hooks/user/useSpace";
+import { SpaceData, SpaceMemberData, useSpace } from "@hooks/user/useSpace";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useImageCrop } from "@hooks/useImageCrop";
@@ -16,7 +16,13 @@ import Alert from "./Alert";
 export default function SpaceSettingPopup() {
   const { useSpaceSettingState, toggleSpaceSettingPopup } =
     useSpaceSettingPopup();
-  const { useSpaceState, selectedSpace, updateSpace, deleteSpace } = useSpace();
+  const {
+    useSpaceState,
+    useSpaceMemeberState,
+    selectedSpace,
+    updateSpace,
+    deleteSpace,
+  } = useSpace();
   const [spaceInfo, setSpaceInfo] = useState<SpaceData | null>(
     useSpaceState.find((space: SpaceData) => space.UID === selectedSpace) ||
       null
@@ -29,6 +35,10 @@ export default function SpaceSettingPopup() {
   const { useAlertState, toggleAlert } = useAlert();
   const { useFnAndCancelAlertState, toggleFnAndCancelAlert } =
     useFnAndCancelAlert();
+  const [memberList, setMemberList] =
+    useState<SpaceMemberData[]>(useSpaceMemeberState);
+  const [inputValue, setInputValue] = useState<string>("");
+  const [searchList, setSearchList] = useState<boolean>(false);
 
   useEffect(() => {
     const foundSpace = useSpaceState.find(
@@ -114,6 +124,19 @@ export default function SpaceSettingPopup() {
       content: "삭제한 스페이스는 복구할 수 없습니다. 삭제하시겠습니까?",
       fn: deleteSpace,
     });
+  };
+
+  const handleSearch = () => {
+    if (inputValue === "") {
+      setSearchList(false);
+      setMemberList(useSpaceMemeberState);
+    } else {
+      setSearchList(true);
+      const serachResult: SpaceMemberData[] = useSpaceMemeberState.filter(
+        (member) => member.user_nick_name.includes(inputValue)
+      );
+      setMemberList(serachResult);
+    }
   };
 
   return (
@@ -256,7 +279,84 @@ export default function SpaceSettingPopup() {
                 </div>
               </div>
             ) : (
-              <div className={styles.member}></div>
+              <div className={styles.member}>
+                <div className={inputStyles.inputText}>
+                  <div className={inputStyles.inputCheckWrapper}>
+                    <input
+                      type="text"
+                      className="input"
+                      maxLength={100}
+                      onChange={(e) => setInputValue(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="button"
+                      onClick={handleSearch}
+                    >
+                      검&nbsp;색
+                    </button>
+                  </div>
+                </div>
+                <div className={styles.searchResultWrapper}>
+                  {memberList && (
+                    <>
+                      <p>
+                        {searchList && "검색 결과 : "} 총 {memberList.length} 명
+                      </p>
+
+                      {memberList.length > 0 ? (
+                        <div className={styles.searchResultList}>
+                          {memberList.map(
+                            (member: SpaceMemberData, index: number) => (
+                              <div
+                                className={styles.searchResult}
+                                key={`search-space-${index}`}
+                              >
+                                <button
+                                  type="button"
+                                  className={`button ${styles.goToSearchResult}`}
+                                  // title={`${space.space_name} 스페이스 이동`}
+                                >
+                                  {member.roll === "manager" && (
+                                    <strong>M</strong>
+                                  )}
+                                  {member.user_profile_path &&
+                                  member.user_profile_path !== "" ? (
+                                    <img
+                                      src={member.user_profile_path}
+                                      alt=""
+                                    />
+                                  ) : (
+                                    <i className="normal">
+                                      {member.user_nick_name.charAt(0)}
+                                    </i>
+                                  )}
+                                  <em className="normal">
+                                    {member.user_nick_name}
+                                  </em>
+                                </button>
+                                {member.roll !== "manager" && (
+                                  <button
+                                    type="button"
+                                    style={{ width: "80px", height: "38px" }}
+                                    className={buttonStyles.buttonBorderBlue}
+                                  >
+                                    내보내기
+                                  </button>
+                                )}
+                              </div>
+                            )
+                          )}
+                        </div>
+                      ) : (
+                        <p className={styles.noSearchResults}>
+                          검색 결과가 없습니다.
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         </div>

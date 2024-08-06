@@ -117,8 +117,6 @@ export const usePost = () => {
           route: "/login",
         });
         storage.removeToken();
-      } else {
-        alert(error.message);
       }
     },
   });

@@ -73,8 +73,6 @@ export const useInfo = () => {
             route: "/login",
           });
           storage.removeToken();
-        } else {
-          alert(error.message);
         }
       }
       throw error;

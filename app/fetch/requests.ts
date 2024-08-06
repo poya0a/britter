@@ -8,11 +8,13 @@ const requests = {
   DELETE_POST: "api/post/deletePost",
   FILE_UPLOAD: "api/file/upload",
   GET_FILE: "api/file/getFile",
-  GET_SPACE_LIST: "api/space/getSpaceList",
-  GET_SPACE_DETAIL: "api/space/getSpaceDetail",
+  SEARCH_SPACE_LIST: "api/search/getSpaceList",
+  SEARCH_USER_LIST: "api/search/getUserList",
+  SEARCH_POST_LIST: "api/search/getPostList",
   SAVE_SPACE: "api/space/saveSpace",
   UPDATE_SPACE: "api/space/updateSpace",
   DELETE_SPACE: "api/space/deleteSpace",
+  GET_SPACE_MEMBER_LIST: "api/space/getSpaceMemberList",
 };
 
 export default requests;

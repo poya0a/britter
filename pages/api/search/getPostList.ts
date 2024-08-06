@@ -1,12 +1,12 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
 import { AppDataSource } from "@database/typeorm.config";
-import { Space } from "@entities/Space.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
 } from "@/server/utils/authenticateToken";
 import { ILike } from "typeorm";
+import { Post } from "@entities/Post.entity";
 
 export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,
@@ -21,16 +21,25 @@ export default async function handler(
     if (req.user) {
       try {
         const dataSource = await AppDataSource.useFactory();
-        const spaceRepository = dataSource.getRepository(Space);
-        const findSpace = await spaceRepository.find({
-          where: { space_name: ILike(`%${searchWord}%`), space_public: true },
-          select: ["UID", "space_profile_seq", "space_name", "space_public"],
+        const postRepository = dataSource.getRepository(Post);
+        const findPost = await postRepository.find({
+          where: { title: ILike(`%${searchWord}%`) },
+          select: ["UID", "seq", "content", "space_uid"],
         });
-        return res.status(200).json({
-          message: "검색 완료했습니다.",
-          data: findSpace,
-          resultCode: true,
-        });
+
+        if (findPost) {
+          return res.status(200).json({
+            message: "검색 완료했습니다.",
+            data: findPost,
+            resultCode: true,
+          });
+        } else {
+          return res.status(200).json({
+            message: "검색 결과가 없습니다.",
+
+            resultCode: true,
+          });
+        }
       } catch (error) {
         return res.status(500).json({
           message:

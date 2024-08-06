@@ -1,4 +1,4 @@
-import { SpaceListData, useCreatePopup } from "@hooks/popup/useCreatePopup";
+import { useCreatePopup } from "@hooks/popup/useCreatePopup";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
@@ -7,15 +7,16 @@ import { ErrorMessage } from "@hookform/error-message";
 import { useForm } from "react-hook-form";
 import { useToast } from "@hooks/popup/useToast";
 import { useSpace } from "@hooks/user/useSpace";
+import { useSearch, SpaceListData } from "@hooks/useSearch";
 
 export default function CreatePopup() {
   const {
     useCreateState,
     toggleCreatePopup,
-    searchSpaceList,
-    updateSpaceRequest,
+    // updateSpaceRequest,
   } = useCreatePopup();
   const { createSpace } = useSpace();
+  const { useSearchState, searchSpaceList } = useSearch();
   const [inputValue, setInputValue] = useState<{
     create: string;
     search: string;
@@ -84,7 +85,7 @@ export default function CreatePopup() {
     if (request) {
       return setToast("이미 참여 신청한 스페이스입니다.");
     }
-    updateSpaceRequest(spaceUid);
+    // updateSpaceRequest(spaceUid);
     setToast("참여 신청 완료하였습니다.");
   };
 
@@ -154,12 +155,12 @@ export default function CreatePopup() {
           />
           {useCreateState.mode === "search" && (
             <div className={styles.searchResultWrapper}>
-              {useCreateState.spaceList && noSearchResults && (
+              {useSearchState.spaceList && noSearchResults && (
                 <>
-                  {<p>검색 결과 : 총 {useCreateState.spaceList.length} 건</p>}
-                  {useCreateState.spaceList.length > 0 ? (
+                  {<p>검색 결과 : 총 {useSearchState.spaceList.length} 건</p>}
+                  {useSearchState.spaceList.length > 0 ? (
                     <div className={styles.searchResultList}>
-                      {useCreateState.spaceList.map(
+                      {useSearchState.spaceList.map(
                         (space: SpaceListData, index: number) => (
                           <div
                             className={styles.searchResult}

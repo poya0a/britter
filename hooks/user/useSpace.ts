@@ -8,12 +8,17 @@ import { atom } from "recoil";
 import { FetchError } from "@fetch/types";
 import { useRouteAlert } from "../popup/useRouteAlert";
 import storage from "@fetch/auth/storage";
-import { usePost } from "../usePost";
 import { useAlert } from "../popup/useAlert";
 import { useCreatePopup } from "../popup/useCreatePopup";
 import { useToast } from "../popup/useToast";
 import { useSpaceSettingPopup } from "../popup/useSpaceSettingPopup";
 import { useSettingMenu } from "../menu/useSettingMenu";
+
+interface PageInfo {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+}
 
 export interface SpaceData {
   UID: string;
@@ -31,15 +36,57 @@ interface SpaceListResponse {
   resultCode: boolean;
 }
 
+export interface SpaceMemberData {
+  UID: string;
+  roll: string;
+  user_profile_seq: number;
+  user_profile_path?: string;
+  user_id: string;
+  user_name: string;
+  user_hp: string;
+  user_email?: string;
+  user_nick_name: string;
+  user_birth?: string;
+  user_public: boolean;
+  status_emoji?: string;
+  status_message?: string;
+}
+
+interface SpaceMemberListResponse {
+  message: string;
+  data?: SpaceMemberData[];
+  pageInfo?: PageInfo;
+  resultCode: boolean;
+}
+
 export const spaceState = atom<SpaceData[]>({
   key: "spaceState",
   default: [],
+});
+
+export const spaceMemberState = atom<SpaceMemberData[]>({
+  key: "spaceMemberState",
+  default: [],
+});
+
+export const pageInfo = atom<PageInfo>({
+  key: "pageInfo",
+  default: {
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 1,
+  },
 });
 
 export const useSpace = () => {
   const queryClient = useQueryClient();
   const [useSpaceState, setUseSpaceState] =
     useRecoilState<SpaceData[]>(spaceState);
+  const [spacePageInfo, setSpacePageInfo] = useRecoilState<PageInfo>(pageInfo);
+  const [useSpaceMemeberState, setUseSpaceMemeberState] =
+    useRecoilState<SpaceMemberData[]>(spaceMemberState);
+  const [spaceMemeberPageInfo, setSpaceMemeberPageInfo] =
+    useRecoilState<PageInfo>(pageInfo);
 
   const { toggleAlert } = useAlert();
   const { setToast } = useToast();
@@ -59,6 +106,10 @@ export const useSpace = () => {
         throw new Error(res.message);
       }
 
+      if (res.pageInfo) {
+        setSpacePageInfo(res.pageInfo);
+      }
+
       return res.data;
     } catch (error) {
       if (error instanceof FetchError) {
@@ -69,15 +120,13 @@ export const useSpace = () => {
             route: "/login",
           });
           storage.removeToken();
-        } else {
-          alert(error.message);
         }
       }
       throw error;
     }
   };
 
-  const { data } = useQuery<SpaceData[], Error>({
+  const { data: space } = useQuery<SpaceData[], Error>({
     queryKey: ["space"],
     queryFn: fetchSpace,
     staleTime: 5 * 60 * 1000,
@@ -86,9 +135,13 @@ export const useSpace = () => {
   const { data: selectedSpace = "" } = useQuery<string>({
     queryKey: ["selectedSpace"],
     queryFn: () => {
-      const data = queryClient.getQueryData<string>(["selectedSpace"]) ?? "";
-      return data;
+      return queryClient.getQueryData<string>(["selectedSpace"]) ?? "";
     },
+  });
+
+  const { data: spaceMember } = useQuery<SpaceMemberData[], Error>({
+    queryKey: ["spaceMember"],
+    staleTime: 5 * 60 * 1000,
   });
 
   const { mutate: createSpace } = useMutation({
@@ -106,7 +159,6 @@ export const useSpace = () => {
         toggleCreatePopup({
           isActOpen: false,
           mode: "",
-          spaceList: [],
         });
         toggleSettingMenu(false);
         setSpace(res.data.spaceUid);
@@ -160,11 +212,33 @@ export const useSpace = () => {
     },
   });
 
+  const { mutate: fetchSpaceMember } = useMutation({
+    mutationFn: () =>
+      fetchApi({
+        method: "POST",
+        url: requests.GET_SPACE_MEMBER_LIST,
+        body: JSON.stringify({ spaceUid: selectedSpace }),
+      }),
+    onSuccess: (res: SpaceMemberListResponse) => {
+      if (!res.resultCode) {
+        toggleAlert(res.message);
+      } else {
+        if (res.data && res.pageInfo) {
+          queryClient.setQueryData(["spaceMember"], res.data);
+          setSpaceMemeberPageInfo(res.pageInfo);
+        }
+      }
+    },
+    onError: (error: any) => {
+      toggleAlert(error);
+    },
+  });
+
   useEffect(() => {
     const updateSpace = async () => {
-      if (data) {
+      if (space) {
         const updatedList = await Promise.all(
-          data.map(async (space: SpaceData) => {
+          space.map(async (space: SpaceData) => {
             const space_profile_path = space.space_profile_seq
               ? await fetchFile(space.space_profile_seq)
               : "";
@@ -173,23 +247,46 @@ export const useSpace = () => {
         );
         setUseSpaceState(updatedList);
         if (selectedSpace === "") {
-          setSpace(data[0].UID);
+          setSpace(space[0].UID);
         }
       }
     };
 
     updateSpace();
-  }, [data, selectedSpace]);
+  }, [space, selectedSpace]);
 
   const setSpace = (uid: string) => {
     if (uid !== queryClient.getQueryData(["selectedSpace"])) {
       queryClient.setQueryData(["selectedSpace"], uid);
+      fetchSpaceMember();
     }
   };
 
+  useEffect(() => {
+    const updateSpaceMember = async () => {
+      if (spaceMember) {
+        const updatedList = await Promise.all(
+          spaceMember.map(async (member: SpaceMemberData) => {
+            const user_profile_path = member.user_profile_seq
+              ? await fetchFile(member.user_profile_seq)
+              : "";
+            return { ...member, user_profile_path };
+          })
+        );
+        setUseSpaceMemeberState(updatedList);
+      }
+    };
+
+    updateSpaceMember();
+  }, [spaceMember, selectedSpace]);
+
   return {
     useSpaceState,
+    useSpaceMemeberState,
     selectedSpace,
+    spaceMember,
+    spacePageInfo,
+    spaceMemeberPageInfo,
     setSpace,
     createSpace,
     updateSpace,
