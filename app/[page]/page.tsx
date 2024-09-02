@@ -47,6 +47,8 @@ import { useCreatePopup } from "@hooks/popup/useCreatePopup";
 import { useSpace } from "@hooks/user/useSpace";
 import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
 import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
+import { useSearchPopup } from "@hooks/popup/useSearchPopup";
+import SearchPopup from "@components/popup/SearchPopup";
 
 const lowlight = createLowlight(common);
 
@@ -162,6 +164,7 @@ export default function Page() {
   const { useFnAndCancelAlertState, toggleFnAndCancelAlert } =
     useFnAndCancelAlert();
   const { useToastState } = useToast();
+  const { useSearchState } = useSearchPopup();
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
   const { selectedSpace } = useSpace();
   const { useCreateState } = useCreatePopup();
@@ -432,6 +435,7 @@ export default function Page() {
       {useRouteAlertState.isActOpen && <RoutAlert />}
       {useFnAndCancelAlertState.isActOpen && <FnAndCancelAlert />}
       {useToastState.isActOpen && <Toast />}
+      {useSearchState.isActOpen && <SearchPopup />}
       {useSettingMenuState.isActOpen && <SettingMenu />}
       {useCreateState.isActOpen && <CreatePopup />}
       {useSpaceSettingState.isActOpen && <SpaceSettingPopup />}

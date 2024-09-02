@@ -3,7 +3,7 @@ import { PostModel } from "./Post.model";
 import { FileModel } from "./File.model";
 
 export interface CommentInterface {
-  seq: number;
+  seq: string;
   p_seq?: number;
   UID: string;
   postSeq: string;
@@ -22,7 +22,7 @@ export interface CommentInterface {
 }
 
 export class CommentModel implements CommentInterface {
-  seq: number;
+  seq: string;
   p_seq?: number;
   UID: string;
   postSeq: string;

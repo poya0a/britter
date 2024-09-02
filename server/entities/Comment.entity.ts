@@ -1,18 +1,12 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from "typeorm";
+import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from "typeorm";
 import { Emps } from "./Emps.entity";
 import { Post } from "./Post.entity";
 import { File } from "./File.entity";
 
 @Entity("Comment")
 export class Comment {
-  @PrimaryGeneratedColumn()
-  seq!: number;
+  @PrimaryColumn()
+  seq!: string;
 
   @Column({ type: "int", nullable: true })
   p_seq?: number;

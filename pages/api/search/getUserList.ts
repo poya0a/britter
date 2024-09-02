@@ -1,11 +1,11 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
 import { AppDataSource } from "@database/typeorm.config";
-import { Space } from "@entities/Space.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
 } from "@/server/utils/authenticateToken";
+import { paginate } from "@/server/utils/paginate";
 import { ILike } from "typeorm";
 import { Emps } from "@entities/Emps.entity";
 
@@ -16,7 +16,8 @@ export default async function handler(
   if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
-  const { searchWord } = JSON.parse(req.body);
+  const { searchWord, page } = JSON.parse(req.body);
+  const pageNumber = parseInt(page, 10);
 
   authenticateToken(req, res, async () => {
     if (req.user) {
@@ -25,13 +26,25 @@ export default async function handler(
         const empsRepository = dataSource.getRepository(Emps);
         const findUser = await empsRepository.find({
           where: { user_id: ILike(`%${searchWord}%`), user_public: true },
-          select: ["UID", "user_profile_seq", "user_id", "user_name"],
+          select: [
+            "UID",
+            "user_profile_seq",
+            "user_id",
+            "user_name",
+            "user_nick_name",
+            "user_public",
+          ],
+          skip: (pageNumber - 1) * 10,
+          take: 10,
         });
 
         if (findUser) {
+          const { pageInfo } = paginate(findUser, pageNumber, 10);
+
           return res.status(200).json({
             message: "검색 완료했습니다.",
             data: findUser,
+            pageInfo: pageInfo,
             resultCode: true,
           });
         } else {

@@ -189,7 +189,7 @@ export default function MainMenu() {
   };
 
   const handleSearch = () => {
-    toggleSearchPopup(true);
+    toggleSearchPopup({ isActOpen: true, mode: "space" });
     toggleSettingMenu(false);
   };
 

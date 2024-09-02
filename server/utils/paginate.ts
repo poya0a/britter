@@ -1,4 +1,4 @@
-function paginate<T>(array: T[], page: number = 1, limit: number = 10) {
+export function paginate<T>(array: T[], page: number = 1, limit: number = 10) {
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
 

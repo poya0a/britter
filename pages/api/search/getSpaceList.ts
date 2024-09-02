@@ -6,6 +6,7 @@ import {
   AuthenticatedRequest,
   authenticateToken,
 } from "@/server/utils/authenticateToken";
+import { paginate } from "@/server/utils/paginate";
 import { ILike } from "typeorm";
 
 export default async function handler(
@@ -29,12 +30,24 @@ export default async function handler(
           skip: (pageNumber - 1) * 10,
           take: 10,
         });
-        return res.status(200).json({
-          message: "검색 완료했습니다.",
-          data: findSpace,
-          resultCode: true,
-        });
+
+        if (findSpace) {
+          const { pageInfo } = paginate(findSpace, pageNumber, 10);
+
+          return res.status(200).json({
+            message: "검색 완료했습니다.",
+            data: findSpace,
+            pageInfo: pageInfo,
+            resultCode: true,
+          });
+        } else {
+          return res.status(200).json({
+            message: "검색 결과가 없습니다.",
+            resultCode: true,
+          });
+        }
       } catch (error) {
+        console.log(error);
         return res.status(500).json({
           message:
             typeof error === "string" ? error : "서버 에러가 발생하였습니다.",

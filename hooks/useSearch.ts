@@ -1,10 +1,10 @@
+import { useEffect, useState } from "react";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRecoilState } from "recoil";
 import { atom } from "recoil";
 import { useAlert } from "./popup/useAlert";
-import { useEffect } from "react";
 import fetchFile from "@fetch/fetchFile";
 import { useSpace } from "./user/useSpace";
 
@@ -19,11 +19,12 @@ export interface SpaceListData {
 
 export interface UserListData {
   UID: string;
-  space_profile_seq: number;
-  space_profile_path?: string;
-  space_name: string;
-  space_public: boolean;
-  space_Request?: boolean;
+  user_id: string;
+  user_profile_path?: string;
+  user_profile_seq: number;
+  user_name: string;
+  user_nick_name: string;
+  user_public: boolean;
 }
 
 export interface PostListData {
@@ -38,6 +39,12 @@ export interface PostListData {
 interface SearchResponse {
   message: string;
   data?: SpaceListData[] | UserListData[] | PostListData[];
+  pageInfo?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+  };
   resultCode: boolean;
 }
 
@@ -62,6 +69,15 @@ export const useSearch = () => {
     useRecoilState<SearchData>(searchData);
   const spaceUid = queryClient.getQueryData<string>(["selectedSpace"]);
   const { toggleAlert } = useAlert();
+  const [searchPageNo, setSearchPageNo] = useState<{
+    space: number;
+    user: number;
+    post: number;
+  }>({
+    space: 1,
+    user: 1,
+    post: 1,
+  });
 
   const { data: spaceList } = useQuery<SpaceListData[], Error>({
     queryKey: ["searchSpaceList"],
@@ -83,14 +99,18 @@ export const useSearch = () => {
       fetchApi({
         method: "POST",
         url: requests.SEARCH_SPACE_LIST,
-        body: JSON.stringify({ searchWord }),
+        body: JSON.stringify({ searchWord, page: searchPageNo.space }),
       }),
     onSuccess: (res: SearchResponse) => {
-      queryClient.invalidateQueries({ queryKey: ["searchSpaceList"] });
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode) {
         queryClient.setQueryData(["searchSpaceList"], res.data);
+        useUpdateSpaceList(res.data as SpaceListData[]);
+        setSearchPageNo((prevState) => ({
+          ...prevState,
+          space: res.pageInfo?.currentPage ?? prevState.space,
+        }));
       }
     },
     onError: (error: any) => {
@@ -103,7 +123,7 @@ export const useSearch = () => {
       fetchApi({
         method: "POST",
         url: requests.SEARCH_USER_LIST,
-        body: JSON.stringify({ searchWord }),
+        body: JSON.stringify({ searchWord, page: searchPageNo.user }),
       }),
     onSuccess: (res: SearchResponse) => {
       queryClient.invalidateQueries({ queryKey: ["searchUserList"] });
@@ -111,6 +131,11 @@ export const useSearch = () => {
         toggleAlert(res.message);
       } else if (res.resultCode) {
         queryClient.setQueryData(["searchUserList"], res.data);
+        useUpdateUserList(res.data as UserListData[]);
+        setSearchPageNo((prevState) => ({
+          ...prevState,
+          user: res.pageInfo?.currentPage ?? prevState.user,
+        }));
       }
     },
     onError: (error: any) => {
@@ -123,7 +148,7 @@ export const useSearch = () => {
       fetchApi({
         method: "POST",
         url: requests.SEARCH_POST_LIST,
-        body: JSON.stringify({ searchWord }),
+        body: JSON.stringify({ searchWord, page: searchPageNo.post }),
       }),
     onSuccess: (res: SearchResponse) => {
       queryClient.invalidateQueries({ queryKey: ["searchPostList"] });
@@ -131,6 +156,10 @@ export const useSearch = () => {
         toggleAlert(res.message);
       } else if (res.resultCode) {
         queryClient.setQueryData(["searchPostList"], res.data);
+        setSearchPageNo((prevState) => ({
+          ...prevState,
+          post: res.pageInfo?.currentPage ?? prevState.post,
+        }));
       }
     },
     onError: (error: any) => {
@@ -138,59 +167,32 @@ export const useSearch = () => {
     },
   });
 
-  useEffect(() => {
-    const updateSpaceList = async () => {
-      if (spaceList) {
-        const updatedList = await Promise.all(
-          spaceList.map(async (space: SpaceListData) => {
-            const space_profile_path = await fetchFile(space.space_profile_seq);
-            return { ...space, space_profile_path };
-          })
-        );
-        setUseSearchState({
-          spaceList: updatedList,
-        });
-      }
-    };
+  const useUpdateSpaceList = async (spaceList: SpaceListData[]) => {
+    const updatedList = await Promise.all(
+      spaceList.map(async (space: SpaceListData) => {
+        const space_profile_path = await fetchFile(space.space_profile_seq);
+        return { ...space, space_profile_path };
+      })
+    );
 
-    updateSpaceList();
-  }, [spaceList]);
+    setUseSearchState({
+      spaceList: updatedList,
+    });
+  };
 
-  useEffect(() => {
-    const updateUserList = async () => {
-      if (userList) {
-        const updatedList = await Promise.all(
-          userList.map(async (user: UserListData) => {
-            const space_profile_path = await fetchFile(user.space_profile_seq);
-            return { ...user, space_profile_path };
-          })
-        );
-        setUseSearchState({
-          userList: updatedList,
-        });
-      }
-    };
+  const useUpdateUserList = async (userList: UserListData[]) => {
+    const updatedList = await Promise.all(
+      userList.map(async (user: UserListData) => {
+        const user_profile_path = await fetchFile(user.user_profile_seq);
+        return { ...user, user_profile_path };
+      })
+    );
 
-    updateUserList();
-  }, [userList]);
+    setUseSearchState({
+      userList: updatedList,
+    });
+  };
 
-  useEffect(() => {
-    const updatePostList = async () => {
-      if (postList) {
-        const updatedList = await Promise.all(
-          postList.map(async (post: PostListData) => {
-            const space_profile_path = await fetchFile(post.space_profile_seq);
-            return { ...post, space_profile_path };
-          })
-        );
-        setUseSearchState({
-          postList: updatedList,
-        });
-      }
-    };
-
-    updatePostList();
-  }, [postList]);
   //   const updateSpaceRequest = (spaceUid: string) => {
   //     setUseCreateState((prevState) => {
   //       if (prevState.spaceList) {
@@ -212,7 +214,6 @@ export const useSearch = () => {
 
   return {
     useSearchState,
-    spaceList,
     searchSpaceList,
     searchUserList,
     searchPostList,

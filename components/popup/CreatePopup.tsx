@@ -7,7 +7,8 @@ import { ErrorMessage } from "@hookform/error-message";
 import { useForm } from "react-hook-form";
 import { useToast } from "@hooks/popup/useToast";
 import { useSpace } from "@hooks/user/useSpace";
-import { useSearch, SpaceListData } from "@hooks/useSearch";
+import { searchData, useSearch, SpaceListData } from "@hooks/useSearch";
+import { useResetRecoilState } from "recoil";
 
 export default function CreatePopup() {
   const {
@@ -29,6 +30,7 @@ export default function CreatePopup() {
     reset,
     formState: { errors },
   } = useForm({ mode: "onChange" });
+  const resetSearchData = useResetRecoilState(searchData);
 
   const handleMode = (mode: string) => {
     if (useCreateState.mode !== mode) {
@@ -39,6 +41,7 @@ export default function CreatePopup() {
   };
 
   const handleClose = () => {
+    resetSearchData();
     reset();
     toggleCreatePopup(false);
   };
