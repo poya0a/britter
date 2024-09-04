@@ -6,7 +6,7 @@ import { useRecoilState } from "recoil";
 import { atom } from "recoil";
 import { useAlert } from "./popup/useAlert";
 import fetchFile from "@fetch/fetchFile";
-import { useSpace } from "./user/useSpace";
+import convertHtmlToPreviewText from "@/utils/previewText";
 
 export interface SpaceListData {
   UID: string;
@@ -29,11 +29,10 @@ export interface UserListData {
 
 export interface PostListData {
   UID: string;
-  space_profile_seq: number;
-  space_profile_path?: string;
-  space_name: string;
-  space_public: boolean;
-  space_Request?: boolean;
+  seq: number;
+  title: string;
+  content: string;
+  space_uid: string;
 }
 
 interface SearchResponse {
@@ -49,6 +48,7 @@ interface SearchResponse {
 }
 
 interface SearchData {
+  searchWord?: string;
   spaceList?: SpaceListData[];
   userList?: UserListData[];
   postList?: PostListData[];
@@ -57,6 +57,7 @@ interface SearchData {
 export const searchData = atom<SearchData>({
   key: "searchData",
   default: {
+    searchWord: "",
     spaceList: [],
     userList: [],
     postList: [],
@@ -74,9 +75,18 @@ export const useSearch = () => {
     user: number;
     post: number;
   }>({
-    space: 1,
-    user: 1,
-    post: 1,
+    space: 0,
+    user: 0,
+    post: 0,
+  });
+  const [lastPage, setLastPage] = useState<{
+    space: boolean;
+    user: boolean;
+    post: boolean;
+  }>({
+    space: false,
+    user: false,
+    post: false,
   });
 
   const { data: spaceList } = useQuery<SpaceListData[], Error>({
@@ -95,12 +105,14 @@ export const useSearch = () => {
   });
 
   const { mutate: searchSpaceList } = useMutation({
-    mutationFn: (searchWord: string) =>
-      fetchApi({
+    mutationFn: (searchWord: string) => {
+      setUseSearchState({ searchWord: searchWord });
+      return fetchApi({
         method: "POST",
         url: requests.SEARCH_SPACE_LIST,
-        body: JSON.stringify({ searchWord, page: searchPageNo.space }),
-      }),
+        body: JSON.stringify({ searchWord, page: searchPageNo.space + 1 }),
+      });
+    },
     onSuccess: (res: SearchResponse) => {
       if (!res.resultCode) {
         toggleAlert(res.message);
@@ -111,6 +123,10 @@ export const useSearch = () => {
           ...prevState,
           space: res.pageInfo?.currentPage ?? prevState.space,
         }));
+        setLastPage((prevState) => ({
+          ...prevState,
+          space: res.pageInfo?.currentPage === res.pageInfo?.totalPages,
+        }));
       }
     },
     onError: (error: any) => {
@@ -119,12 +135,14 @@ export const useSearch = () => {
   });
 
   const { mutate: searchUserList } = useMutation({
-    mutationFn: (searchWord: string) =>
-      fetchApi({
+    mutationFn: (searchWord: string) => {
+      setUseSearchState({ searchWord: searchWord });
+      return fetchApi({
         method: "POST",
         url: requests.SEARCH_USER_LIST,
-        body: JSON.stringify({ searchWord, page: searchPageNo.user }),
-      }),
+        body: JSON.stringify({ searchWord, page: searchPageNo.user + 1 }),
+      });
+    },
     onSuccess: (res: SearchResponse) => {
       queryClient.invalidateQueries({ queryKey: ["searchUserList"] });
       if (!res.resultCode) {
@@ -136,6 +154,10 @@ export const useSearch = () => {
           ...prevState,
           user: res.pageInfo?.currentPage ?? prevState.user,
         }));
+        setLastPage((prevState) => ({
+          ...prevState,
+          user: res.pageInfo?.currentPage === res.pageInfo?.totalPages,
+        }));
       }
     },
     onError: (error: any) => {
@@ -144,21 +166,31 @@ export const useSearch = () => {
   });
 
   const { mutate: searchPostList } = useMutation({
-    mutationFn: (searchWord: string) =>
-      fetchApi({
+    mutationFn: (searchWord: string) => {
+      setUseSearchState({ searchWord: searchWord });
+      return fetchApi({
         method: "POST",
         url: requests.SEARCH_POST_LIST,
-        body: JSON.stringify({ searchWord, page: searchPageNo.post }),
-      }),
+        body: JSON.stringify({ searchWord, page: searchPageNo.post + 1 }),
+      });
+    },
     onSuccess: (res: SearchResponse) => {
       queryClient.invalidateQueries({ queryKey: ["searchPostList"] });
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode) {
         queryClient.setQueryData(["searchPostList"], res.data);
+        useUpdatePostList(
+          res.data as PostListData[],
+          useSearchState.searchWord ?? ""
+        );
         setSearchPageNo((prevState) => ({
           ...prevState,
           post: res.pageInfo?.currentPage ?? prevState.post,
+        }));
+        setLastPage((prevState) => ({
+          ...prevState,
+          post: res.pageInfo?.currentPage === res.pageInfo?.totalPages,
         }));
       }
     },
@@ -175,9 +207,15 @@ export const useSearch = () => {
       })
     );
 
-    setUseSearchState({
-      spaceList: updatedList,
-    });
+    if (searchPageNo.space !== 0 && useSearchState.spaceList) {
+      setUseSearchState((prevState) => ({
+        spaceList: [...(prevState.spaceList ?? []), ...updatedList],
+      }));
+    } else {
+      setUseSearchState({
+        spaceList: updatedList,
+      });
+    }
   };
 
   const useUpdateUserList = async (userList: UserListData[]) => {
@@ -188,9 +226,37 @@ export const useSearch = () => {
       })
     );
 
-    setUseSearchState({
-      userList: updatedList,
-    });
+    if (searchPageNo.user !== 0 && useSearchState.userList) {
+      setUseSearchState((prevState) => ({
+        userList: [...(prevState.userList ?? []), ...updatedList],
+      }));
+    } else {
+      setUseSearchState({
+        userList: updatedList,
+      });
+    }
+  };
+
+  const useUpdatePostList = async (
+    postList: PostListData[],
+    searchWord: string
+  ) => {
+    const updatedList = await Promise.all(
+      postList.map(async (post: PostListData) => {
+        const content = convertHtmlToPreviewText(post.content, searchWord);
+        return { ...post, content: content };
+      })
+    );
+
+    if (searchPageNo.post !== 0 && useSearchState.postList) {
+      setUseSearchState((prevState) => ({
+        postList: [...(prevState.postList ?? []), ...updatedList],
+      }));
+    } else {
+      setUseSearchState({
+        postList: updatedList,
+      });
+    }
   };
 
   //   const updateSpaceRequest = (spaceUid: string) => {
@@ -214,8 +280,10 @@ export const useSearch = () => {
 
   return {
     useSearchState,
+    setSearchPageNo,
     searchSpaceList,
     searchUserList,
     searchPostList,
+    lastPage,
   };
 };

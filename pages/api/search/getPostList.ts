@@ -23,14 +23,31 @@ export default async function handler(
         const dataSource = await AppDataSource.useFactory();
         const postRepository = dataSource.getRepository(Post);
         const findPost = await postRepository.find({
-          where: { title: ILike(`%${searchWord}%`) },
-          select: ["UID", "seq", "content", "space_uid"],
+          where: [
+            { title: ILike(`%${searchWord}%`) },
+            { content: ILike(`%${searchWord}%`) },
+          ],
+          select: ["UID", "seq", "title", "content", "space_uid"],
         });
 
         if (findPost) {
+          const result = findPost.map((post) => {
+            return {
+              UID: post.UID,
+              seq: post.seq,
+              space_uid: post.space_uid,
+              title: post.title
+                ? extractSnippet(post.title, searchWord)
+                : getTruncatedText(post.title, 50),
+              content: post.content
+                ? extractSnippet(post.content, searchWord)
+                : getTruncatedText(post.content, 50),
+            };
+          });
+
           return res.status(200).json({
             message: "검색 완료했습니다.",
-            data: findPost,
+            data: result,
             resultCode: true,
           });
         } else {
@@ -55,4 +72,27 @@ export default async function handler(
       });
     }
   });
+}
+
+function extractSnippet(text: string, searchWord: string): string {
+  const snippetLength = 50;
+  const searchWordIndex = text.indexOf(searchWord);
+
+  if (searchWordIndex === -1) {
+    return text.length <= snippetLength
+      ? text
+      : text.slice(0, snippetLength) + "...";
+  }
+
+  const start = Math.max(0, searchWordIndex - snippetLength);
+  const end = Math.min(
+    text.length,
+    searchWordIndex + searchWord.length + snippetLength
+  );
+
+  return text.slice(start, end);
+}
+
+function getTruncatedText(text: string, length: number = 50): string {
+  return text.length <= length ? text : text.slice(0, length) + "...";
 }

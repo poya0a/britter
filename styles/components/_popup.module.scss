@@ -144,6 +144,9 @@
 }
 
 .searchResultWrapper {
+  max-width: calc(100vw - 500px);
+  min-width: 330px;
+  width: 100%;
   p {
     font-size: 12px;
     &.noSearchResults {
@@ -154,6 +157,7 @@
   }
 
   .searchResultList {
+    width: 100%;
     max-height: calc(100vh - 500px);
     min-height: 250px;
     height: calc(100vh / 2 - 300px);
@@ -240,9 +244,46 @@
             }
           }
         }
+        
       }
     }
-   
+
+    .searchPost {
+      width: 330px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #999999;
+      &:last-child {
+        margin: 0;
+        border: none;
+      }
+      .goToSearchPost {
+        width: 330px;
+        height: auto;
+        .postTitle {
+          font-size: 20px;
+          text-align: left;
+          margin: 8px 0;
+        }
+        .postContent {
+          width: 100%;
+          height: auto;
+          word-break: break-all;
+          font-weight: normal;
+          line-height: 1.5;
+          display: -webkit-box;
+          white-space: pre-wrap;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis; 
+          text-align: left;
+          > strong {
+            margin: 0 5px;
+            font-weight: bold;
+          }
+        }
+      }
+    }
   }
 }
 

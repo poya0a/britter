@@ -1,8 +1,6 @@
-import { ChangeEvent, useState, useEffect } from "react";
-import { useResetRecoilState } from "recoil";
+import { ChangeEvent, useState, useEffect, useRef } from "react";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
 import {
-  searchData,
   PostListData,
   SpaceListData,
   UserListData,
@@ -13,6 +11,7 @@ import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
+import { Space } from "@/server/entities/Space.entity";
 
 export default function SearchPopup() {
   const {
@@ -23,15 +22,21 @@ export default function SearchPopup() {
   } = useForm({ mode: "onChange" });
 
   const { useSearchState: popup, toggleSearchPopup } = useSearchPopup();
-  const { useSearchState, searchSpaceList, searchUserList, searchPostList } =
-    useSearch();
+  const {
+    useSearchState,
+    setSearchPageNo,
+    searchSpaceList,
+    searchUserList,
+    searchPostList,
+    lastPage,
+  } = useSearch();
   const [inputValue, setInputValue] = useState<string>("");
   const [searchLength, setSearchLength] = useState<number>(0);
   const [noSearchResults, setNoSearchResults] = useState<boolean>(false);
-  const resetSearchData = useResetRecoilState(searchData);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [scrollEvent, setScrollEvent] = useState(false);
 
   const handleClose = () => {
-    resetSearchData();
     reset();
     setSearchLength(0);
     setNoSearchResults(false);
@@ -43,11 +48,7 @@ export default function SearchPopup() {
   const handleMode = (mode: string) => {
     if (popup.mode !== mode) {
       toggleSearchPopup({ isActOpen: popup.isActOpen, mode: mode });
-      setSearchLength(0);
-      setNoSearchResults(false);
-      setInputValue("");
-      resetSearchData();
-      clearErrors();
+      callSearch(mode);
     }
   };
 
@@ -66,27 +67,82 @@ export default function SearchPopup() {
         message: "검색어를 입력해 주세요.",
       });
     }
-    setNoSearchResults(true);
-    if (popup.mode === "space") {
-      return searchSpaceList(inputValue);
-    }
-    if (popup.mode === "user") {
-      return searchUserList(inputValue);
-    }
-    if (popup.mode === "post") {
-      return searchPostList(inputValue);
+    callSearch(popup.mode);
+  };
+
+  const callSearch = (mode: string) => {
+    if (inputValue !== "") {
+      setNoSearchResults(true);
+      if (mode === "space") {
+        setSearchPageNo((prevState) => ({
+          ...prevState,
+          space: 0,
+        }));
+        searchSpaceList(inputValue);
+      } else if (mode === "user") {
+        setSearchPageNo((prevState) => ({
+          ...prevState,
+          user: 0,
+        }));
+        searchUserList(inputValue);
+      } else if (mode === "post") {
+        setSearchPageNo((prevState) => ({
+          ...prevState,
+          post: 0,
+        }));
+        searchPostList(inputValue);
+      }
     }
   };
+
+  const handleScroll = () => {
+    if (contentRef.current) {
+      const scrollPosition = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const contentBottom = contentRef.current.getBoundingClientRect().bottom;
+
+      if (scrollPosition + windowHeight >= contentBottom - 10) {
+        setScrollEvent(true);
+      } else {
+        setScrollEvent(false);
+      }
+    }
+  };
+
+  // useEffect(() => {
+  //   console.log(contentRef);
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => {
+  //     window.removeEventListener("scroll", handleScroll);
+  //   };
+  // }, [contentRef]);
+
+  useEffect(() => {
+    if (scrollEvent && useSearchState.searchWord) {
+      console.log(useSearchState.searchWord);
+      setNoSearchResults(true);
+      if (popup.mode === "space" && !lastPage.space) {
+        return searchSpaceList(useSearchState.searchWord);
+      } else if (popup.mode === "user" && !lastPage.user) {
+        return searchUserList(useSearchState.searchWord);
+      } else if (popup.mode === "post" && !lastPage.post) {
+        return searchPostList(useSearchState.searchWord);
+      }
+    }
+  }, [scrollEvent]);
 
   useEffect(() => {
     if (popup.mode === "space") {
       setSearchLength(useSearchState.spaceList?.length ?? 0);
+      window.addEventListener("scroll", handleScroll);
     } else if (popup.mode === "user") {
       setSearchLength(useSearchState.userList?.length ?? 0);
+      window.addEventListener("scroll", handleScroll);
     } else if (popup.mode === "post") {
       setSearchLength(useSearchState.postList?.length ?? 0);
     }
   }, [
+    popup.mode,
     useSearchState.spaceList,
     useSearchState.userList,
     useSearchState.postList,
@@ -115,7 +171,7 @@ export default function SearchPopup() {
                 value={inputValue}
                 onChange={handleValue}
               />
-              <button type="button" className="button" onClick={handleSearch}>
+              <button type="submit" className="button" onClick={handleSearch}>
                 검&nbsp;색
               </button>
             </div>
@@ -170,6 +226,7 @@ export default function SearchPopup() {
             <div
               className={styles.searchResultList}
               style={{ marginTop: searchLength < 1 ? "0" : "16px" }}
+              ref={contentRef}
             >
               {popup.mode === "space" &&
                 useSearchState.spaceList &&
@@ -256,19 +313,20 @@ export default function SearchPopup() {
                 useSearchState.postList.map(
                   (post: PostListData, index: number) => (
                     <div
-                      className={styles.searchResult}
+                      className={styles.searchPost}
                       key={`search-post-${index}`}
                     >
                       <button
                         type="button"
                         key={`search-user-${index}`}
-                        className={`button ${styles.goToSearchResult}`}
+                        className={`button ${styles.goToSearchPost}`}
                         // title={`${space.space_name} 스페이스 이동`}
                       >
-                        {/* <div>
-                        <p className="normal">{user.user_id}</p>
-                        <p className="normal">{user.user_nick_name}</p>
-                      </div> */}
+                        <p className={styles.postTitle}>{post.title}</p>
+                        <div
+                          className={styles.postContent}
+                          dangerouslySetInnerHTML={{ __html: post.content }}
+                        ></div>
                       </button>
                     </div>
                   )
