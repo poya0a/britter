@@ -1,4 +1,4 @@
-import { ChangeEvent, useState, useEffect, useRef } from "react";
+import { ChangeEvent, useState, useEffect, useRef, useCallback } from "react";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
 import {
   PostListData,
@@ -11,7 +11,6 @@ import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
-import { Space } from "@/server/entities/Space.entity";
 
 export default function SearchPopup() {
   const {
@@ -35,6 +34,7 @@ export default function SearchPopup() {
   const [noSearchResults, setNoSearchResults] = useState<boolean>(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const [scrollEvent, setScrollEvent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleClose = () => {
     reset();
@@ -95,49 +95,50 @@ export default function SearchPopup() {
     }
   };
 
-  const handleScroll = () => {
-    if (contentRef.current) {
-      const scrollPosition = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const contentBottom = contentRef.current.getBoundingClientRect().bottom;
+  const fetchMoreData = useCallback(async () => {
+    if (loading || !useSearchState.searchWord) return;
 
-      if (scrollPosition + windowHeight >= contentBottom - 10) {
-        setScrollEvent(true);
-      } else {
-        setScrollEvent(false);
-      }
+    setNoSearchResults(true);
+
+    if (popup.mode === "space" && !lastPage.space) {
+      setLoading(true);
+      searchSpaceList(useSearchState.searchWord);
+      setLoading(false);
+    } else if (popup.mode === "user" && !lastPage.user) {
+      setLoading(true);
+      searchUserList(useSearchState.searchWord);
+      setLoading(false);
+    } else if (popup.mode === "post" && !lastPage.post) {
+      setLoading(true);
+      searchPostList(useSearchState.searchWord);
+      setLoading(false);
     }
-  };
-
-  // useEffect(() => {
-  //   console.log(contentRef);
-  //   window.addEventListener("scroll", handleScroll);
-  //   return () => {
-  //     window.removeEventListener("scroll", handleScroll);
-  //   };
-  // }, [contentRef]);
+  }, [useSearchState, lastPage, loading, popup.mode]);
 
   useEffect(() => {
-    if (scrollEvent && useSearchState.searchWord) {
-      console.log(useSearchState.searchWord);
-      setNoSearchResults(true);
-      if (popup.mode === "space" && !lastPage.space) {
-        return searchSpaceList(useSearchState.searchWord);
-      } else if (popup.mode === "user" && !lastPage.user) {
-        return searchUserList(useSearchState.searchWord);
-      } else if (popup.mode === "post" && !lastPage.post) {
-        return searchPostList(useSearchState.searchWord);
+    const handleScroll = () => {
+      if (contentRef.current) {
+        const { scrollTop, clientHeight, scrollHeight } = contentRef.current;
+
+        if (scrollHeight - scrollTop <= clientHeight) {
+          fetchMoreData();
+        }
       }
-    }
-  }, [scrollEvent]);
+    };
+
+    const refCurrent = contentRef.current;
+    refCurrent?.addEventListener("scroll", handleScroll);
+
+    return () => {
+      refCurrent?.removeEventListener("scroll", handleScroll);
+    };
+  }, [fetchMoreData]);
 
   useEffect(() => {
     if (popup.mode === "space") {
       setSearchLength(useSearchState.spaceList?.length ?? 0);
-      window.addEventListener("scroll", handleScroll);
     } else if (popup.mode === "user") {
       setSearchLength(useSearchState.userList?.length ?? 0);
-      window.addEventListener("scroll", handleScroll);
     } else if (popup.mode === "post") {
       setSearchLength(useSearchState.postList?.length ?? 0);
     }
@@ -220,121 +221,121 @@ export default function SearchPopup() {
 
         <div className={styles.searchResultWrapper}>
           {noSearchResults && <p>검색 결과 : 총 {searchLength} 건</p>}
-          {searchLength < 1 && noSearchResults ? (
-            <p className={styles.noSearchResults}>검색 결과가 없습니다.</p>
-          ) : searchLength > 0 && noSearchResults ? (
-            <div
-              className={styles.searchResultList}
-              style={{ marginTop: searchLength < 1 ? "0" : "16px" }}
-              ref={contentRef}
-            >
-              {popup.mode === "space" &&
-                useSearchState.spaceList &&
-                useSearchState.spaceList.map(
-                  (space: SpaceListData, index: number) => (
-                    <div
-                      className={styles.searchResult}
-                      key={`search-space-${index}`}
-                    >
-                      <button
-                        type="button"
-                        className={`button ${styles.goToSearchResult}`}
-                        title={`${space.space_name} 스페이스 이동`}
-                        // onClick={() => handleGoToSpace(space.UID)}
+          <div className={styles.searchResultList} ref={contentRef}>
+            {searchLength < 1 && noSearchResults ? (
+              <p className={styles.noSearchResults}>검색 결과가 없습니다.</p>
+            ) : searchLength > 0 && noSearchResults ? (
+              <>
+                {popup.mode === "space" &&
+                  useSearchState.spaceList &&
+                  useSearchState.spaceList.map(
+                    (space: SpaceListData, index: number) => (
+                      <div
+                        className={styles.searchResult}
+                        key={`search-space-${index}`}
                       >
-                        {space.space_profile_path &&
-                        space.space_profile_path !== "" ? (
-                          <img src={space.space_profile_path} alt="" />
-                        ) : (
-                          <i className="normal">{space.space_name.charAt(0)}</i>
-                        )}
+                        <button
+                          type="button"
+                          className={`button ${styles.goToSearchResult}`}
+                          title={`${space.space_name} 스페이스 이동`}
+                          // onClick={() => handleGoToSpace(space.UID)}
+                        >
+                          {space.space_profile_path &&
+                          space.space_profile_path !== "" ? (
+                            <img src={space.space_profile_path} alt="" />
+                          ) : (
+                            <i className="normal">
+                              {space.space_name.charAt(0)}
+                            </i>
+                          )}
 
-                        <em className="normal">{space.space_name}</em>
-                      </button>
+                          <em className="normal">{space.space_name}</em>
+                        </button>
 
-                      <button
-                        type="button"
-                        style={{ width: "80px", height: "38px" }}
-                        className={`button ${
-                          space.space_Request
-                            ? buttonStyles.buttonBorderBlue
-                            : buttonStyles.buttonBlue
-                        }`}
-                        // onClick={() =>
-                        //   // handleRequest(space.UID, space.space_Request)
-                        // }
-                      >
-                        참&nbsp;여
-                      </button>
-                    </div>
-                  )
-                )}
-              {popup.mode === "user" &&
-                useSearchState.userList &&
-                useSearchState.userList.map(
-                  (user: UserListData, index: number) => (
-                    <div
-                      className={styles.searchResult}
-                      key={`search-space-${index}`}
-                    >
-                      <button
-                        type="button"
-                        key={`search-user-${index}`}
-                        className={`button ${styles.goToSearchResult}`}
-                        // title={`${space.space_name} 스페이스 이동`}
-                      >
-                        {user.user_profile_path &&
-                        user.user_profile_path !== "" ? (
-                          <img src={user.user_profile_path} alt="" />
-                        ) : (
-                          <i className="normal">
-                            {user.user_nick_name.charAt(0)}
-                          </i>
-                        )}
-                        <div>
-                          <p className="normal">{user.user_id}</p>
-                          <p className="normal">{user.user_nick_name}</p>
-                        </div>
-                      </button>
-                      {user.UID && (
                         <button
                           type="button"
                           style={{ width: "80px", height: "38px" }}
-                          className={buttonStyles.buttonBorderBlue}
+                          className={`button ${
+                            space.space_Request
+                              ? buttonStyles.buttonBorderBlue
+                              : buttonStyles.buttonBlue
+                          }`}
+                          // onClick={() =>
+                          //   // handleRequest(space.UID, space.space_Request)
+                          // }
                         >
-                          초&nbsp;대
+                          참&nbsp;여
                         </button>
-                      )}
-                    </div>
-                  )
-                )}
-              {popup.mode === "post" &&
-                useSearchState.postList &&
-                useSearchState.postList.map(
-                  (post: PostListData, index: number) => (
-                    <div
-                      className={styles.searchPost}
-                      key={`search-post-${index}`}
-                    >
-                      <button
-                        type="button"
-                        key={`search-user-${index}`}
-                        className={`button ${styles.goToSearchPost}`}
-                        // title={`${space.space_name} 스페이스 이동`}
+                      </div>
+                    )
+                  )}
+                {popup.mode === "user" &&
+                  useSearchState.userList &&
+                  useSearchState.userList.map(
+                    (user: UserListData, index: number) => (
+                      <div
+                        className={styles.searchResult}
+                        key={`search-space-${index}`}
                       >
-                        <p className={styles.postTitle}>{post.title}</p>
-                        <div
-                          className={styles.postContent}
-                          dangerouslySetInnerHTML={{ __html: post.content }}
-                        ></div>
-                      </button>
-                    </div>
-                  )
-                )}
-            </div>
-          ) : (
-            ""
-          )}
+                        <button
+                          type="button"
+                          key={`search-user-${index}`}
+                          className={`button ${styles.goToSearchResult}`}
+                          // title={`${space.space_name} 스페이스 이동`}
+                        >
+                          {user.user_profile_path &&
+                          user.user_profile_path !== "" ? (
+                            <img src={user.user_profile_path} alt="" />
+                          ) : (
+                            <i className="normal">
+                              {user.user_nick_name.charAt(0)}
+                            </i>
+                          )}
+                          <div>
+                            <p className="normal">{user.user_id}</p>
+                            <p className="normal">{user.user_nick_name}</p>
+                          </div>
+                        </button>
+                        {user.UID && (
+                          <button
+                            type="button"
+                            style={{ width: "80px", height: "38px" }}
+                            className={buttonStyles.buttonBorderBlue}
+                          >
+                            초&nbsp;대
+                          </button>
+                        )}
+                      </div>
+                    )
+                  )}
+                {popup.mode === "post" &&
+                  useSearchState.postList &&
+                  useSearchState.postList.map(
+                    (post: PostListData, index: number) => (
+                      <div
+                        className={styles.searchPost}
+                        key={`search-post-${index}`}
+                      >
+                        <button
+                          type="button"
+                          key={`search-user-${index}`}
+                          className={`button ${styles.goToSearchPost}`}
+                          // title={`${space.space_name} 스페이스 이동`}
+                        >
+                          <p className={styles.postTitle}>{post.title}</p>
+                          <div
+                            className={styles.postContent}
+                            dangerouslySetInnerHTML={{ __html: post.content }}
+                          ></div>
+                        </button>
+                      </div>
+                    )
+                  )}
+              </>
+            ) : (
+              ""
+            )}
+          </div>
         </div>
       </div>
     </div>

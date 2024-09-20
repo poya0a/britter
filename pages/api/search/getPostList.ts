@@ -5,7 +5,6 @@ import {
   AuthenticatedRequest,
   authenticateToken,
 } from "@/server/utils/authenticateToken";
-import { ILike } from "typeorm";
 import { Post } from "@entities/Post.entity";
 
 export default async function handler(
@@ -15,20 +14,32 @@ export default async function handler(
   if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
-  const { searchWord } = JSON.parse(req.body);
+  const { searchWord, page } = JSON.parse(req.body);
 
   authenticateToken(req, res, async () => {
     if (req.user) {
       try {
         const dataSource = await AppDataSource.useFactory();
         const postRepository = dataSource.getRepository(Post);
-        const findPost = await postRepository.find({
-          where: [
-            { title: ILike(`%${searchWord}%`) },
-            { content: ILike(`%${searchWord}%`) },
-          ],
-          select: ["UID", "seq", "title", "content", "space_uid"],
-        });
+        const [findPost, totalCount] = await postRepository
+          .createQueryBuilder("post")
+          .where("post.title LIKE :searchWord COLLATE utf8mb4_general_ci", {
+            searchWord: `%${searchWord}%`,
+          })
+          .orWhere(
+            "REGEXP_REPLACE(post.content, '<[^>]+>', '') LIKE :searchWord COLLATE utf8mb4_general_ci",
+            { searchWord: `%${searchWord}%` }
+          )
+          .select([
+            "post.UID",
+            "post.seq",
+            "post.title",
+            "post.content",
+            "post.space_uid",
+          ])
+          .skip((page - 1) * 10)
+          .take(10)
+          .getManyAndCount();
 
         if (findPost) {
           const result = findPost.map((post) => {
@@ -45,9 +56,19 @@ export default async function handler(
             };
           });
 
+          const totalPages = Math.ceil(totalCount / 10);
+
+          const pageInfo = {
+            currentPage: page,
+            totalPages: totalPages,
+            totalItems: totalCount,
+            itemsPerPage: 10,
+          };
+
           return res.status(200).json({
             message: "검색 완료했습니다.",
             data: result,
+            pageInfo: pageInfo,
             resultCode: true,
           });
         } else {

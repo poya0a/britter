@@ -5,7 +5,6 @@ import {
   AuthenticatedRequest,
   authenticateToken,
 } from "@/server/utils/authenticateToken";
-import { paginate } from "@/server/utils/paginate";
 import { ILike } from "typeorm";
 import { Emps } from "@entities/Emps.entity";
 
@@ -24,8 +23,11 @@ export default async function handler(
       try {
         const dataSource = await AppDataSource.useFactory();
         const empsRepository = dataSource.getRepository(Emps);
-        const findUser = await empsRepository.find({
-          where: { user_id: ILike(`%${searchWord}%`), user_public: true },
+        const [findUser, totalCount] = await empsRepository.findAndCount({
+          where: [
+            { user_id: ILike(`%${searchWord}%`), user_public: true },
+            { user_nick_name: ILike(`%${searchWord}%`), user_public: true },
+          ],
           select: [
             "UID",
             "user_profile_seq",
@@ -39,7 +41,14 @@ export default async function handler(
         });
 
         if (findUser) {
-          const { pageInfo } = paginate(findUser, pageNumber, 10);
+          const totalPages = Math.ceil(totalCount / 10);
+
+          const pageInfo = {
+            currentPage: pageNumber,
+            totalPages: totalPages,
+            totalItems: totalCount,
+            itemsPerPage: 10,
+          };
 
           return res.status(200).json({
             message: "검색 완료했습니다.",

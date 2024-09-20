@@ -6,7 +6,6 @@ import {
   AuthenticatedRequest,
   authenticateToken,
 } from "@/server/utils/authenticateToken";
-import { paginate } from "@/server/utils/paginate";
 import { ILike } from "typeorm";
 
 export default async function handler(
@@ -24,7 +23,7 @@ export default async function handler(
       try {
         const dataSource = await AppDataSource.useFactory();
         const spaceRepository = dataSource.getRepository(Space);
-        const findSpace = await spaceRepository.find({
+        const [findSpace, totalCount] = await spaceRepository.findAndCount({
           where: { space_name: ILike(`%${searchWord}%`), space_public: true },
           select: ["UID", "space_profile_seq", "space_name", "space_public"],
           skip: (pageNumber - 1) * 10,
@@ -32,7 +31,14 @@ export default async function handler(
         });
 
         if (findSpace) {
-          const { pageInfo } = paginate(findSpace, pageNumber, 10);
+          const totalPages = Math.ceil(totalCount / 10);
+
+          const pageInfo = {
+            currentPage: pageNumber,
+            totalPages: totalPages,
+            totalItems: totalCount,
+            itemsPerPage: 10,
+          };
 
           return res.status(200).json({
             message: "검색 완료했습니다.",

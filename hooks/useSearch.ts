@@ -106,7 +106,10 @@ export const useSearch = () => {
 
   const { mutate: searchSpaceList } = useMutation({
     mutationFn: (searchWord: string) => {
-      setUseSearchState({ searchWord: searchWord });
+      setUseSearchState((prevState) => ({
+        ...prevState,
+        searchWord: searchWord,
+      }));
       return fetchApi({
         method: "POST",
         url: requests.SEARCH_SPACE_LIST,
@@ -136,7 +139,10 @@ export const useSearch = () => {
 
   const { mutate: searchUserList } = useMutation({
     mutationFn: (searchWord: string) => {
-      setUseSearchState({ searchWord: searchWord });
+      setUseSearchState((prevState) => ({
+        ...prevState,
+        searchWord: searchWord,
+      }));
       return fetchApi({
         method: "POST",
         url: requests.SEARCH_USER_LIST,
@@ -164,10 +170,12 @@ export const useSearch = () => {
       toggleAlert(error);
     },
   });
-
   const { mutate: searchPostList } = useMutation({
     mutationFn: (searchWord: string) => {
-      setUseSearchState({ searchWord: searchWord });
+      setUseSearchState((prevState) => ({
+        ...prevState,
+        searchWord: searchWord,
+      }));
       return fetchApi({
         method: "POST",
         url: requests.SEARCH_POST_LIST,
@@ -202,38 +210,50 @@ export const useSearch = () => {
   const useUpdateSpaceList = async (spaceList: SpaceListData[]) => {
     const updatedList = await Promise.all(
       spaceList.map(async (space: SpaceListData) => {
-        const space_profile_path = await fetchFile(space.space_profile_seq);
-        return { ...space, space_profile_path };
+        if (space.space_profile_seq !== null) {
+          const space_profile_path = await fetchFile(space.space_profile_seq);
+          return { ...space, space_profile_path };
+        } else {
+          return space;
+        }
       })
     );
 
     if (searchPageNo.space !== 0 && useSearchState.spaceList) {
       setUseSearchState((prevState) => ({
+        ...prevState,
         spaceList: [...(prevState.spaceList ?? []), ...updatedList],
       }));
     } else {
-      setUseSearchState({
+      setUseSearchState((prevState) => ({
+        ...prevState,
         spaceList: updatedList,
-      });
+      }));
     }
   };
 
   const useUpdateUserList = async (userList: UserListData[]) => {
     const updatedList = await Promise.all(
       userList.map(async (user: UserListData) => {
-        const user_profile_path = await fetchFile(user.user_profile_seq);
-        return { ...user, user_profile_path };
+        if (user.user_profile_seq) {
+          const user_profile_path = await fetchFile(user.user_profile_seq);
+          return { ...user, user_profile_path };
+        } else {
+          return user;
+        }
       })
     );
 
     if (searchPageNo.user !== 0 && useSearchState.userList) {
       setUseSearchState((prevState) => ({
+        ...prevState,
         userList: [...(prevState.userList ?? []), ...updatedList],
       }));
     } else {
-      setUseSearchState({
+      setUseSearchState((prevState) => ({
+        ...prevState,
         userList: updatedList,
-      });
+      }));
     }
   };
 
@@ -250,12 +270,14 @@ export const useSearch = () => {
 
     if (searchPageNo.post !== 0 && useSearchState.postList) {
       setUseSearchState((prevState) => ({
+        ...prevState,
         postList: [...(prevState.postList ?? []), ...updatedList],
       }));
     } else {
-      setUseSearchState({
+      setUseSearchState((prevState) => ({
+        ...prevState,
         postList: updatedList,
-      });
+      }));
     }
   };
 
