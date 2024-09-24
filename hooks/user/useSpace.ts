@@ -2,7 +2,7 @@ import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
 import fetchFile from "@fetch/fetchFile";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { atom } from "recoil";
 import { FetchError } from "@fetch/types";
@@ -28,6 +28,8 @@ export interface SpaceData {
   space_manager: string;
   space_public: boolean;
   space_users: string[];
+  invite_users?: string[];
+  request_users?: string[];
 }
 
 interface SpaceListResponse {
@@ -132,10 +134,22 @@ export const useSpace = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: selectedSpace = "" } = useQuery<string>({
+  const { data: selectedSpace } = useQuery<SpaceData>({
     queryKey: ["selectedSpace"],
     queryFn: () => {
-      return queryClient.getQueryData<string>(["selectedSpace"]) ?? "";
+      return (
+        queryClient.getQueryData<SpaceData>(["selectedSpace"]) ?? {
+          UID: "",
+          space_profile_seq: 0,
+          space_profile_path: "",
+          space_name: "",
+          space_manager: "",
+          space_public: false,
+          space_users: [],
+          invite_users: [],
+          request_users: [],
+        }
+      );
     },
   });
 
@@ -217,7 +231,7 @@ export const useSpace = () => {
       fetchApi({
         method: "POST",
         url: requests.GET_SPACE_MEMBER_LIST,
-        body: JSON.stringify({ spaceUid: selectedSpace }),
+        body: JSON.stringify({ spaceUid: selectedSpace?.UID }),
       }),
     onSuccess: (res: SpaceMemberListResponse) => {
       if (!res.resultCode) {
@@ -246,7 +260,7 @@ export const useSpace = () => {
           })
         );
         setUseSpaceState(updatedList);
-        if (selectedSpace === "") {
+        if (!selectedSpace?.UID) {
           setSpace(space[0].UID);
         }
       }
@@ -257,7 +271,19 @@ export const useSpace = () => {
 
   const setSpace = (uid: string) => {
     if (uid !== queryClient.getQueryData(["selectedSpace"])) {
-      queryClient.setQueryData(["selectedSpace"], uid);
+      if (useSpaceState.length > 0) {
+        const findSpace =
+          useSpaceState.find((space) => space.UID === uid) || {};
+        queryClient.setQueryData(["selectedSpace"], findSpace);
+      } else {
+        const spaceData = queryClient.getQueryData(["space"]);
+
+        const findSpace = Array.isArray(spaceData)
+          ? spaceData.find((space) => space.UID === uid)
+          : {};
+
+        queryClient.setQueryData(["selectedSpace"], findSpace);
+      }
       fetchSpaceMember();
     }
   };

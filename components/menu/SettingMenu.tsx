@@ -43,7 +43,7 @@ export default function SettingMenu() {
           <button
             type="button"
             className={`button ${styles.space} ${
-              space.UID === selectedSpace && styles.active
+              space.UID === selectedSpace?.UID && styles.active
             }`}
             key={`space-${idx}`}
             onClick={() => handleSetSpace(space.UID)}
@@ -58,7 +58,7 @@ export default function SettingMenu() {
             <div className={styles.spaceInfo}>
               {space.space_name}
               <i className="normal">{space.space_users.length + 1} 명의 멤버</i>
-              {space.UID === selectedSpace && (
+              {space.UID === selectedSpace?.UID && (
                 <img src="/images/check.svg" alt="connect space" />
               )}
             </div>

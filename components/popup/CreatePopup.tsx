@@ -1,4 +1,5 @@
 import { useCreatePopup } from "@hooks/popup/useCreatePopup";
+import { useResetRecoilState } from "recoil";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
@@ -8,14 +9,9 @@ import { useForm } from "react-hook-form";
 import { useToast } from "@hooks/popup/useToast";
 import { useSpace } from "@hooks/user/useSpace";
 import { searchData, useSearch, SpaceListData } from "@hooks/useSearch";
-import { useResetRecoilState } from "recoil";
 
 export default function CreatePopup() {
-  const {
-    useCreateState,
-    toggleCreatePopup,
-    // updateSpaceRequest,
-  } = useCreatePopup();
+  const { useCreateState, toggleCreatePopup } = useCreatePopup();
   const { createSpace } = useSpace();
   const { useSearchState, searchSpaceList } = useSearch();
   const [inputValue, setInputValue] = useState<{
@@ -190,14 +186,14 @@ export default function CreatePopup() {
                             <button
                               type="button"
                               style={{ width: "80px", height: "38px" }}
-                              className={`button ${
-                                space.space_Request
-                                  ? buttonStyles.buttonBorderBlue
-                                  : buttonStyles.buttonBlue
-                              }`}
-                              onClick={() =>
-                                handleRequest(space.UID, space.space_Request)
-                              }
+                              // className={`button ${
+                              //   space.space_Request
+                              //     ? buttonStyles.buttonBorderBlue
+                              //     : buttonStyles.buttonBlue
+                              // }`}
+                              // onClick={() =>
+                              //   handleRequest(space.UID, space.space_Request)
+                              // }
                             >
                               참&nbsp;여
                             </button>

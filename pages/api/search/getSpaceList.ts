@@ -25,7 +25,13 @@ export default async function handler(
         const spaceRepository = dataSource.getRepository(Space);
         const [findSpace, totalCount] = await spaceRepository.findAndCount({
           where: { space_name: ILike(`%${searchWord}%`), space_public: true },
-          select: ["UID", "space_profile_seq", "space_name", "space_public"],
+          select: [
+            "UID",
+            "space_profile_seq",
+            "space_name",
+            "space_public",
+            "space_manager",
+          ],
           skip: (pageNumber - 1) * 10,
           take: 10,
         });

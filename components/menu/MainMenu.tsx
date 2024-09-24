@@ -255,7 +255,7 @@ export default function MainMenu() {
             <img src="/images/icon/inbox.svg" alt="" />
             <em className="normal">수신함</em>
           </button>
-          {useSpaceState.find((space) => space.UID === selectedSpace)
+          {useSpaceState.find((space) => space.UID === selectedSpace?.UID)
             ?.space_manager === useInfoState.UID ? (
             <button
               type="button"
@@ -280,7 +280,7 @@ export default function MainMenu() {
         <div className={styles.pageMenu}>
           <h6 className={styles.pageMenuName}>
             {
-              useSpaceState.find((space) => space.UID === selectedSpace)
+              useSpaceState.find((space) => space.UID === selectedSpace?.UID)
                 ?.space_name
             }
             &nbsp;스페이스

@@ -15,6 +15,8 @@ const requests = {
   UPDATE_SPACE: "api/space/updateSpace",
   DELETE_SPACE: "api/space/deleteSpace",
   GET_SPACE_MEMBER_LIST: "api/space/getSpaceMemberList",
+  GET_NOTIFICATION_LIST: "api/notification/getNotificationList",
+  POST_NOTIFICATION: "api/notification/postNotification",
 };
 
 export default requests;

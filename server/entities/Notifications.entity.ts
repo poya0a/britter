@@ -14,9 +14,6 @@ export class Notifications {
   @Column({ type: "varchar", length: 255, comment: "종류" })
   notify_type: string;
 
-  @Column({ type: "varchar", length: 255, comment: "메시지 고유 번호" })
-  notify_seq: string;
-
   @Column({ type: "boolean", default: false, comment: "확인 여부" })
   confirm: boolean;
 }

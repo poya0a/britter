@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,7 +14,7 @@ export interface SpaceListData {
   space_profile_path?: string;
   space_name: string;
   space_public: boolean;
-  space_Request?: boolean;
+  space_manager: string;
 }
 
 export interface UserListData {
@@ -68,7 +68,6 @@ export const useSearch = () => {
   const queryClient = useQueryClient();
   const [useSearchState, setUseSearchState] =
     useRecoilState<SearchData>(searchData);
-  const spaceUid = queryClient.getQueryData<string>(["selectedSpace"]);
   const { toggleAlert } = useAlert();
   const [searchPageNo, setSearchPageNo] = useState<{
     space: number;
@@ -280,25 +279,6 @@ export const useSearch = () => {
       }));
     }
   };
-
-  //   const updateSpaceRequest = (spaceUid: string) => {
-  //     setUseCreateState((prevState) => {
-  //       if (prevState.spaceList) {
-  //         const updatedSpaceList = prevState.spaceList.map((space) => {
-  //           if (space.UID === spaceUid && space.space_Request !== true) {
-  //             return { ...space, space_Request: true };
-  //           }
-  //           return space;
-  //         });
-
-  //         return {
-  //           ...prevState,
-  //           spaceList: updatedSpaceList,
-  //         };
-  //       }
-  //       return prevState;
-  //     });
-  //   };
 
   return {
     useSearchState,

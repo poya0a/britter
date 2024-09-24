@@ -244,7 +244,7 @@ export default function Page() {
 
       if (pageSeq.pSeq !== "") formData.append("p_seq", pageSeq.pSeq);
       if (pageSeq.seq !== "") formData.append("seq", pageSeq.seq);
-      formData.append("space", selectedSpace);
+      formData.append("space", selectedSpace?.UID || "");
       formData.append(
         "title",
         useEditorState.title === "" ? "제목 없음" : useEditorState.title

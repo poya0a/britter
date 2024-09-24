@@ -24,8 +24,9 @@ export default function SpaceSettingPopup() {
     deleteSpace,
   } = useSpace();
   const [spaceInfo, setSpaceInfo] = useState<SpaceData | null>(
-    useSpaceState.find((space: SpaceData) => space.UID === selectedSpace) ||
-      null
+    useSpaceState.find(
+      (space: SpaceData) => space.UID === selectedSpace?.UID
+    ) || null
   );
   const { useImageCropState, setImageCustom, setImageSource } = useImageCrop();
   const imgUploadInput = useRef<HTMLInputElement | null>(null);
@@ -42,7 +43,7 @@ export default function SpaceSettingPopup() {
 
   useEffect(() => {
     const foundSpace = useSpaceState.find(
-      (space: SpaceData) => space.UID === selectedSpace
+      (space: SpaceData) => space.UID === selectedSpace?.UID
     );
     if (foundSpace) {
       setSpaceInfo(foundSpace);
@@ -138,7 +139,6 @@ export default function SpaceSettingPopup() {
       setMemberList(serachResult);
     }
   };
-
   return (
     <>
       <div className={styles.popup}>
@@ -335,11 +335,12 @@ export default function SpaceSettingPopup() {
                                     {member.user_nick_name}
                                   </em>
                                 </button>
-                                {member.roll !== "manager" && (
+                                {member.UID !==
+                                  selectedSpace?.space_manager && (
                                   <button
                                     type="button"
                                     style={{ width: "80px", height: "38px" }}
-                                    className={buttonStyles.buttonBorderBlue}
+                                    className={buttonStyles.buttonBlue}
                                   >
                                     내보내기
                                   </button>

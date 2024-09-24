@@ -8,7 +8,7 @@ import { useAlert } from "./popup/useAlert";
 import { useRouteAlert } from "./popup/useRouteAlert";
 import { useToast } from "./popup/useToast";
 import storage from "@fetch/auth/storage";
-import { useSpace } from "./user/useSpace";
+import { SpaceData } from "./user/useSpace";
 import { useUpdateEffect } from "@/utils/useUpdateEffect";
 
 export interface PostData {
@@ -50,7 +50,7 @@ export const usePost = () => {
   const { toggleRouteAlert } = useRouteAlert();
   const { setToast } = useToast();
 
-  const postUid = queryClient.getQueryData(["selectedSpace"]);
+  const postUid = queryClient.getQueryData<SpaceData>(["selectedSpace"])?.UID;
   const [auto, setAuto] = useState<boolean | null>(null);
   const { data: type = "view" } = useQuery<string>({
     queryKey: ["type"],
