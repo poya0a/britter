@@ -29,35 +29,29 @@ export default async function handler(
 
         const findUser = await empsRepository.findOne({ where: { UID: uid } });
 
-        if (findUser) {
+        if (findUser && findUser.private_seq) {
           const privateRepository = dataSource.getRepository(Private);
 
           const findPrivate = await privateRepository.findOne({
-            where: {
-              seq: findUser.private_seq as
-                | number
-                | FindOperator<number>
-                | null
-                | undefined,
-            } as FindOneOptions<Private>["where"],
+            where: { seq: findUser.private_seq },
           });
 
-          if (!findPrivate) {
+          if (findPrivate) {
+            findUser.private_seq = null;
+            await empsRepository.save(findUser);
+
+            await privateRepository.remove(findPrivate);
+
+            return res.status(200).json({
+              message: "로그아웃되었습니다.",
+              resultCode: true,
+            });
+          } else {
             return res.status(200).json({
               message: "사용자 정보를 찾을 수 없습니다.",
               resultCode: false,
             });
           }
-
-          findUser.private_seq = null;
-          await empsRepository.save(findUser);
-
-          await privateRepository.remove(findPrivate);
-
-          return res.status(200).json({
-            message: "로그아웃되었습니다.",
-            resultCode: true,
-          });
         } else {
           return res.status(200).json({
             message: "사용자 정보를 찾을 수 없습니다.",

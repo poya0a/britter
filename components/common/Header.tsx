@@ -50,15 +50,14 @@ export default function Header() {
     });
     if (!res.resultCode) {
       toggleAlert(res.message);
-    } else {
-      storage.removeToken();
-      toggleRouteAlert({
-        isActOpen: true,
-        content: res.message,
-        route: "/login",
-      });
-      queryClient.clear();
     }
+    storage.removeToken();
+    toggleRouteAlert({
+      isActOpen: true,
+      content: res.message,
+      route: "/login",
+    });
+    queryClient.clear();
   };
 
   return (

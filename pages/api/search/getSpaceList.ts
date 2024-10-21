@@ -2,6 +2,7 @@
 import { NextApiResponse, NextApiRequest } from "next";
 import { AppDataSource } from "@database/typeorm.config";
 import { Space } from "@entities/Space.entity";
+import { Notifications } from "@/server/entities/Notifications.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
@@ -23,8 +24,10 @@ export default async function handler(
       try {
         const dataSource = await AppDataSource.useFactory();
         const spaceRepository = dataSource.getRepository(Space);
+        const notificationsRepository = dataSource.getRepository(Notifications);
+
         const [findSpace, totalCount] = await spaceRepository.findAndCount({
-          where: { space_name: ILike(`%${searchWord}%`), space_public: true },
+          where: { space_name: ILike(`%${searchWord}%`) },
           select: [
             "UID",
             "space_profile_seq",
@@ -34,6 +37,7 @@ export default async function handler(
           ],
           skip: (pageNumber - 1) * 10,
           take: 10,
+          relations: ["notifications"],
         });
 
         if (findSpace) {

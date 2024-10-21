@@ -108,6 +108,5 @@ export const useInfo = () => {
 
   return {
     useInfoState,
-    fetchFile,
   };
 };

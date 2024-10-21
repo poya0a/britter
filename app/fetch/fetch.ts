@@ -55,7 +55,10 @@ const fetchApi = async (config: RequestConfig): Promise<any> => {
       );
     }
 
-    return response.json();
+    const data = await response.json();
+    if (!data) throw new Error("데이터가 없습니다.");
+
+    return data;
   } catch (error) {
     throw error;
   }

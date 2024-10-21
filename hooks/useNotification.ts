@@ -29,6 +29,14 @@ export interface NotificationResponse {
   resultCode: boolean;
 }
 
+export type RequestData = {
+  uid?: string;
+  recipient: string;
+  sender: string;
+  type: string;
+  response?: boolean;
+};
+
 export interface UpdateNotificationResponse {
   message: string;
   resultCode: boolean;
@@ -44,18 +52,19 @@ export const useNotification = () => {
   const [useNotificationState, setUseNotificationState] = useRecoilState<
     NotificationData[]
   >(notificationDataState);
+
   const { toggleAlert } = useAlert();
   const { toggleRouteAlert } = useRouteAlert();
   const { setToast } = useToast();
   const [pageNo, setPageNo] = useState<number>(0);
   const [lastPage, setLastPage] = useState<boolean>(false);
 
-  const { data } = useQuery<NotificationResponse, Error>({
+  const { data, refetch } = useQuery<NotificationResponse, Error>({
     queryKey: ["notification"],
     queryFn: () =>
       fetchApi({
         method: "GET",
-        url: `${requests.GET_NOTIFICATION_LIST}?page=${pageNo + 1}`,
+        url: `${requests.GET_NOTIFICATION_LIST}?page=1`,
       }),
     staleTime: 5 * 60 * 1000,
   });
@@ -112,8 +121,12 @@ export const useNotification = () => {
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode) {
-        fetchNotification();
         setToast(res.message);
+        setPageNo(0);
+        // refetch();
+        queryClient.refetchQueries({ queryKey: ["notification"] });
+        queryClient.refetchQueries({ queryKey: ["info"] });
+        queryClient.refetchQueries({ queryKey: ["space"] });
       }
     },
     onError: (error: any) => {
@@ -126,6 +139,7 @@ export const useNotification = () => {
     pageNo,
     lastPage,
     fetchNotification,
+    refetch,
     postNotification,
   };
 };

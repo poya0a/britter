@@ -11,9 +11,8 @@ import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
-import { useToast } from "@hooks/popup/useToast";
 import { useSpace } from "@hooks/user/useSpace";
-import { useNotification } from "@hooks/useNotification";
+import { useNotification, RequestData } from "@hooks/useNotification";
 import { useInfo } from "@hooks/user/useInfo";
 
 export default function SearchPopup() {
@@ -33,14 +32,13 @@ export default function SearchPopup() {
     lastPage,
   } = useSearch();
   const { useInfoState } = useInfo();
-  const { useSpaceState, selectedSpace, spaceMember } = useSpace();
+  const { useSpaceState, selectedSpace, spaceMember, leaveSpace } = useSpace();
   const { useNotificationState, postNotification } = useNotification();
   const [inputValue, setInputValue] = useState<string>("");
   const [searchLength, setSearchLength] = useState<number>(0);
   const [noSearchResults, setNoSearchResults] = useState<boolean>(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
-  const { setToast } = useToast();
 
   const handleClose = () => {
     reset();
@@ -157,29 +155,29 @@ export default function SearchPopup() {
 
   const handleGoToSpace = (spaceUid: string) => {};
 
-  const getRequestUid = (senderUid: string, recipientUid: string): string => {
-    const target = { recipient_uid: recipientUid, sender_uid: senderUid };
-    const requestUid = useNotificationState.find(
-      (notify) => JSON.stringify(notify) === JSON.stringify(target)
-    )?.UID;
-
-    return requestUid || "";
-  };
-
-  const handleRequest = (uid: string, type: string, response?: boolean) => {
+  const handleRequest = (data: RequestData) => {
     const formData = new FormData();
-    const senderUid = type === "user" ? selectedSpace?.UID : useInfoState.UID;
-
-    if (response) {
-      const requestUid = getRequestUid(senderUid || "", uid);
-      formData.append("UID", requestUid);
-      formData.append("response", JSON.stringify(response));
+    if (data.uid !== "" && data.uid) {
+      formData.append("UID", data.uid);
+      formData.append("response", JSON.stringify(data.response));
     }
 
-    formData.append("senderUid", senderUid || "");
-    formData.append("recipientUid", uid);
-    formData.append("notifyType", type);
+    formData.append("senderUid", data.sender || "");
+    formData.append("recipientUid", data.recipient);
+    formData.append("notifyType", data.type);
     postNotification(formData);
+  };
+
+  const handleExit = (exitUid: string, senderUid: string, exitType: string) => {
+    if (exitType === "space") {
+    } else {
+    }
+    const formData = new FormData();
+
+    formData.append("exitUid", exitUid);
+    formData.append("senderUid", senderUid);
+    formData.append("exitType", exitType);
+    leaveSpace(formData);
   };
 
   return (
@@ -267,19 +265,41 @@ export default function SearchPopup() {
                         (spaceData) => spaceData.UID === space.UID
                       );
                       const isSpaceInvited = useNotificationState.find(
-                        (notify) =>
-                          notify.notify_type === "space" &&
-                          notify.recipient_uid === useInfoState.UID &&
-                          notify.sender_uid === space.space_manager
+                        (notify) => {
+                          const isMatch =
+                            notify.notify_type === "user" &&
+                            notify.recipient_uid === useInfoState.UID &&
+                            notify.sender_uid === space.UID;
+
+                          return isMatch;
+                        }
                       );
                       const isSpaceRequested = useNotificationState.find(
-                        (notify) =>
-                          notify.notify_type === "space" &&
-                          notify.sender_uid === useInfoState.UID &&
-                          notify.recipient_uid === space.space_manager
-                      );
+                        (notify) => {
+                          const isMatch =
+                            notify.notify_type === "space" &&
+                            notify.sender_uid === useInfoState.UID &&
+                            notify.recipient_uid === space.UID;
 
+                          return isMatch;
+                        }
+                      );
+                      console.log(isSpaceInvited);
                       console.log(isSpaceRequested);
+                      const requestData = (
+                        uid?: string,
+                        response?: boolean
+                      ) => {
+                        const data: RequestData = {
+                          uid: uid,
+                          recipient: space.UID,
+                          sender: useInfoState.UID,
+                          type: "space",
+                          response: response,
+                        };
+
+                        handleRequest(data);
+                      };
                       return (
                         <div
                           className={styles.searchResult}
@@ -308,21 +328,25 @@ export default function SearchPopup() {
                                 <>
                                   <button
                                     type="button"
-                                    style={{ width: "80px", height: "38px" }}
-                                    className={buttonStyles.buttonBlue}
-                                    onClick={() => {
-                                      handleRequest(space.UID, "space", false);
-                                    }}
+                                    style={{ width: "100px", height: "38px" }}
+                                    className={`button ${buttonStyles.buttonBlue}`}
+                                    onClick={() =>
+                                      requestData(isSpaceInvited?.UID, false)
+                                    }
                                   >
                                     초대거절
                                   </button>
 
                                   <button
                                     type="button"
-                                    style={{ width: "80px", height: "38px" }}
-                                    className={buttonStyles.buttonBorderBlue}
+                                    style={{
+                                      width: "100px",
+                                      height: "38px",
+                                      marginLeft: "10px",
+                                    }}
+                                    className={`button ${buttonStyles.buttonBorderBlue}`}
                                     onClick={() =>
-                                      handleRequest(space.UID, "space", true)
+                                      requestData(isSpaceInvited?.UID, true)
                                     }
                                   >
                                     초대수락
@@ -332,9 +356,9 @@ export default function SearchPopup() {
                                 <button
                                   type="button"
                                   style={{ width: "80px", height: "38px" }}
-                                  className={buttonStyles.buttonBlue}
+                                  className={`button ${buttonStyles.buttonBlue}`}
                                   onClick={() =>
-                                    handleRequest(space.UID, "space", false)
+                                    requestData(isSpaceRequested?.UID, false)
                                   }
                                 >
                                   참여취소
@@ -343,24 +367,25 @@ export default function SearchPopup() {
                                 <button
                                   type="button"
                                   style={{ width: "80px", height: "38px" }}
-                                  className={buttonStyles.buttonBorderBlue}
-                                  onClick={() =>
-                                    handleRequest(space.UID, "space")
-                                  }
+                                  className={`button ${buttonStyles.buttonBorderBlue}`}
+                                  onClick={() => requestData("", true)}
                                 >
                                   참&nbsp;여
                                 </button>
                               )}
                             </>
                           ) : (
-                            useInfoState.UID !==
-                              selectedSpace?.space_manager && (
+                            useInfoState.UID !== space.space_manager && (
                               <button
                                 type="button"
                                 style={{ width: "80px", height: "38px" }}
-                                className={buttonStyles.buttonBlue}
+                                className={`button ${buttonStyles.buttonBlue}`}
                                 onClick={() =>
-                                  handleRequest(space.UID, "space")
+                                  handleExit(
+                                    space.UID,
+                                    useInfoState.UID,
+                                    "space"
+                                  )
                                 }
                               >
                                 나가기
@@ -378,10 +403,41 @@ export default function SearchPopup() {
                       const isSpaceMember = spaceMember?.find(
                         (mem) => mem.UID === user.UID
                       );
-                      const isUserInvited =
-                        selectedSpace?.invite_users?.includes(user.UID);
-                      const isUserRequested =
-                        selectedSpace?.request_users?.includes(user.UID);
+                      const isUserInvited = useNotificationState.find(
+                        (notify) => {
+                          const isMatch =
+                            notify.notify_type === "user" &&
+                            notify.recipient_uid === user.UID &&
+                            notify.sender_uid === selectedSpace?.UID;
+
+                          return isMatch;
+                        }
+                      );
+
+                      const isUserRequested = useNotificationState.find(
+                        (notify) => {
+                          const isMatch =
+                            notify.notify_type === "space" &&
+                            notify.sender_uid === user.UID &&
+                            notify.recipient_uid === selectedSpace?.UID;
+
+                          return isMatch;
+                        }
+                      );
+                      const requestData = (
+                        uid?: string,
+                        response?: boolean
+                      ) => {
+                        const data: RequestData = {
+                          uid: uid,
+                          recipient: user.UID,
+                          sender: selectedSpace?.UID || "",
+                          type: "user",
+                          response: response,
+                        };
+
+                        handleRequest(data);
+                      };
                       return (
                         <div
                           className={styles.searchResult}
@@ -413,8 +469,14 @@ export default function SearchPopup() {
                               <button
                                 type="button"
                                 style={{ width: "80px", height: "38px" }}
-                                className={buttonStyles.buttonBlue}
-                                onClick={() => handleRequest(user.UID, "user")}
+                                className={`button ${buttonStyles.buttonBlue}`}
+                                onClick={() =>
+                                  handleExit(
+                                    user.UID,
+                                    selectedSpace.UID,
+                                    "user"
+                                  )
+                                }
                               >
                                 내보내기
                               </button>
@@ -422,9 +484,9 @@ export default function SearchPopup() {
                               <button
                                 type="button"
                                 style={{ width: "80px", height: "38px" }}
-                                className={buttonStyles.buttonBlue}
+                                className={`button ${buttonStyles.buttonBlue}`}
                                 onClick={() =>
-                                  handleRequest(user.UID, "user", false)
+                                  requestData(isUserInvited?.UID, false)
                                 }
                               >
                                 초대취소
@@ -433,20 +495,24 @@ export default function SearchPopup() {
                               <>
                                 <button
                                   type="button"
-                                  style={{ width: "80px", height: "38px" }}
-                                  className={buttonStyles.buttonBlue}
+                                  style={{ width: "100px", height: "38px" }}
+                                  className={`button ${buttonStyles.buttonBlue}`}
                                   onClick={() =>
-                                    handleRequest(user.UID, "user", false)
+                                    requestData(isUserRequested.UID, false)
                                   }
                                 >
                                   요청거절
                                 </button>
                                 <button
                                   type="button"
-                                  style={{ width: "80px", height: "38px" }}
-                                  className={buttonStyles.buttonBorderBlue}
+                                  style={{
+                                    width: "100px",
+                                    height: "38px",
+                                    marginLeft: "10px",
+                                  }}
+                                  className={`button ${buttonStyles.buttonBorderBlue}`}
                                   onClick={() =>
-                                    handleRequest(user.UID, "user", true)
+                                    requestData(isUserRequested.UID, true)
                                   }
                                 >
                                   요청수락
@@ -456,8 +522,8 @@ export default function SearchPopup() {
                               <button
                                 type="button"
                                 style={{ width: "80px", height: "38px" }}
-                                className={buttonStyles.buttonBorderBlue}
-                                onClick={() => handleRequest(user.UID, "user")}
+                                className={`button ${buttonStyles.buttonBorderBlue}`}
+                                onClick={() => requestData("", true)}
                               >
                                 초&nbsp;대
                               </button>

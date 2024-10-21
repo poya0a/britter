@@ -2,7 +2,7 @@ import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
 import fetchFile from "@fetch/fetchFile";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { atom } from "recoil";
 import { FetchError } from "@fetch/types";
@@ -13,6 +13,8 @@ import { useCreatePopup } from "../popup/useCreatePopup";
 import { useToast } from "../popup/useToast";
 import { useSpaceSettingPopup } from "../popup/useSpaceSettingPopup";
 import { useSettingMenu } from "../menu/useSettingMenu";
+import { useNotification } from "../useNotification";
+import { useInfo } from "./useInfo";
 
 interface PageInfo {
   currentPage: number;
@@ -90,6 +92,7 @@ export const useSpace = () => {
   const [spaceMemeberPageInfo, setSpaceMemeberPageInfo] =
     useRecoilState<PageInfo>(pageInfo);
 
+  const { refetch: notificationRefetch } = useNotification();
   const { toggleAlert } = useAlert();
   const { setToast } = useToast();
   const { toggleRouteAlert } = useRouteAlert();
@@ -248,6 +251,27 @@ export const useSpace = () => {
     },
   });
 
+  const { mutate: leaveSpace } = useMutation({
+    mutationFn: (formData: FormData) =>
+      fetchApi({
+        method: "POST",
+        url: requests.LEAVE_SPACE,
+        body: formData,
+      }),
+    onSuccess: (res: SpaceMemberListResponse) => {
+      if (!res.resultCode) {
+        toggleAlert(res.message);
+      } else {
+        notificationRefetch();
+        queryClient.refetchQueries({ queryKey: ["info"] });
+        queryClient.refetchQueries({ queryKey: ["space"] });
+      }
+    },
+    onError: (error: any) => {
+      toggleAlert(error);
+    },
+  });
+
   useEffect(() => {
     const updateSpace = async () => {
       if (space) {
@@ -317,5 +341,6 @@ export const useSpace = () => {
     createSpace,
     updateSpace,
     deleteSpace,
+    leaveSpace,
   };
 };

@@ -7,6 +7,7 @@ import {
 } from "@/server/utils/authenticateToken";
 import { ILike } from "typeorm";
 import { Emps } from "@entities/Emps.entity";
+import { Notifications } from "@/server/entities/Notifications.entity";
 
 export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,
@@ -23,10 +24,11 @@ export default async function handler(
       try {
         const dataSource = await AppDataSource.useFactory();
         const empsRepository = dataSource.getRepository(Emps);
+        const notificationsRepository = dataSource.getRepository(Notifications);
         const [findUser, totalCount] = await empsRepository.findAndCount({
           where: [
-            { user_id: ILike(`%${searchWord}%`), user_public: true },
-            { user_nick_name: ILike(`%${searchWord}%`), user_public: true },
+            { user_id: ILike(`%${searchWord}%`) },
+            { user_nick_name: ILike(`%${searchWord}%`) },
           ],
           select: [
             "UID",
@@ -38,9 +40,21 @@ export default async function handler(
           ],
           skip: (pageNumber - 1) * 10,
           take: 10,
+          relations: ["notifications"],
         });
 
         if (findUser) {
+          const userWithNotifications = findUser.map((user) => {
+            const userNotifications = notificationsRepository.find({
+              where: [{ sender_uid: user.UID }, { recipient_uid: user.UID }],
+            });
+
+            return {
+              ...user,
+              notifications: userNotifications,
+            };
+          });
+          console.log(userWithNotifications);
           const totalPages = Math.ceil(totalCount / 10);
 
           const pageInfo = {
@@ -63,6 +77,7 @@ export default async function handler(
           });
         }
       } catch (error) {
+        console.log(error);
         return res.status(500).json({
           message:
             typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
