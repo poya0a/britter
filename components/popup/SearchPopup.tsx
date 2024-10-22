@@ -32,8 +32,8 @@ export default function SearchPopup() {
     lastPage,
   } = useSearch();
   const { useInfoState } = useInfo();
-  const { useSpaceState, selectedSpace, spaceMember, leaveSpace } = useSpace();
-  const { useNotificationState, postNotification } = useNotification();
+  const { useSpaceState, selectedSpace, spaceMember } = useSpace();
+  const { postNotification, postLeaveNotification } = useNotification();
   const [inputValue, setInputValue] = useState<string>("");
   const [searchLength, setSearchLength] = useState<number>(0);
   const [noSearchResults, setNoSearchResults] = useState<boolean>(false);
@@ -177,7 +177,7 @@ export default function SearchPopup() {
     formData.append("exitUid", exitUid);
     formData.append("senderUid", senderUid);
     formData.append("exitType", exitType);
-    leaveSpace(formData);
+    postLeaveNotification(formData);
   };
 
   return (
@@ -264,28 +264,11 @@ export default function SearchPopup() {
                       const spaceInfo = useSpaceState.find(
                         (spaceData) => spaceData.UID === space.UID
                       );
-                      const isSpaceInvited = useNotificationState.find(
-                        (notify) => {
-                          const isMatch =
-                            notify.notify_type === "user" &&
-                            notify.recipient_uid === useInfoState.UID &&
-                            notify.sender_uid === space.UID;
-
-                          return isMatch;
-                        }
-                      );
-                      const isSpaceRequested = useNotificationState.find(
-                        (notify) => {
-                          const isMatch =
-                            notify.notify_type === "space" &&
-                            notify.sender_uid === useInfoState.UID &&
-                            notify.recipient_uid === space.UID;
-
-                          return isMatch;
-                        }
-                      );
-                      console.log(isSpaceInvited);
-                      console.log(isSpaceRequested);
+                      const isSpaceInvited =
+                        space.notify && space.notify.notifyType === "invite";
+                      const isSpaceRequested =
+                        space.notify &&
+                        space.notify.notifyType === "participation";
                       const requestData = (
                         uid?: string,
                         response?: boolean
@@ -331,7 +314,10 @@ export default function SearchPopup() {
                                     style={{ width: "100px", height: "38px" }}
                                     className={`button ${buttonStyles.buttonBlue}`}
                                     onClick={() =>
-                                      requestData(isSpaceInvited?.UID, false)
+                                      requestData(
+                                        space.notify?.notifyUID,
+                                        false
+                                      )
                                     }
                                   >
                                     초대거절
@@ -346,7 +332,7 @@ export default function SearchPopup() {
                                     }}
                                     className={`button ${buttonStyles.buttonBorderBlue}`}
                                     onClick={() =>
-                                      requestData(isSpaceInvited?.UID, true)
+                                      requestData(space.notify?.notifyUID, true)
                                     }
                                   >
                                     초대수락
@@ -358,7 +344,7 @@ export default function SearchPopup() {
                                   style={{ width: "80px", height: "38px" }}
                                   className={`button ${buttonStyles.buttonBlue}`}
                                   onClick={() =>
-                                    requestData(isSpaceRequested?.UID, false)
+                                    requestData(space.notify?.notifyUID, false)
                                   }
                                 >
                                   참여취소
@@ -403,27 +389,13 @@ export default function SearchPopup() {
                       const isSpaceMember = spaceMember?.find(
                         (mem) => mem.UID === user.UID
                       );
-                      const isUserInvited = useNotificationState.find(
-                        (notify) => {
-                          const isMatch =
-                            notify.notify_type === "user" &&
-                            notify.recipient_uid === user.UID &&
-                            notify.sender_uid === selectedSpace?.UID;
 
-                          return isMatch;
-                        }
-                      );
+                      const isUserInvited =
+                        user.notify && user.notify.notifyType === "invite";
+                      const isUserRequested =
+                        user.notify &&
+                        user.notify.notifyType === "participation";
 
-                      const isUserRequested = useNotificationState.find(
-                        (notify) => {
-                          const isMatch =
-                            notify.notify_type === "space" &&
-                            notify.sender_uid === user.UID &&
-                            notify.recipient_uid === selectedSpace?.UID;
-
-                          return isMatch;
-                        }
-                      );
                       const requestData = (
                         uid?: string,
                         response?: boolean
@@ -486,7 +458,7 @@ export default function SearchPopup() {
                                 style={{ width: "80px", height: "38px" }}
                                 className={`button ${buttonStyles.buttonBlue}`}
                                 onClick={() =>
-                                  requestData(isUserInvited?.UID, false)
+                                  requestData(user.notify?.notifyUID, false)
                                 }
                               >
                                 초대취소
@@ -498,7 +470,7 @@ export default function SearchPopup() {
                                   style={{ width: "100px", height: "38px" }}
                                   className={`button ${buttonStyles.buttonBlue}`}
                                   onClick={() =>
-                                    requestData(isUserRequested.UID, false)
+                                    requestData(user.notify?.notifyUID, false)
                                   }
                                 >
                                   요청거절
@@ -512,7 +484,7 @@ export default function SearchPopup() {
                                   }}
                                   className={`button ${buttonStyles.buttonBorderBlue}`}
                                   onClick={() =>
-                                    requestData(isUserRequested.UID, true)
+                                    requestData(user.notify?.notifyUID, true)
                                   }
                                 >
                                   요청수락

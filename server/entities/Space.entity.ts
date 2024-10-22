@@ -32,22 +32,6 @@ export class Space {
   space_users!: string[];
 
   @Column({
-    type: "json",
-    nullable: false,
-    default: "[]",
-    comment: "초대한 사용자",
-  })
-  invite_users!: string[];
-
-  @Column({
-    type: "json",
-    nullable: false,
-    default: "[]",
-    comment: "가입 요청한 사용자",
-  })
-  request_users!: string[];
-
-  @Column({
     type: "datetime",
     nullable: false,
     default: () => "CURRENT_TIMESTAMP",

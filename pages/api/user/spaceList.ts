@@ -43,27 +43,10 @@ export default async function handler(
                   "space_manager",
                   "space_public",
                   "space_users",
-                  "invite_users",
-                  "request_users",
                 ],
               });
 
-              if (space && space.space_manager === uid) {
-                const inviteUsers = space.invite_users || [];
-                const requestUsers = space.request_users || [];
-
-                return {
-                  ...space,
-                  invite_users: inviteUsers,
-                  request_users: requestUsers,
-                };
-              }
-
-              return {
-                ...space,
-                invite_users: [],
-                request_users: [],
-              };
+              return space;
             })
           );
 

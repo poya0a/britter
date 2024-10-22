@@ -16,7 +16,7 @@ export default async function handler(
   if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
-  const { searchWord, page } = JSON.parse(req.body);
+  const { spaceUid, searchWord, page } = JSON.parse(req.body);
   const pageNumber = parseInt(page, 10);
 
   authenticateToken(req, res, async () => {
@@ -40,21 +40,48 @@ export default async function handler(
           ],
           skip: (pageNumber - 1) * 10,
           take: 10,
-          relations: ["notifications"],
         });
 
         if (findUser) {
-          const userWithNotifications = findUser.map((user) => {
-            const userNotifications = notificationsRepository.find({
-              where: [{ sender_uid: user.UID }, { recipient_uid: user.UID }],
-            });
+          const userWithNotification = await Promise.all(
+            findUser.map(async (user) => {
+              const uid = spaceUid;
 
-            return {
-              ...user,
-              notifications: userNotifications,
-            };
-          });
-          console.log(userWithNotifications);
+              const userNotification = await notificationsRepository.findOne({
+                where: [
+                  {
+                    notify_type: "space",
+                    sender_uid: user.UID,
+                    recipient_uid: uid,
+                  },
+                  {
+                    notify_type: "user",
+                    sender_uid: uid,
+                    recipient_uid: user.UID,
+                  },
+                ],
+                select: ["UID", "notify_type"],
+              });
+
+              if (userNotification) {
+                const notify = {
+                  notifyUID: userNotification.UID,
+                  notifyType:
+                    userNotification.notify_type === "space"
+                      ? "participation"
+                      : "invite",
+                };
+
+                return {
+                  ...user,
+                  notify,
+                };
+              } else {
+                return user;
+              }
+            })
+          );
+
           const totalPages = Math.ceil(totalCount / 10);
 
           const pageInfo = {
@@ -66,7 +93,7 @@ export default async function handler(
 
           return res.status(200).json({
             message: "검색 완료했습니다.",
-            data: findUser,
+            data: userWithNotification,
             pageInfo: pageInfo,
             resultCode: true,
           });

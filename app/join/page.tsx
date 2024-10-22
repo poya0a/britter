@@ -31,7 +31,6 @@ import { useVerify } from "@/hooks/auth/useVerify";
 import { getErrorMassage, getValidMassage } from "../../utils/errorMessage";
 import { TermsData, useTerms } from "@/hooks/auth/useTerms";
 import { useModal } from "@/hooks/popup/useModal";
-import { useUpdateEffect } from "@/utils/useUpdateEffect";
 
 export default function Join() {
   const {
@@ -52,7 +51,6 @@ export default function Join() {
   const { useAlertState, toggleAlert } = useAlert();
   const { useModalState, toggleModal } = useModal();
   const { useTermsState, toggleCheckAll } = useTerms();
-  const [checked, setChecked] = useState<boolean>(false);
   const termsChecked = useTermsState
     ? useTermsState
         .filter((term: TermsData) => term.required)
@@ -67,10 +65,6 @@ export default function Join() {
     userEmail: false,
   });
   const { useVerifyState, toggleVerify } = useVerify();
-
-  useUpdateEffect(() => {
-    setChecked(termsChecked);
-  }, [termsChecked]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target?.files?.[0];
@@ -683,8 +677,8 @@ export default function Join() {
             <input
               type="checkbox"
               className="input"
-              checked={checked}
-              onChange={() => toggleCheckAll(!checked)}
+              checked={termsChecked}
+              onChange={() => toggleCheckAll(!termsChecked)}
             />
             <button
               type="button"

@@ -8,6 +8,8 @@ import storage from "@fetch/auth/storage";
 import { useAlert } from "./popup/useAlert";
 import { useRouteAlert } from "./popup/useRouteAlert";
 import { useToast } from "./popup/useToast";
+import { searchData } from "./useSearch";
+import { SpaceData } from "./user/useSpace";
 
 export interface NotificationData {
   UID: string;
@@ -39,6 +41,10 @@ export type RequestData = {
 
 export interface UpdateNotificationResponse {
   message: string;
+  data?: {
+    type: string;
+    uid: string;
+  };
   resultCode: boolean;
 }
 
@@ -53,13 +59,14 @@ export const useNotification = () => {
     NotificationData[]
   >(notificationDataState);
 
+  const [, setUseSearchState] = useRecoilState(searchData);
   const { toggleAlert } = useAlert();
   const { toggleRouteAlert } = useRouteAlert();
   const { setToast } = useToast();
   const [pageNo, setPageNo] = useState<number>(0);
   const [lastPage, setLastPage] = useState<boolean>(false);
 
-  const { data, refetch } = useQuery<NotificationResponse, Error>({
+  const { data } = useQuery<NotificationResponse, Error>({
     queryKey: ["notification"],
     queryFn: () =>
       fetchApi({
@@ -122,11 +129,14 @@ export const useNotification = () => {
         toggleAlert(res.message);
       } else if (res.resultCode) {
         setToast(res.message);
-        setPageNo(0);
-        // refetch();
-        queryClient.refetchQueries({ queryKey: ["notification"] });
-        queryClient.refetchQueries({ queryKey: ["info"] });
-        queryClient.refetchQueries({ queryKey: ["space"] });
+
+        if (res.data) {
+          if (res.data.type === "space") {
+            updateSpace(res.data.uid);
+          } else if (res.data.type === "user") {
+            updateUser(res.data.uid);
+          }
+        }
       }
     },
     onError: (error: any) => {
@@ -134,12 +144,77 @@ export const useNotification = () => {
     },
   });
 
+  const { mutate: postLeaveNotification } = useMutation({
+    mutationFn: (formData: FormData) =>
+      fetchApi({
+        method: "POST",
+        url: requests.LEAVE_SPACE,
+        body: formData,
+      }),
+    onSuccess: (res: UpdateNotificationResponse) => {
+      if (!res.resultCode) {
+        toggleAlert(res.message);
+      } else if (res.resultCode) {
+        setToast(res.message);
+
+        if (res.data) {
+          if (res.data.type === "space") {
+            updateSpace(res.data.uid);
+          } else if (res.data.type === "user") {
+            updateUser(res.data.uid);
+          }
+        }
+      }
+    },
+    onError: (error: any) => {
+      toggleAlert(error);
+    },
+  });
+
+  const updateSpace = async (uid: string) => {
+    const res = await fetchApi({
+      method: "GET",
+      url: `${requests.GET_SPACE}?searchUid=${uid}`,
+    });
+
+    if (res?.data) {
+      setUseSearchState((prevState) => ({
+        ...prevState,
+        spaceList: prevState.spaceList?.map((space) =>
+          space.UID === res.data.UID ? res.data : space
+        ),
+      }));
+    }
+    queryClient.refetchQueries({ queryKey: ["space"] });
+  };
+
+  const updateUser = async (uid: string) => {
+    const spaceUid = queryClient.getQueryData<SpaceData>([
+      "selectedSpace",
+    ])?.UID;
+
+    const res = await fetchApi({
+      method: "GET",
+      url: `${requests.GET_USER}?spaceUid=${spaceUid}&searchUid=${uid}`,
+    });
+
+    if (res?.data) {
+      setUseSearchState((prevState) => ({
+        ...prevState,
+        userList: prevState.userList?.map((user) =>
+          user.UID === res.data.UID ? res.data : user
+        ),
+      }));
+    }
+    queryClient.refetchQueries({ queryKey: ["spaceMember"] });
+  };
+
   return {
     useNotificationState,
     pageNo,
     lastPage,
     fetchNotification,
-    refetch,
     postNotification,
+    postLeaveNotification,
   };
 };

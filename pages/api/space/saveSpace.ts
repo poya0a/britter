@@ -36,8 +36,6 @@ export default async function handler(
           space_manager: userUid,
           space_public: true,
           space_users: [],
-          invite_users: [],
-          request_users: [],
           create_date: new Date(),
         };
 

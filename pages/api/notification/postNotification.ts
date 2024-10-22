@@ -38,9 +38,6 @@ export default async function handler(
         });
       }
       if (req.user) {
-        // 토큰 이용하여 UID GET
-        const userUid = req.user.claims.UID;
-
         try {
           const dataSource = await AppDataSource.useFactory();
           const notificationsRepository =
@@ -95,22 +92,13 @@ export default async function handler(
               ) {
                 // 요청 취소
                 if (fields.response[0] === "false") {
-                  if (notifyType === "space") {
-                    findSpace.request_users = findSpace.request_users.filter(
-                      (uid) => uid !== senderUid
-                    );
-                  } else {
-                    findSpace.invite_users = findSpace.invite_users.filter(
-                      (uid) => uid !== recipientUid
-                    );
-                  }
-                  const updatedSpace = await spaceRepository.save(findSpace);
                   const deleteNotification =
                     await notificationsRepository.delete(existingNotification);
 
-                  if (deleteNotification && updatedSpace) {
+                  if (deleteNotification) {
                     return res.status(200).json({
                       message: "요청 취소되었습니다.",
+                      data: { type: notifyType, uid: recipientUid },
                       resultCode: true,
                     });
                   } else {
@@ -134,39 +122,38 @@ export default async function handler(
                   // 요청 수락
                   try {
                     if (notifyType === "space") {
-                      findSpace.invite_users = findSpace.invite_users.filter(
-                        (uid) => uid !== senderUid
-                      );
                       findSpace.space_users.push(senderUid);
                       findSpaceList.space.push(findSpace.UID);
                     } else {
-                      findSpace.request_users = findSpace.request_users.filter(
-                        (uid) => uid !== recipientUid
-                      );
                       findSpace.space_users.push(recipientUid);
                       findSpaceList.space.push(findSpace.UID);
                     }
-                    const updateSpace = await spaceRepository.save(findSpace);
-                    try {
-                      const updateSpaceList = await spaceListRepository.save(
-                        findSpaceList
-                      );
 
-                      if (updateSpace && updateSpaceList) {
-                        return res.status(200).json({
-                          message: `${
-                            notifyType === "space" ? "스페이스" : "사용자"
-                          }를 추가하였습니다.`,
-                          resultCode: true,
-                        });
-                      } else {
-                        return res.status(200).json({
-                          message: `${
-                            notifyType === "space" ? "스페이스" : "사용자"
-                          }스페이스 추가에 실패하였습니다.`,
-                          resultCode: false,
-                        });
-                      }
+                    try {
+                      // 요청 수락 알림 저장
+                      const uid = uuidv4();
+
+                      const notify: DeepPartial<Notifications> = {
+                        UID: uid,
+                        recipient_uid: recipientUid,
+                        sender_uid: senderUid,
+                        notify_type: "acceptance",
+                        confirm: false,
+                      };
+
+                      const newNotify = notificationsRepository.create(notify);
+                      await notificationsRepository.save(newNotify);
+
+                      await spaceRepository.save(findSpace);
+                      await spaceListRepository.save(findSpaceList);
+
+                      return res.status(200).json({
+                        message: `${
+                          notifyType === "space" ? "스페이스" : "사용자"
+                        }를 추가하였습니다.`,
+                        data: { type: notifyType, uid: recipientUid },
+                        resultCode: true,
+                      });
                     } catch (error) {
                       await spaceRepository.delete(findSpace.UID);
 
@@ -192,25 +179,24 @@ export default async function handler(
                 } else if (fields.response[0] === "false") {
                   // 요청 거절
                   try {
-                    findSpace.invite_users = findSpace.invite_users.filter(
-                      (uid) =>
-                        uid !==
-                        (notifyType === "space" ? senderUid : recipientUid)
-                    );
+                    // 요청 거절 알림 저장
+                    const uid = uuidv4();
 
-                    const updateSpace = await spaceRepository.save(findSpace);
+                    const notify: DeepPartial<Notifications> = {
+                      UID: uid,
+                      recipient_uid: recipientUid,
+                      sender_uid: senderUid,
+                      notify_type: "refusal",
+                      confirm: false,
+                    };
 
-                    if (updateSpace) {
-                      return res.status(200).json({
-                        message: "거절 완료되었습니다.",
-                        resultCode: true,
-                      });
-                    } else {
-                      return res.status(200).json({
-                        message: "거절 실패하였습니다.",
-                        resultCode: false,
-                      });
-                    }
+                    const newNotify = notificationsRepository.create(notify);
+                    await notificationsRepository.save(newNotify);
+                    return res.status(200).json({
+                      message: "거절 완료되었습니다.",
+                      data: { type: notifyType, uid: recipientUid },
+                      resultCode: true,
+                    });
                   } catch (error) {
                     return res.status(200).json({
                       message: "거절 실패하였습니다.",
@@ -246,15 +232,31 @@ export default async function handler(
                   } else {
                     findSpace.space_users.push(senderUid);
                     findSpaceList.space.push(recipientUid);
+                    // 새로운 멤버 참여 알림 저장
+                    const uid = uuidv4();
+
+                    const notify: DeepPartial<Notifications> = {
+                      UID: uid,
+                      recipient_uid: recipientUid,
+                      sender_uid: senderUid,
+                      notify_type: "memberIn",
+                      confirm: false,
+                    };
+
+                    const newNotify = notificationsRepository.create(notify);
 
                     const updateSpace = await spaceRepository.save(findSpace);
                     const updateSpaceList = await spaceListRepository.save(
                       findSpaceList
                     );
+                    const saveNotify = await notificationsRepository.save(
+                      newNotify
+                    );
 
-                    if (updateSpace && updateSpaceList) {
+                    if (updateSpace && updateSpaceList && saveNotify) {
                       return res.status(200).json({
                         message: "스페이스를 추가하였습니다.",
+                        data: { type: notifyType, uid: recipientUid },
                         resultCode: true,
                       });
                     } else {
@@ -265,8 +267,65 @@ export default async function handler(
                     }
                   }
                 } else {
-                  const uid = uuidv4();
+                  const existingNotify = await notificationsRepository.findOne({
+                    where: {
+                      recipient_uid: recipientUid,
+                      sender_uid: senderUid,
+                      notify_type: notifyType,
+                    },
+                  });
 
+                  if (existingNotify) {
+                    return res.status(200).json({
+                      message: "중복된 요청입니다.",
+                      resultCode: false,
+                    });
+                  } else {
+                    const uid = uuidv4();
+
+                    const notify: DeepPartial<Notifications> = {
+                      UID: uid,
+                      recipient_uid: recipientUid,
+                      sender_uid: senderUid,
+                      notify_type: notifyType,
+                      confirm: false,
+                    };
+
+                    const newNotify = notificationsRepository.create(notify);
+                    const saveNotify = await notificationsRepository.save(
+                      newNotify
+                    );
+
+                    if (saveNotify) {
+                      return res.status(200).json({
+                        message: "스페이스를 추가 요청 완료하였습니다.",
+                        data: { type: notifyType, uid: recipientUid },
+                        resultCode: true,
+                      });
+                    } else {
+                      return res.status(200).json({
+                        message: "요청 실패하였습니다.",
+                        resultCode: false,
+                      });
+                    }
+                  }
+                }
+              } else if (notifyType === "user") {
+                const existingNotify = await notificationsRepository.findOne({
+                  where: {
+                    recipient_uid: recipientUid,
+                    sender_uid: senderUid,
+                    notify_type: notifyType,
+                  },
+                });
+
+                if (existingNotify) {
+                  return res.status(200).json({
+                    message: "중복된 요청입니다.",
+                    resultCode: false,
+                  });
+                } else {
+                  const uid = uuidv4();
                   const notify: DeepPartial<Notifications> = {
                     UID: uid,
                     recipient_uid: recipientUid,
@@ -281,110 +340,17 @@ export default async function handler(
                   );
 
                   if (saveNotify) {
-                    const existingUser =
-                      findSpace.request_users.includes(senderUid);
-
-                    if (existingUser) {
-                      return res.status(200).json({
-                        message: "중복된 요청입니다.",
-                        resultCode: false,
-                      });
-                    } else {
-                      try {
-                        findSpace.request_users.push(userUid);
-
-                        const updateSpace = await spaceRepository.save(
-                          findSpace
-                        );
-
-                        if (updateSpace) {
-                          return res.status(200).json({
-                            message: "스페이스를 추가 요청 완료하였습니다.",
-                            resultCode: true,
-                          });
-                        } else {
-                          return res.status(200).json({
-                            message: "스페이스 추가 요청에 실패하였습니다.",
-                            resultCode: false,
-                          });
-                        }
-                      } catch (error) {
-                        return res.status(500).json({
-                          message: "요청 중 오류가 발생하였습니다.",
-                          resultCode: false,
-                        });
-                      }
-                    }
+                    return res.status(200).json({
+                      message: "초대 요청 완료하였습니다.",
+                      data: { type: notifyType, uid: recipientUid },
+                      resultCode: true,
+                    });
                   } else {
                     return res.status(200).json({
-                      message: "요청 실패하였습니다.",
+                      message: "초대 요청 실패하였습니다.",
                       resultCode: false,
                     });
                   }
-                }
-              } else if (notifyType === "user") {
-                const uid = uuidv4();
-                const notify: DeepPartial<Notifications> = {
-                  UID: uid,
-                  recipient_uid: recipientUid,
-                  sender_uid: senderUid,
-                  notify_type: notifyType,
-                  confirm: false,
-                };
-
-                const newNotify = notificationsRepository.create(notify);
-                const saveNotify = await notificationsRepository.save(
-                  newNotify
-                );
-
-                if (saveNotify) {
-                  const existingUser =
-                    findSpace.invite_users.includes(recipientUid);
-
-                  if (existingUser) {
-                    return res.status(200).json({
-                      message: "중복된 요청입니다.",
-                      resultCode: false,
-                    });
-                  } else {
-                    try {
-                      findSpace.invite_users.push(recipientUid);
-
-                      try {
-                        const updateSpace = await spaceRepository.save(
-                          findSpace
-                        );
-                        if (updateSpace) {
-                          return res.status(200).json({
-                            message: "초대 요청 완료하였습니다.",
-                            resultCode: true,
-                          });
-                        } else {
-                          return res.status(200).json({
-                            message: "초대 요청 실패하였습니다.",
-                            resultCode: false,
-                          });
-                        }
-                      } catch (error) {
-                        await spaceRepository.delete(findSpace.UID);
-
-                        return res.status(200).json({
-                          message: "요청에 실패하였습니다.",
-                          resultCode: false,
-                        });
-                      }
-                    } catch (error) {
-                      return res.status(500).json({
-                        message: "요청 중 오류가 발생하였습니다.",
-                        resultCode: false,
-                      });
-                    }
-                  }
-                } else {
-                  return res.status(200).json({
-                    message: "요청 중 에러가 발생하였습니다.",
-                    resultCode: false,
-                  });
                 }
               }
             }

@@ -21,6 +21,9 @@ export default async function handler(
 
   authenticateToken(req, res, async () => {
     if (req.user) {
+      // 토큰 이용하여 UID GET
+      const uid = req.user.claims.UID;
+
       try {
         const dataSource = await AppDataSource.useFactory();
         const spaceRepository = dataSource.getRepository(Space);
@@ -37,10 +40,46 @@ export default async function handler(
           ],
           skip: (pageNumber - 1) * 10,
           take: 10,
-          relations: ["notifications"],
         });
 
         if (findSpace) {
+          const spaceWithNotification = await Promise.all(
+            findSpace.map(async (space) => {
+              const userNotification = await notificationsRepository.findOne({
+                where: [
+                  {
+                    notify_type: "user",
+                    sender_uid: space.UID,
+                    recipient_uid: uid,
+                  },
+                  {
+                    notify_type: "space",
+                    sender_uid: uid,
+                    recipient_uid: space.UID,
+                  },
+                ],
+                select: ["UID", "notify_type"],
+              });
+
+              if (userNotification) {
+                const notify = {
+                  notifyUID: userNotification.UID,
+                  notifyType:
+                    userNotification.notify_type === "space"
+                      ? "participation"
+                      : "invite",
+                };
+
+                return {
+                  ...space,
+                  notify,
+                };
+              } else {
+                return space;
+              }
+            })
+          );
+
           const totalPages = Math.ceil(totalCount / 10);
 
           const pageInfo = {
@@ -52,7 +91,7 @@ export default async function handler(
 
           return res.status(200).json({
             message: "검색 완료했습니다.",
-            data: findSpace,
+            data: spaceWithNotification,
             pageInfo: pageInfo,
             resultCode: true,
           });
@@ -63,7 +102,6 @@ export default async function handler(
           });
         }
       } catch (error) {
-        console.log(error);
         return res.status(500).json({
           message:
             typeof error === "string" ? error : "서버 에러가 발생하였습니다.",

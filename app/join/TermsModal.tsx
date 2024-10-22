@@ -12,6 +12,7 @@ function ModalTerms() {
     toggleCheck,
     toggleCheckAll,
   } = useTerms();
+
   const { toggleModal } = useModal();
   const checked = useTermsState.every((term: TermsData) => term.checked);
 
@@ -45,38 +46,39 @@ function ModalTerms() {
             </div>
             <div style={{ paddingLeft: "30px" }}>
               <div className={inputStyles.inputCheck}>
-                {useTermsState?.map((term: TermsData, idx: number) => (
-                  <div
-                    className={inputStyles.inputCheckWrapper}
-                    key={`term_${idx}`}
-                  >
-                    <input
-                      type="checkbox"
-                      className="input"
-                      id={term.seq.toString()}
-                      checked={term.checked ?? false}
-                      onChange={() => toggleCheck(term.seq)}
-                    />
-                    <button
-                      type="button"
-                      className={`button ${inputStyles.inputCheckButton}`}
-                      onClick={() => {
-                        selectTerms(term.seq);
-                      }}
-                    >
-                      {term.title}
-                      <span>{term.required ? "(필수) " : "(선택) "}</span>
-                    </button>
+                {useTermsState &&
+                  useTermsState.map((term: TermsData, idx: number) => (
                     <div
-                      className={[
-                        styles.termsContents,
-                        selectedTerms === term.seq ? styles.active : "",
-                      ].join(" ")}
+                      className={inputStyles.inputCheckWrapper}
+                      key={`term_${idx}`}
                     >
-                      <p>{term.content}</p>
+                      <input
+                        type="checkbox"
+                        className="input"
+                        id={term.seq.toString()}
+                        checked={term.checked ?? false}
+                        onChange={() => toggleCheck(term.seq)}
+                      />
+                      <button
+                        type="button"
+                        className={`button ${inputStyles.inputCheckButton}`}
+                        onClick={() => {
+                          selectTerms(term.seq);
+                        }}
+                      >
+                        {term.title}
+                        <span>{term.required ? "(필수) " : "(선택) "}</span>
+                      </button>
+                      <div
+                        className={[
+                          styles.termsContents,
+                          selectedTerms === term.seq ? styles.active : "",
+                        ].join(" ")}
+                      >
+                        <p>{term.content}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           </div>

@@ -15,17 +15,7 @@ export interface TermsData {
 
 export const termsState = atom<TermsData[]>({
   key: "termsState",
-  default: [
-    {
-      seq: 0,
-      title: "",
-      content: "",
-      required: false,
-      inUsed: false,
-      createDate: new Date(),
-      checked: false,
-    },
-  ],
+  default: [],
 });
 
 export const useTerms = () => {
@@ -54,10 +44,10 @@ export const useTerms = () => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && useTermsState.length === 0) {
       setUseTermsState(data);
     }
-  }, []);
+  }, [data, useTermsState, setUseTermsState]);
 
   const selectTerms = async (seq: number) => {
     setSelectedTerms(seq);

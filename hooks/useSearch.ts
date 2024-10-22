@@ -7,6 +7,12 @@ import { atom } from "recoil";
 import { useAlert } from "./popup/useAlert";
 import fetchFile from "@fetch/fetchFile";
 import convertHtmlToPreviewText from "@/utils/previewText";
+import { SpaceData } from "./user/useSpace";
+
+export interface Notify {
+  notifyUID: string;
+  notifyType: string;
+}
 
 export interface SpaceListData {
   UID: string;
@@ -15,6 +21,7 @@ export interface SpaceListData {
   space_name: string;
   space_public: boolean;
   space_manager: string;
+  notify?: Notify;
 }
 
 export interface UserListData {
@@ -25,6 +32,7 @@ export interface UserListData {
   user_name: string;
   user_nick_name: string;
   user_public: boolean;
+  notify?: Notify;
 }
 
 export interface PostListData {
@@ -142,10 +150,17 @@ export const useSearch = () => {
         ...prevState,
         searchWord: searchWord,
       }));
+      const spaceUid = queryClient.getQueryData<SpaceData>([
+        "selectedSpace",
+      ])?.UID;
       return fetchApi({
         method: "POST",
         url: requests.SEARCH_USER_LIST,
-        body: JSON.stringify({ searchWord, page: searchPageNo.user + 1 }),
+        body: JSON.stringify({
+          spaceUid: spaceUid,
+          searchWord,
+          page: searchPageNo.user + 1,
+        }),
       });
     },
     onSuccess: (res: SearchResponse) => {
@@ -169,6 +184,7 @@ export const useSearch = () => {
       toggleAlert(error);
     },
   });
+
   const { mutate: searchPostList } = useMutation({
     mutationFn: (searchWord: string) => {
       setUseSearchState((prevState) => ({
@@ -282,6 +298,7 @@ export const useSearch = () => {
 
   return {
     useSearchState,
+    setUseSearchState,
     setSearchPageNo,
     searchSpaceList,
     searchUserList,

@@ -224,8 +224,6 @@ export default async function handler(
       space_manager: emp.UID,
       space_public: emp.user_public,
       space_users: [],
-      invite_users: [],
-      request_users: [],
       create_date: new Date(),
     };
 

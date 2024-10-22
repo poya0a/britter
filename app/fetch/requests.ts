@@ -8,6 +8,8 @@ const requests = {
   DELETE_POST: "api/post/deletePost",
   FILE_UPLOAD: "api/file/upload",
   GET_FILE: "api/file/getFile",
+  GET_SPACE: "api/search/getSpace",
+  GET_USER: "api/search/getUser",
   SEARCH_SPACE_LIST: "api/search/getSpaceList",
   SEARCH_USER_LIST: "api/search/getUserList",
   SEARCH_POST_LIST: "api/search/getPostList",

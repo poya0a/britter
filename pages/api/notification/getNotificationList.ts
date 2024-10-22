@@ -50,11 +50,10 @@ export default async function handler(
           (space) => space.space_manager === uid
         );
 
-        const notificationsListRepository =
-          dataSource.getRepository(Notifications);
+        const notificationsRepository = dataSource.getRepository(Notifications);
 
         const [findNotifications, totalCount] =
-          await notificationsListRepository.findAndCount({
+          await notificationsRepository.findAndCount({
             where: [
               { recipient_uid: uid },
               { sender_uid: uid },

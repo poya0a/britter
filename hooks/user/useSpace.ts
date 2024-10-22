@@ -13,8 +13,6 @@ import { useCreatePopup } from "../popup/useCreatePopup";
 import { useToast } from "../popup/useToast";
 import { useSpaceSettingPopup } from "../popup/useSpaceSettingPopup";
 import { useSettingMenu } from "../menu/useSettingMenu";
-import { useNotification } from "../useNotification";
-import { useInfo } from "./useInfo";
 
 interface PageInfo {
   currentPage: number;
@@ -30,8 +28,6 @@ export interface SpaceData {
   space_manager: string;
   space_public: boolean;
   space_users: string[];
-  invite_users?: string[];
-  request_users?: string[];
 }
 
 interface SpaceListResponse {
@@ -92,7 +88,6 @@ export const useSpace = () => {
   const [spaceMemeberPageInfo, setSpaceMemeberPageInfo] =
     useRecoilState<PageInfo>(pageInfo);
 
-  const { refetch: notificationRefetch } = useNotification();
   const { toggleAlert } = useAlert();
   const { setToast } = useToast();
   const { toggleRouteAlert } = useRouteAlert();
@@ -149,8 +144,6 @@ export const useSpace = () => {
           space_manager: "",
           space_public: false,
           space_users: [],
-          invite_users: [],
-          request_users: [],
         }
       );
     },
@@ -251,27 +244,6 @@ export const useSpace = () => {
     },
   });
 
-  const { mutate: leaveSpace } = useMutation({
-    mutationFn: (formData: FormData) =>
-      fetchApi({
-        method: "POST",
-        url: requests.LEAVE_SPACE,
-        body: formData,
-      }),
-    onSuccess: (res: SpaceMemberListResponse) => {
-      if (!res.resultCode) {
-        toggleAlert(res.message);
-      } else {
-        notificationRefetch();
-        queryClient.refetchQueries({ queryKey: ["info"] });
-        queryClient.refetchQueries({ queryKey: ["space"] });
-      }
-    },
-    onError: (error: any) => {
-      toggleAlert(error);
-    },
-  });
-
   useEffect(() => {
     const updateSpace = async () => {
       if (space) {
@@ -341,6 +313,5 @@ export const useSpace = () => {
     createSpace,
     updateSpace,
     deleteSpace,
-    leaveSpace,
   };
 };

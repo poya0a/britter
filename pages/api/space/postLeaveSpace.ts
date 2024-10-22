@@ -43,6 +43,8 @@ export default async function handler(
 
         try {
           const dataSource = await AppDataSource.useFactory();
+          const notificationsRepository =
+            dataSource.getRepository(Notifications);
           const spaceRepository = dataSource.getRepository(Space);
           const spaceListRepository = dataSource.getRepository(SpaceList);
           const empsRepository = dataSource.getRepository(Emps);
@@ -107,11 +109,25 @@ export default async function handler(
                 (user) => user !== exitUid
               );
 
+              // 멤버 탈퇴 알림 저장
+              const uid = uuidv4();
+
+              const notify: DeepPartial<Notifications> = {
+                UID: uid,
+                recipient_uid: exitUid,
+                sender_uid: senderUid,
+                notify_type: "memberOut",
+                confirm: false,
+              };
+
+              const newNotify = notificationsRepository.create(notify);
+              await notificationsRepository.save(newNotify);
               await spaceRepository.save(findSpace);
               await spaceListRepository.save(findSpaceList);
 
               return res.status(200).json({
                 message: "탈퇴되었습니다.",
+                data: { type: exitType, uid: exitUid },
                 resultCode: true,
               });
             } else if (exitType === "user") {
@@ -144,11 +160,25 @@ export default async function handler(
                 (user) => user !== senderUid
               );
 
+              // 멤버 탈퇴 알림 저장
+              const uid = uuidv4();
+
+              const notify: DeepPartial<Notifications> = {
+                UID: uid,
+                recipient_uid: exitUid,
+                sender_uid: senderUid,
+                notify_type: "memberOut",
+                confirm: false,
+              };
+
+              const newNotify = notificationsRepository.create(notify);
+              await notificationsRepository.save(newNotify);
               await spaceRepository.save(findSpace);
               await spaceListRepository.save(findSpaceList);
 
               return res.status(200).json({
                 message: "탈퇴되었습니다.",
+                data: { type: exitType, uid: exitUid },
                 resultCode: true,
               });
             } else {
