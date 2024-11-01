@@ -5,7 +5,7 @@ import { useMainMenuWidth } from "@hooks/menu/useMainMenuWidth";
 import { useRouter } from "next/navigation";
 import storage from "@fetch/auth/storage";
 import { useRouteAlert } from "@hooks/popup/useRouteAlert";
-import { PostData, usePost } from "@hooks/usePost";
+import { PostListData, usePost } from "@hooks/usePost";
 import { useInfo } from "@hooks/user/useInfo";
 import { useAlert } from "@hooks/popup/useAlert";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
@@ -23,7 +23,7 @@ export default function MainMenu() {
   const { toggleSearchPopup } = useSearchPopup();
   const { useInfoState } = useInfo();
   const { useSpaceState, selectedSpace } = useSpace();
-  const { usePostState, pageSeq, setPageSeq, setType } = usePost();
+  const { usePostListState, pageSeq, setPageSeq, setType } = usePost();
   const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
   const { toggleSpaceSettingPopup } = useSpaceSettingPopup();
@@ -80,7 +80,7 @@ export default function MainMenu() {
     }
   };
 
-  const renderSubPages = (subPages: PostData[], depth: number) => {
+  const renderSubPages = (subPages: PostListData[], depth: number) => {
     if (!subPages || subPages.length === 0) {
       return null;
     }
@@ -88,7 +88,7 @@ export default function MainMenu() {
     return (
       <div style={{ paddingLeft: depth * 5 + "px" }}>
         <ul className={`list ${styles.pageList}`}>
-          {subPages.map((post: PostData, idx: number) => (
+          {subPages.map((post: PostListData, idx: number) => (
             <li
               className={`list ${styles.pageItem}`}
               key={`post-sub${depth}-${idx}`}
@@ -101,7 +101,7 @@ export default function MainMenu() {
                     pageSeq.seq === post.seq ||
                     (pageSeq.seq === "" &&
                       post.subPost?.find(
-                        (sub: PostData) => sub.p_seq === pageSeq.pSeq
+                        (sub: PostListData) => sub.p_seq === pageSeq.pSeq
                       ))
                       ? styles.active
                       : ""
@@ -286,7 +286,7 @@ export default function MainMenu() {
             &nbsp;스페이스
           </h6>
           <ul className={`list ${styles.pageList} ${styles.pageListWrap}`}>
-            {usePostState.map((post: PostData, idx: number) => (
+            {usePostListState.map((post: PostListData, idx: number) => (
               <li className={`list ${styles.pageItem}`} key={`post-${idx}`}>
                 <div className={styles.pageWrapper}>
                   <button

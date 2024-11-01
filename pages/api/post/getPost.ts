@@ -7,41 +7,39 @@ import {
   authenticateToken,
 } from "@/server/utils/authenticateToken";
 
-interface PostData extends Post {
-  subPost?: PostData[];
-}
-
 export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== "POST") {
+  if (req.method !== "GET") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
-
-  const { postUid } = JSON.parse(req.body);
-
   authenticateToken(req, res, async () => {
-    if (req.user) {
+    const postSeq = req.query.postSeq as string;
+
+    if (req.user && postSeq) {
       try {
         const dataSource = await AppDataSource.useFactory();
         const postRepository = dataSource.getRepository(Post);
 
-        const posts = await postRepository
-          .createQueryBuilder("post")
-          .where("post.space_uid = :postUid", { postUid })
-          .orderBy("post.p_seq", "ASC")
-          .addOrderBy("post.order_number", "ASC")
-          .getMany();
-
-        const groupedPosts: PostData[] = groupPosts(posts);
-
-        return res.status(200).json({
-          message: "게시글 목록 조회 완료했습니다.",
-          data: groupedPosts,
-          resultCode: true,
+        const findPost = await postRepository.findOne({
+          where: { seq: postSeq },
         });
+
+        if (findPost) {
+          return res.status(200).json({
+            message: "게시글 조회 완료했습니다.",
+            data: findPost,
+            resultCode: true,
+          });
+        } else {
+          return res.status(200).json({
+            message: "게시글을 찾을 수 없습니다.",
+            resultCode: false,
+          });
+        }
       } catch (error) {
+        console.log(error);
         return res.status(500).json({
           message:
             typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
@@ -56,26 +54,4 @@ export default async function handler(
       });
     }
   });
-}
-
-function groupPosts(posts: PostData[]): PostData[] {
-  const postMap: { [key: string]: PostData } = {};
-  const groupedPosts: PostData[] = [];
-
-  posts.forEach((post) => {
-    postMap[post.seq] = { ...post, subPost: [] };
-  });
-
-  posts.forEach((post) => {
-    if (post.p_seq) {
-      const parentPost = postMap[post.p_seq];
-      if (parentPost) {
-        parentPost.subPost?.push(postMap[post.seq]);
-      }
-    } else {
-      groupedPosts.push(postMap[post.seq]);
-    }
-  });
-
-  return groupedPosts;
 }

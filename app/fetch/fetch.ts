@@ -78,12 +78,14 @@ const refreshToken = async (): Promise<string | null> => {
       throw new FetchError("토큰 갱신 실패", response.status);
     }
 
-    const { accessToken, refreshToken, resultCode } = await response.json();
+    const responseData = await response.json();
 
     // 갱신할 토큰 X
-    if (!resultCode) {
+    if (!responseData || responseData.resultCode !== true) {
       throw new FetchError("토큰 갱신 실패", response.status);
     }
+
+    const { accessToken, refreshToken } = responseData;
 
     if (accessToken) {
       storage.setAccessToken(accessToken);

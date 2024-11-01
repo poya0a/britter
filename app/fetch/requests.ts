@@ -3,6 +3,7 @@ const requests = {
   LOGOUT: "api/logout",
   USER_INFO: "api/user/info",
   USER_SPACE_LIST: "api/user/spaceList",
+  GET_POST_LiST: "api/post/getPostList",
   GET_POST: "api/post/getPost",
   SAVE_POST: "api/post/savePost",
   DELETE_POST: "api/post/deletePost",

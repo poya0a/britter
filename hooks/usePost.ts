@@ -12,6 +12,15 @@ import storage from "@fetch/auth/storage";
 import { SpaceData } from "./user/useSpace";
 import { useUpdateEffect } from "@/utils/useUpdateEffect";
 
+export interface PostListData {
+  seq: string;
+  p_seq?: string;
+  UID: string;
+  title: string;
+  content: string;
+  subPost?: PostData[];
+}
+
 export interface PostData {
   seq: string;
   p_seq?: string;
@@ -30,22 +39,34 @@ export interface PostResponse {
   resultCode: boolean;
 }
 
-export const postState = atom<PostData[]>({
-  key: "postState",
+export const postListState = atom<PostListData[]>({
+  key: "postListState",
   default: [
     {
       seq: "",
       UID: "",
       title: "",
       content: "",
-      create_date: new Date(),
     },
   ],
 });
 
+export const postState = atom<PostData>({
+  key: "postState",
+  default: {
+    seq: "",
+    UID: "",
+    title: "",
+    content: "",
+    create_date: new Date(),
+  },
+});
+
 export const usePost = () => {
   const queryClient = useQueryClient();
-  const [usePostState, setUsePostState] = useRecoilState<PostData[]>(postState);
+  const [usePostListState, setUsePostListState] =
+    useRecoilState<PostListData[]>(postListState);
+  const [usePostState, setUsePostState] = useRecoilState<PostData>(postState);
   const [editorContent, setEditorContent] = useState<string>("");
   const { toggleAlert } = useAlert();
   const { toggleRouteAlert } = useRouteAlert();
@@ -90,7 +111,37 @@ export const usePost = () => {
     },
   });
 
-  const { data } = useQuery<PostData[], Error>({
+  const { data: postList } = useQuery<PostData[], Error>({
+    queryKey: ["postList"],
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { mutate: fetchPostList } = useMutation({
+    mutationFn: () =>
+      fetchApi({
+        method: "POST",
+        url: requests.GET_POST_LiST,
+        body: JSON.stringify({ postUid }),
+      }),
+    onSuccess: (res: PostResponse) => {
+      queryClient.invalidateQueries({ queryKey: ["postList"] });
+      if (!res.resultCode) {
+        toggleAlert(res.message);
+      } else if (res.resultCode && res.data) {
+        queryClient.setQueryData(["postList"], res.data);
+      }
+    },
+    onError: (error: FetchError) => {
+      toggleRouteAlert({
+        isActOpen: true,
+        content: error.message,
+        route: "/login",
+      });
+      storage.removeToken();
+    },
+  });
+
+  const { data: post } = useQuery<PostData, Error>({
     queryKey: ["post"],
     staleTime: 5 * 60 * 1000,
   });
@@ -98,9 +149,8 @@ export const usePost = () => {
   const { mutate: fetchPost } = useMutation({
     mutationFn: () =>
       fetchApi({
-        method: "POST",
-        url: requests.GET_POST,
-        body: JSON.stringify({ postUid }),
+        method: "GET",
+        url: `${requests.GET_POST}?postSeq=${pageSeq.seq}`,
       }),
     onSuccess: (res: PostResponse) => {
       queryClient.invalidateQueries({ queryKey: ["post"] });
@@ -137,7 +187,7 @@ export const usePost = () => {
         } else {
           setToast(res.message);
         }
-        fetchPost();
+        fetchPostList();
         setPageSeq({ seq: res.data.seq, pSeq: "" });
       }
       setAuto(null);
@@ -158,7 +208,7 @@ export const usePost = () => {
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode && res.data) {
-        fetchPost();
+        fetchPostList();
         setPageSeq({ seq: "", pSeq: res.data.seq });
         setType("view");
         setToast(res.message);
@@ -170,10 +220,16 @@ export const usePost = () => {
   });
 
   useEffect(() => {
-    if (data) {
-      setUsePostState(data);
+    if (postList) {
+      setUsePostListState(postList);
     }
-  }, [data, setUsePostState]);
+  }, [postList, setUsePostListState]);
+
+  useEffect(() => {
+    if (post) {
+      setUsePostState(post);
+    }
+  }, [post, setUsePostState]);
 
   const setType = (type: string) => {
     queryClient.setQueryData(["type"], type);
@@ -192,32 +248,22 @@ export const usePost = () => {
     queryClient.setQueryData(["pathname"], pathname);
   };
 
-  const findPostBySeq = (
-    posts: PostData[],
-    seq: string
-  ): PostData | undefined => {
-    for (const post of posts) {
-      if (post.seq === seq) {
-        return post;
-      }
-      if (post.subPost) {
-        const found = findPostBySeq(post.subPost, seq);
-        if (found) {
-          return found;
-        }
-      }
-    }
-    return undefined;
-  };
-
   useUpdateEffect(() => {
     if (postUid !== "") {
-      fetchPost();
+      fetchPostList();
     }
   }, [postUid]);
 
+  useUpdateEffect(() => {
+    if (pageSeq.seq !== "") {
+      fetchPost();
+    }
+  }, [pageSeq]);
+
   return {
+    usePostListState,
     usePostState,
+    post,
     editorContent,
     type,
     pageSeq,
@@ -227,10 +273,10 @@ export const usePost = () => {
     setType,
     setPageSeq,
     setPathname,
+    fetchPostList,
     fetchPost,
     savePost,
     deletePost,
     setAuto,
-    findPostBySeq,
   };
 };

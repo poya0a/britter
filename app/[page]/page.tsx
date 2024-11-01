@@ -32,7 +32,7 @@ import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
 import { useAlert } from "@/hooks/popup/useAlert";
 import Alert from "@components/popup/Alert";
-import { PostData, usePost } from "@hooks/usePost";
+import { PostData, PostListData, usePost } from "@hooks/usePost";
 import Toast from "@components/popup/Toast";
 import { useToast } from "@hooks/popup/useToast";
 import RoutAlert from "@components/popup/RouteAlert";
@@ -131,7 +131,7 @@ const focusTableTag = (element: HTMLElement): boolean => {
 };
 
 function findParentTitles(
-  posts: PostData[],
+  posts: PostListData[],
   seq: string,
   path: { title: string; seq: string }[] = []
 ): { title: string; seq: string }[] {
@@ -170,6 +170,7 @@ export default function Page() {
   const { useCreateState } = useCreatePopup();
   const { useSpaceSettingState } = useSpaceSettingPopup();
   const {
+    usePostListState,
     usePostState,
     editorContent,
     type,
@@ -183,26 +184,22 @@ export default function Page() {
     setType,
     setPageSeq,
     setPathname,
-    findPostBySeq,
   } = usePost();
-  const [viewPost, setViewPost] = useState<PostData>();
+  const [viewPost, setViewPost] = useState<PostListData>();
 
   useEffect(() => {
     let seq = pageSeq.seq || pageSeq.pSeq;
     if (!(type === "create" && seq === "")) {
-      const parentTitles = findParentTitles(usePostState, seq);
+      const parentTitles = findParentTitles(usePostListState, seq);
       setPathname(parentTitles);
-
-      const selectedView = findPostBySeq(usePostState, seq);
-
-      if (selectedView) {
-        setViewPost(selectedView);
+      if (usePostState.seq !== "") {
+        setViewPost(usePostState);
       }
       if (type === "view" && seq === "") router.push("/");
     } else {
       setPathname([]);
     }
-  }, [pageSeq, usePostState]);
+  }, [pageSeq, usePostListState]);
 
   useUpdateEffect(() => {
     if (type === "create" && auto !== null) {
@@ -336,7 +333,10 @@ export default function Page() {
   const handleDeletePost = () => {
     let content = "삭제하시겠습니까?";
 
-    if (viewPost?.subPost && viewPost?.subPost?.length > 0) {
+    const subPost = usePostListState.find(
+      (post) => post.seq === viewPost?.seq
+    )?.subPost;
+    if (subPost && subPost.length > 0) {
       content = "하위 게시글도 함께 삭제됩니다. 삭제하시겠습니까?";
     }
 
@@ -399,7 +399,7 @@ export default function Page() {
             onUpdate={({ editor }) => {
               setEditorContent(editor.getHTML());
             }}
-            // SSR과 클라이언트 측 렌더링을 일치를 윈한 속성 제거
+            // SSR과 클라이언트 측 렌더링을 일치를 위한 속성 제거
             immediatelyRender={false}
           />
         ) : (

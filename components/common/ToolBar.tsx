@@ -52,7 +52,6 @@ export default function ToolBar() {
     usePostState,
     type: pageType,
     pageSeq,
-    findPostBySeq,
   } = usePost();
 
   if (editor === null) return;
@@ -114,11 +113,8 @@ export default function ToolBar() {
   useEffect(() => {
     if (pageType === "create" && pageSeq.seq !== "") {
       if (!autoSaved) {
-        const modifyPost = findPostBySeq(usePostState, pageSeq.seq);
-        if (modifyPost) {
-          setTitle(modifyPost.title);
-          editor.chain().setContent(modifyPost.content).run();
-        }
+        setTitle(usePostState.title);
+        editor.chain().setContent(usePostState.content).run();
         setAutoSaved(true);
       }
     } else {
