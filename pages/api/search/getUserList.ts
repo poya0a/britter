@@ -104,7 +104,6 @@ export default async function handler(
           });
         }
       } catch (error) {
-        console.log(error);
         return res.status(500).json({
           message:
             typeof error === "string" ? error : "서버 에러가 발생하였습니다.",

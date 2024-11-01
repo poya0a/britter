@@ -66,14 +66,12 @@ export const useInfo = () => {
       return res.data;
     } catch (error) {
       if (error instanceof FetchError) {
-        if (error.code === 403 || error.code === 401) {
-          toggleRouteAlert({
-            isActOpen: true,
-            content: error.message,
-            route: "/login",
-          });
-          storage.removeToken();
-        }
+        toggleRouteAlert({
+          isActOpen: true,
+          content: error.message,
+          route: "/login",
+        });
+        storage.removeToken();
       }
       throw error;
     }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FetchError } from "@fetch/types";
 import { useRecoilState } from "recoil";
 import { atom } from "recoil";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -109,15 +110,13 @@ export const usePost = () => {
         queryClient.setQueryData(["post"], res.data);
       }
     },
-    onError: (error: any) => {
-      if (error.code === 403 || error.code === 401) {
-        toggleRouteAlert({
-          isActOpen: true,
-          content: error.message,
-          route: "/login",
-        });
-        storage.removeToken();
-      }
+    onError: (error: FetchError) => {
+      toggleRouteAlert({
+        isActOpen: true,
+        content: error.message,
+        route: "/login",
+      });
+      storage.removeToken();
     },
   });
 
@@ -140,11 +139,11 @@ export const usePost = () => {
         }
         fetchPost();
         setPageSeq({ seq: res.data.seq, pSeq: "" });
-        setAuto(null);
       }
+      setAuto(null);
     },
-    onError: (error: any) => {
-      toggleAlert(error);
+    onError: (error: FetchError) => {
+      toggleAlert(error.message);
     },
   });
 
@@ -165,8 +164,8 @@ export const usePost = () => {
         setToast(res.message);
       }
     },
-    onError: (error: any) => {
-      toggleAlert(error);
+    onError: (error: FetchError) => {
+      toggleAlert(error.message);
     },
   });
 

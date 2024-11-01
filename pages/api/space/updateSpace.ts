@@ -95,10 +95,16 @@ export default async function handler(
 
           if (file !== undefined) {
             if (findSpace.space_profile_seq) {
+              await spaceRepository.update(
+                { space_profile_seq: findSpace.space_profile_seq },
+                { space_profile_seq: null }
+              );
+
               await handleFileDelete(findSpace.space_profile_seq);
             }
             const saveFile = await handleFileUpload(file);
-            findSpace.space_profile_seq = saveFile.seq;
+            console.log(saveFile.data.seq);
+            findSpace.space_profile_seq = saveFile.data.seq;
           }
 
           const updateSpace = await spaceRepository.save(findSpace);
@@ -106,7 +112,7 @@ export default async function handler(
           if (updateSpace) {
             return res.status(200).json({
               message: "스페이스 정보 수정되었습니다.",
-              data: { seq: spaceUid },
+              data: { seq: JSON.parse(spaceUid) },
               resultCode: true,
             });
           } else {

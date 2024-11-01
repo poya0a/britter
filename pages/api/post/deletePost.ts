@@ -1,11 +1,14 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
 import { AppDataSource } from "@database/typeorm.config";
-import { Post } from "@/server/entities/Post.entity";
+import { Post } from "@entities/Post.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
 } from "@/server/utils/authenticateToken";
+import { extractImgDataSeq } from "@/server/utils/extractImgDataSeq";
+import { handleFileDelete } from "@/server/utils/fileDelete";
+import { Repository } from "typeorm";
 
 export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,
@@ -36,12 +39,9 @@ export default async function handler(
           where: { seq, UID: uid },
         });
 
-        const childPosts = await postRepository.find({
-          where: [
-            { seq, UID: uid },
-            { p_seq: seq, UID: uid },
-          ],
-        });
+        // const childPosts = await postRepository.find({
+        //   where: { p_seq: seq, UID: uid },
+        // });
 
         if (!currentPost) {
           return res.status(200).json({
@@ -50,13 +50,33 @@ export default async function handler(
           });
         }
 
-        if (childPosts.length > 0) {
-          await postRepository.remove(childPosts);
+        // 삭제한 파일 seq 배열
+        let dataSeqList: number[] = [];
+
+        // if (childPosts.length > 0) {
+        //   // 게시글에 포함된 파일 데이터 seq 배열
+        //   for (const post of childPosts) {
+        //     const extractedSeqList = extractImgDataSeq(post.content);
+        //     dataSeqList = dataSeqList.concat(extractedSeqList);
+        //   }
+        // }
+
+        // 게시글에 포함된 파일 데이터와 물리 파일 삭제
+        // const extractedSeqList = extractImgDataSeq(currentPost.content);
+        // dataSeqList = dataSeqList.concat(extractedSeqList);
+        await deletePostAndChildren(seq, postRepository, uid, dataSeqList);
+
+        if (dataSeqList.length > 0) {
+          for (const seq of dataSeqList) {
+            await handleFileDelete(seq);
+          }
         }
 
         let pSeq: string = currentPost?.p_seq || "";
 
-        await postRepository.remove(currentPost);
+        // // 게시글 데이터 삭제
+        // await postRepository.remove(childPosts);
+        // await postRepository.remove(currentPost);
 
         // 남은 게시글 재정렬
         const postsWithSamePSeq = await postRepository.find({
@@ -94,4 +114,34 @@ export default async function handler(
       });
     }
   });
+}
+
+async function deletePostAndChildren(
+  postSeq: string,
+  postRepository: Repository<Post>,
+  uid: string,
+  dataSeqList: number[]
+) {
+  const childPosts = await postRepository.find({
+    where: { p_seq: postSeq, UID: uid },
+  });
+
+  const currentPost = await postRepository.findOne({
+    where: { seq: postSeq, UID: uid },
+  });
+
+  if (currentPost) {
+    const extractedSeqList = extractImgDataSeq(currentPost.content);
+    dataSeqList.push(...extractedSeqList);
+    await postRepository.remove(currentPost);
+  }
+
+  for (const childPost of childPosts) {
+    await deletePostAndChildren(
+      childPost.seq,
+      postRepository,
+      uid,
+      dataSeqList
+    );
+  }
 }

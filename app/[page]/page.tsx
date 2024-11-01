@@ -216,28 +216,36 @@ export default function Page() {
       var cheerio = require("cheerio");
       const $ = cheerio.load(editorContent);
 
-      const imagePromises: Promise<ImageData | null>[] = $("img")
-        .map(async (_: number, img: ImageData): Promise<ImageData> => {
+      const imagePromises: Promise<ImageData | null | string>[] = $("img")
+        .map(async (_: number, img: ImageData): Promise<ImageData | string> => {
           const $img = $(img);
           const src = $img.attr("src");
           const dataSeq = $img.attr("data-seq");
-
           if (src && !dataSeq) {
-            try {
-              const data = await uploadImageAndGetSequence(src);
+            const data = await uploadImageAndGetSequence(src);
 
+            if (typeof data === "object" && "seq" in data && "path" in data) {
               $img.attr("data-seq", data.seq.toString());
               $img.attr("src", data.path);
               return $img;
-            } catch (error: any) {
-              toggleAlert(error);
+            } else {
+              return data;
             }
           }
           return $img;
         })
         .get();
+      const imagesUpdate = await Promise.all(imagePromises);
 
-      await Promise.all(imagePromises);
+      const errorMessage = imagesUpdate.find(
+        (result) => typeof result === "string"
+      ) as string | undefined;
+
+      if (errorMessage) {
+        toggleAlert(errorMessage);
+        setAuto(null);
+        return;
+      }
       setEditorContent($.html());
 
       const formData = new FormData();
@@ -253,48 +261,48 @@ export default function Page() {
 
       savePost(formData);
     } catch (error: any) {
-      toggleAlert(error);
+      toggleAlert(error.message || "게시물 저장 중 오류가 발생했습니다.");
     }
   };
 
   const uploadImageAndGetSequence = async (
     src: string
-  ): Promise<{ seq: number; path: string }> => {
-    try {
-      let blob: Blob;
-
-      if (src.startsWith("data:image/")) {
-        // data:image 형식 처리
-        const base64Data = src.replace(/^data:image\/\w+;base64,/, "");
-        const binaryString = atob(base64Data);
-        const binaryData = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          binaryData[i] = binaryString.charCodeAt(i);
-        }
-        blob = new Blob([binaryData], { type: "image/jpeg" });
-      } else if (src.startsWith("blob:")) {
-        const response = await fetch(src);
-        blob = await response.blob();
-      } else {
-        throw new Error("Unsupported image format");
+  ): Promise<{ seq: number; path: string } | string> => {
+    let blob: Blob;
+    if (src.startsWith("data:image/")) {
+      // data:image 형식 처리
+      const base64Data = src.replace(/^data:image\/\w+;base64,/, "");
+      const binaryString = atob(base64Data);
+      const binaryData = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        binaryData[i] = binaryString.charCodeAt(i);
       }
-
-      const formData = new FormData();
-      formData.append("file", blob, "image.jpeg");
-
-      const res = await fetchApi({
-        method: "POST",
-        url: requests.FILE_UPLOAD,
-        body: formData,
-      });
-
-      if (!res.resultCode) {
-        toggleAlert(res.message);
-      }
-      return { seq: res.data.seq, path: res.data.path };
-    } catch (error) {
-      throw error;
+      blob = new Blob([binaryData], { type: "image/jpeg" });
+    } else if (src.startsWith("blob:")) {
+      const response = await fetch(src);
+      blob = await response.blob();
+    } else {
+      return "지원하는 이미지 파일 타입이 아닙니다.";
     }
+
+    const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+    if (blob.size > MAX_SIZE) {
+      return "파일 크기가 5MB를 초과합니다.";
+    }
+
+    const formData = new FormData();
+    formData.append("file", blob, "image.jpeg");
+
+    const res = await fetchApi({
+      method: "POST",
+      url: requests.FILE_UPLOAD,
+      body: formData,
+    });
+
+    if (!res.resultCode) {
+      return res.message;
+    }
+    return { seq: res.data.seq, path: res.data.path };
   };
 
   // 5분마다 자동 저장
@@ -391,6 +399,8 @@ export default function Page() {
             onUpdate={({ editor }) => {
               setEditorContent(editor.getHTML());
             }}
+            // SSR과 클라이언트 측 렌더링을 일치를 윈한 속성 제거
+            immediatelyRender={false}
           />
         ) : (
           <>

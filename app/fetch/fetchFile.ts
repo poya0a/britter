@@ -8,8 +8,8 @@ const fetchFile = async (seq: number): Promise<string> => {
       url: `${requests.GET_FILE}?seq=${seq}`,
     });
 
-    if (!res.resultCode) {
-      throw new Error(res.message);
+    if (!res || !res?.resultCode) {
+      throw new Error("서버 에러가 발생하였습니다.");
     }
     return res.data.file_path;
   } catch (error) {

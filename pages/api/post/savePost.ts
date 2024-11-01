@@ -9,6 +9,8 @@ import {
   authenticateToken,
 } from "@/server/utils/authenticateToken";
 import formidable from "formidable";
+import { extractImgDataSeq } from "@/server/utils/extractImgDataSeq";
+import { handleFileDelete } from "@/server/utils/fileDelete";
 
 export const config = {
   api: {
@@ -91,6 +93,18 @@ export default async function handler(
             });
 
             if (existingPost) {
+              const existingSeqList = extractImgDataSeq(existingPost.content);
+              const newSeqList = extractImgDataSeq(content);
+              const toDeleteSeqList = existingSeqList.filter(
+                (seq) => !newSeqList.includes(seq)
+              );
+
+              if (toDeleteSeqList.length > 0) {
+                for (const seq of toDeleteSeqList) {
+                  await handleFileDelete(seq);
+                }
+              }
+
               existingPost.title = title;
               existingPost.content = content;
               existingPost.modify_date = new Date();
@@ -146,6 +160,7 @@ export default async function handler(
             }
           }
         } catch (error) {
+          console.log(error);
           return res.status(500).json({
             message:
               typeof error === "string" ? error : "서버 에러가 발생하였습니다.",

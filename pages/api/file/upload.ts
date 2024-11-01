@@ -1,11 +1,10 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
-import { AppDataSource } from "@database/typeorm.config";
-import { File } from "@entities/File.entity";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { authenticateToken } from "@/server/utils/authenticateToken";
+import { handleFileUpload } from "@/server/utils/fileUpload";
 
 export interface NextApiRequestWithFile extends NextApiRequest {
   file: Express.Multer.File;
@@ -58,46 +57,23 @@ export default async function handler(
       await runMiddleware(req, res, upload);
 
       const reqWithFile = req as NextApiRequestWithFile;
-      if (!reqWithFile.file) {
-        throw new Error("파일이 없습니다.");
+      const saveFile = await handleFileUpload(reqWithFile.file);
+
+      if (saveFile.data) {
+        return res.status(200).json({
+          message: "파일 업로드가 완료되었습니다.",
+          resultCode: true,
+          data: {
+            seq: saveFile.data.seq,
+            path: saveFile.data.path,
+          },
+        });
+      } else {
+        return res.status(200).json({
+          message: saveFile.message,
+          resultCode: false,
+        });
       }
-
-      const dataSource = await AppDataSource.useFactory();
-      const fileRepository = dataSource.getRepository(File);
-
-      const filePath = reqWithFile.file.path;
-      const fileName = reqWithFile.file.originalname;
-      const fileSize = reqWithFile.file.size;
-      const fileExtension = path.extname(fileName).toLowerCase();
-
-      const fileBuffer = fs.readFileSync(filePath);
-
-      const uploadDirectory = path.join(process.cwd(), "public/files");
-      if (!fs.existsSync(uploadDirectory)) {
-        fs.mkdirSync(uploadDirectory, { recursive: true });
-      }
-
-      const savedFilePath = `/files/${fileName}`;
-
-      fs.writeFileSync(path.join(uploadDirectory, fileName), fileBuffer);
-
-      const newFile = new File();
-      newFile.file = fileBuffer;
-      newFile.file_name = fileName;
-      newFile.file_path = savedFilePath;
-      newFile.file_size = fileSize.toString();
-      newFile.file_extension = fileExtension;
-
-      const savedFile = await fileRepository.save(newFile);
-
-      return res.status(200).json({
-        message: "파일 업로드가 완료되었습니다.",
-        resultCode: true,
-        data: {
-          seq: savedFile.seq,
-          path: savedFile.file_path,
-        },
-      });
     } catch (error: any) {
       return res.status(500).json({
         message: "서버 에러가 발생하였습니다.",

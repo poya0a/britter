@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
-import { atom } from "recoil";
+import { FetchError } from "@fetch/types";
+import { useRecoilState, atom } from "recoil";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
@@ -90,15 +90,13 @@ export const useNotification = () => {
         queryClient.setQueryData(["notification"], res);
       }
     },
-    onError: (error: any) => {
-      if (error.code === 403 || error.code === 401) {
-        toggleRouteAlert({
-          isActOpen: true,
-          content: error.message,
-          route: "/login",
-        });
-        storage.removeToken();
-      }
+    onError: (error: FetchError) => {
+      toggleRouteAlert({
+        isActOpen: true,
+        content: error.message,
+        route: "/login",
+      });
+      storage.removeToken();
     },
   });
 
@@ -139,8 +137,8 @@ export const useNotification = () => {
         }
       }
     },
-    onError: (error: any) => {
-      toggleAlert(error);
+    onError: (error: FetchError) => {
+      toggleAlert(error.message);
     },
   });
 
@@ -166,8 +164,8 @@ export const useNotification = () => {
         }
       }
     },
-    onError: (error: any) => {
-      toggleAlert(error);
+    onError: (error: FetchError) => {
+      toggleAlert(error.message);
     },
   });
 

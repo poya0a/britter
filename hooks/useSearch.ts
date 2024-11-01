@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FetchError } from "@fetch/types";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -139,8 +140,8 @@ export const useSearch = () => {
         }));
       }
     },
-    onError: (error: any) => {
-      toggleAlert(error);
+    onError: (error: FetchError) => {
+      toggleAlert(error.message);
     },
   });
 
@@ -180,8 +181,8 @@ export const useSearch = () => {
         }));
       }
     },
-    onError: (error: any) => {
-      toggleAlert(error);
+    onError: (error: FetchError) => {
+      toggleAlert(error.message);
     },
   });
 
@@ -217,8 +218,8 @@ export const useSearch = () => {
         }));
       }
     },
-    onError: (error: any) => {
-      toggleAlert(error);
+    onError: (error: FetchError) => {
+      toggleAlert(error.message);
     },
   });
 

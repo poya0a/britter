@@ -48,10 +48,10 @@ export default async function handler(
         .status(200)
         .json({ message: "키 생성을 실패하였습니다.", resultCode: false });
     }
-  } catch (error) {
+  } catch (error: any) {
     return res.status(500).json({
       message: "서버 에러가 발생하였습니다.",
-      error: error,
+      error: error.toString(),
       resultCode: false,
     });
   }

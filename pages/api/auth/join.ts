@@ -247,7 +247,7 @@ export default async function handler(
           const saveFile = await handleFileUpload(file);
 
           // 프로필 업데이트
-          saveUser.user_profile_seq = saveFile.seq;
+          saveUser.user_profile_seq = saveFile.data.seq;
           const updateUser = await empsRepository.save(saveUser);
 
           if (updateUser) {

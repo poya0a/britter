@@ -113,14 +113,12 @@ export const useSpace = () => {
       return res.data;
     } catch (error) {
       if (error instanceof FetchError) {
-        if (error.code === 403 || error.code === 401) {
-          toggleRouteAlert({
-            isActOpen: true,
-            content: error.message,
-            route: "/login",
-          });
-          storage.removeToken();
-        }
+        toggleRouteAlert({
+          isActOpen: true,
+          content: error.message,
+          route: "/login",
+        });
+        storage.removeToken();
       }
       throw error;
     }
@@ -175,8 +173,8 @@ export const useSpace = () => {
         queryClient.invalidateQueries({ queryKey: ["selectedSpace"] });
       }
     },
-    onError: (error: any) => {
-      toggleAlert(error);
+    onError: (error: FetchError) => {
+      toggleAlert(error.message);
     },
   });
 
@@ -195,8 +193,8 @@ export const useSpace = () => {
         queryClient.invalidateQueries({ queryKey: ["space"] });
       }
     },
-    onError: (error: any) => {
-      toggleAlert(error);
+    onError: (error: FetchError) => {
+      toggleAlert(error.message);
     },
   });
 
@@ -217,8 +215,8 @@ export const useSpace = () => {
         queryClient.invalidateQueries({ queryKey: ["space"] });
       }
     },
-    onError: (error: any) => {
-      toggleAlert(error);
+    onError: (error: FetchError) => {
+      toggleAlert(error.message);
     },
   });
 
@@ -239,8 +237,8 @@ export const useSpace = () => {
         }
       }
     },
-    onError: (error: any) => {
-      toggleAlert(error);
+    onError: (error: FetchError) => {
+      toggleAlert(error.message);
     },
   });
 
