@@ -13,6 +13,7 @@ import { useCreatePopup } from "../popup/useCreatePopup";
 import { useToast } from "../popup/useToast";
 import { useSpaceSettingPopup } from "../popup/useSpaceSettingPopup";
 import { useSettingMenu } from "../menu/useSettingMenu";
+import { useUpdateEffect } from "@/utils/useUpdateEffect";
 
 interface PageInfo {
   currentPage: number;
@@ -128,28 +129,32 @@ export const useSpace = () => {
     queryKey: ["space"],
     queryFn: fetchSpace,
     staleTime: 5 * 60 * 1000,
+    enabled: !!storage.getAccessToken(),
   });
 
   const { data: selectedSpace } = useQuery<SpaceData>({
     queryKey: ["selectedSpace"],
-    queryFn: () => {
-      return (
-        queryClient.getQueryData<SpaceData>(["selectedSpace"]) ?? {
-          UID: "",
-          space_profile_seq: 0,
-          space_profile_path: "",
-          space_name: "",
-          space_manager: "",
-          space_public: false,
-          space_users: [],
-        }
-      );
-    },
+    // queryFn: () => {
+    //   return (
+    //     queryClient.getQueryData<SpaceData>(["selectedSpace"]) ?? {
+    //       UID: "",
+    //       space_profile_seq: 0,
+    //       space_profile_path: "",
+    //       space_name: "",
+    //       space_manager: "",
+    //       space_public: false,
+    //       space_users: [],
+    //     }
+    //   );
+    // },
+    staleTime: 5 * 60 * 1000,
+    enabled: !!storage.getAccessToken(),
   });
 
   const { data: spaceMember } = useQuery<SpaceMemberData[], Error>({
     queryKey: ["spaceMember"],
     staleTime: 5 * 60 * 1000,
+    enabled: !!storage.getAccessToken(),
   });
 
   const { mutate: createSpace } = useMutation({
@@ -242,14 +247,16 @@ export const useSpace = () => {
     },
   });
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     const updateSpace = async () => {
       if (space) {
         const updatedList = await Promise.all(
           space.map(async (space: SpaceData) => {
-            const space_profile_path = space.space_profile_seq
-              ? await fetchFile(space.space_profile_seq)
-              : "";
+            const space_profile_path =
+              (!space.space_profile_path || space.space_profile_path !== "") &&
+              space.space_profile_seq
+                ? await fetchFile(space.space_profile_seq)
+                : space.space_profile_path;
             return { ...space, space_profile_path };
           })
         );
@@ -261,14 +268,15 @@ export const useSpace = () => {
     };
 
     updateSpace();
-  }, [space, selectedSpace]);
+  }, []);
 
   const setSpace = (uid: string) => {
-    if (uid !== queryClient.getQueryData(["selectedSpace"])) {
+    if (uid !== queryClient.getQueryData<SpaceData>(["selectedSpace"])?.UID) {
       if (useSpaceState.length > 0) {
         const findSpace =
           useSpaceState.find((space) => space.UID === uid) || {};
         queryClient.setQueryData(["selectedSpace"], findSpace);
+        console.log();
       } else {
         const spaceData = queryClient.getQueryData(["space"]);
 
@@ -298,7 +306,7 @@ export const useSpace = () => {
     };
 
     updateSpaceMember();
-  }, [spaceMember, selectedSpace]);
+  }, [selectedSpace]);
 
   return {
     useSpaceState,

@@ -1,13 +1,11 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { Space } from "@entities/Space.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
 } from "@/server/utils/authenticateToken";
-import { DeepPartial } from "typeorm";
-import { v4 as uuidv4 } from "uuid";
 import { SpaceList } from "@entities/SpaceList.entity";
 import { Post } from "@/server/entities/Post.entity";
 
@@ -26,7 +24,7 @@ export default async function handler(
       const uid = req.user.claims.UID;
 
       try {
-        const dataSource = await AppDataSource.useFactory();
+        const dataSource = await getDataSource();
         const spaceRepository = dataSource.getRepository(Space);
         const spaceListRepository = dataSource.getRepository(SpaceList);
         const postRepository = dataSource.getRepository(Post);

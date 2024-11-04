@@ -1,6 +1,6 @@
 "use server";
 import { NextApiResponse } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { Emps } from "@entities/Emps.entity";
 import {
   AuthenticatedRequest,
@@ -19,7 +19,7 @@ export default async function handler(
       // 토큰 이용하여 UID GET
       const uid = req.user.claims.UID;
       try {
-        const dataSource = await AppDataSource.useFactory();
+        const dataSource = await getDataSource();
         const empsRepository = dataSource.getRepository(Emps);
         const findUser = await empsRepository.findOne({
           where: { UID: uid },

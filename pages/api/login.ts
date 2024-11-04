@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import bcrypt from "bcrypt";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { Emps } from "@entities/Emps.entity";
 import { Private } from "@entities/Private.entity";
 import generateDeviceUUID from "@/server/utils/generateDeviceUUID";
@@ -33,7 +33,7 @@ export default async function handler(
   }
 
   try {
-    const dataSource = await AppDataSource.useFactory();
+    const dataSource = await getDataSource();
     const privateRepository = dataSource.getRepository(Private);
     const existingPrivate = await privateRepository.findOne({
       where: { device_id: deviceId },

@@ -1,6 +1,6 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { In } from "typeorm";
 import {
   AuthenticatedRequest,
@@ -25,7 +25,7 @@ export default async function handler(
 
       try {
         const pageNumber = parseInt(req.query.page as string);
-        const dataSource = await AppDataSource.useFactory();
+        const dataSource = await getDataSource();
         const spaceListRepository = dataSource.getRepository(SpaceList);
         const spaceRepository = dataSource.getRepository(Space);
 

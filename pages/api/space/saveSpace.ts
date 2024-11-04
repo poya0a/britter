@@ -1,6 +1,6 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { Space } from "@entities/Space.entity";
 import {
   AuthenticatedRequest,
@@ -26,7 +26,7 @@ export default async function handler(
       const userUid = req.user.claims.UID;
 
       try {
-        const dataSource = await AppDataSource.useFactory();
+        const dataSource = await getDataSource();
         const spaceRepository = dataSource.getRepository(Space);
 
         const uid = uuidv4();

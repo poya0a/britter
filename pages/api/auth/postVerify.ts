@@ -1,6 +1,6 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { v4 as uuidv4 } from "uuid";
 import { Certification } from "@entities/Certification.entity";
 
@@ -28,7 +28,7 @@ export default async function handler(
   }
 
   try {
-    const dataSource = await AppDataSource.useFactory();
+    const dataSource = await getDataSource();
     const certificationRepository = dataSource.getRepository(Certification);
     const existingCertification = await certificationRepository.findOne({
       where: { user_hp },

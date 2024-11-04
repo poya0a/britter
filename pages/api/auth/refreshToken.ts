@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { Emps } from "@entities/Emps.entity";
 import {
   createAccessToken,
@@ -35,7 +35,7 @@ export default async function handler(
       });
     }
 
-    const dataSource = await AppDataSource.useFactory();
+    const dataSource = await getDataSource();
     const userRepository = dataSource.getRepository(Emps);
 
     const existingUser = await userRepository.findOne({

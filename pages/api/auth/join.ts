@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import fs from "fs";
 import path from "path";
 import multer from "multer";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { Emps } from "@entities/Emps.entity";
 import { getErrorMassage } from "@utils/errorMessage";
 import { regexValue } from "@utils/regex";
@@ -93,7 +93,7 @@ export default async function handler(
 
   // 필수 이용 약관 동의 확인
   try {
-    const dataSource = await AppDataSource.useFactory();
+    const dataSource = await getDataSource();
     const termsRepository = dataSource.getRepository(Terms);
     const terms = await termsRepository.find({
       where: {
@@ -162,7 +162,7 @@ export default async function handler(
   }
 
   try {
-    const dataSource = await AppDataSource.useFactory();
+    const dataSource = await getDataSource();
     const empsRepository = dataSource.getRepository(Emps);
     const existingId = await empsRepository.findOne({
       where: { user_id: data.user_id },
@@ -247,7 +247,7 @@ export default async function handler(
           const saveFile = await handleFileUpload(file);
 
           // 프로필 업데이트
-          saveUser.user_profile_seq = saveFile.data.seq;
+          saveUser.user_profile_seq = saveFile.data?.seq || 0;
           const updateUser = await empsRepository.save(saveUser);
 
           if (updateUser) {

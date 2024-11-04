@@ -1,6 +1,6 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { Emps } from "@entities/Emps.entity";
 import { Certification } from "@entities/Certification.entity";
 import { DeepPartial } from "typeorm";
@@ -23,7 +23,7 @@ export default async function handler(
   }
 
   try {
-    const dataSource = await AppDataSource.useFactory();
+    const dataSource = await getDataSource();
     const empsRepository = dataSource.getRepository(Emps);
     const certificationRepository = dataSource.getRepository(Certification);
     const existingUser = await empsRepository.findOne({ where: { user_hp } });

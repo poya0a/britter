@@ -1,6 +1,6 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { Post } from "@entities/Post.entity";
 import {
   AuthenticatedRequest,
@@ -24,7 +24,7 @@ export default async function handler(
   authenticateToken(req, res, async () => {
     if (req.user) {
       try {
-        const dataSource = await AppDataSource.useFactory();
+        const dataSource = await getDataSource();
         const postRepository = dataSource.getRepository(Post);
 
         const posts = await postRepository

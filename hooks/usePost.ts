@@ -111,34 +111,46 @@ export const usePost = () => {
     },
   });
 
-  const { data: postList } = useQuery<PostData[], Error>({
-    queryKey: ["postList"],
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const { mutate: fetchPostList } = useMutation({
-    mutationFn: () =>
-      fetchApi({
+  const fetchPostList = async (): Promise<PostData[]> => {
+    try {
+      const res = await fetchApi({
         method: "POST",
         url: requests.GET_POST_LiST,
         body: JSON.stringify({ postUid }),
-      }),
-    onSuccess: (res: PostResponse) => {
+      });
+      if (!res) {
+        throw new Error("데이터를 가져오는 데 실패했습니다.");
+      }
+
       queryClient.invalidateQueries({ queryKey: ["postList"] });
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode && res.data) {
         queryClient.setQueryData(["postList"], res.data);
       }
-    },
-    onError: (error: FetchError) => {
-      toggleRouteAlert({
-        isActOpen: true,
-        content: error.message,
-        route: "/login",
-      });
-      storage.removeToken();
-    },
+
+      return res.data;
+    } catch (error) {
+      if (error instanceof FetchError) {
+        toggleRouteAlert({
+          isActOpen: true,
+          content: error.message,
+          route: "/login",
+        });
+        storage.removeToken();
+      }
+      throw error;
+    }
+  };
+
+  const { data: postList, refetch: refetchPostList } = useQuery<
+    PostData[],
+    Error
+  >({
+    queryKey: ["postList"],
+    queryFn: fetchPostList,
+    staleTime: 5 * 60 * 1000,
+    enabled: postUid !== "",
   });
 
   const { data: post } = useQuery<PostData, Error>({
@@ -187,7 +199,7 @@ export const usePost = () => {
         } else {
           setToast(res.message);
         }
-        fetchPostList();
+        refetchPostList();
         setPageSeq({ seq: res.data.seq, pSeq: "" });
       }
       setAuto(null);
@@ -208,7 +220,7 @@ export const usePost = () => {
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode && res.data) {
-        fetchPostList();
+        refetchPostList();
         setPageSeq({ seq: "", pSeq: res.data.seq });
         setType("view");
         setToast(res.message);
@@ -249,12 +261,6 @@ export const usePost = () => {
   };
 
   useUpdateEffect(() => {
-    if (postUid !== "") {
-      fetchPostList();
-    }
-  }, [postUid]);
-
-  useUpdateEffect(() => {
     if (pageSeq.seq !== "") {
       fetchPost();
     }
@@ -273,7 +279,7 @@ export const usePost = () => {
     setType,
     setPageSeq,
     setPathname,
-    fetchPostList,
+    refetchPostList,
     fetchPost,
     savePost,
     deletePost,

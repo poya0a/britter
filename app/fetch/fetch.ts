@@ -47,7 +47,6 @@ const fetchApi = async (config: RequestConfig): Promise<any> => {
       if (response.status.toString().startsWith("5")) {
         throw new FetchError("서버 오류가 발생했습니다.", response.status);
       }
-
       const errorData = await response.json();
       throw new FetchError(
         errorData.message || "에러가 발생했습니다.",
@@ -57,7 +56,6 @@ const fetchApi = async (config: RequestConfig): Promise<any> => {
 
     const data = await response.json();
     if (!data) throw new Error("데이터가 없습니다.");
-
     return data;
   } catch (error) {
     throw error;
@@ -81,7 +79,7 @@ const refreshToken = async (): Promise<string | null> => {
     const responseData = await response.json();
 
     // 갱신할 토큰 X
-    if (!responseData || responseData.resultCode !== true) {
+    if (!responseData || !responseData?.resultCode) {
       throw new FetchError("토큰 갱신 실패", response.status);
     }
 

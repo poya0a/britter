@@ -1,7 +1,6 @@
 "use server";
-import { FindOneOptions, FindOperator } from "typeorm";
 import { NextApiResponse } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { Emps } from "@entities/Emps.entity";
 import { Private } from "@entities/Private.entity";
 import {
@@ -21,7 +20,7 @@ export default async function handler(
   authenticateToken(req, res, async () => {
     if (req.user) {
       try {
-        const dataSource = await AppDataSource.useFactory();
+        const dataSource = await getDataSource();
         const empsRepository = dataSource.getRepository(Emps);
 
         // 토큰 이용하여 UID GET

@@ -1,6 +1,6 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { Space } from "@entities/Space.entity";
 import { Emps } from "@entities/Emps.entity";
 import {
@@ -22,7 +22,7 @@ export default async function handler(
   authenticateToken(req, res, async () => {
     if (req.user) {
       try {
-        const dataSource = await AppDataSource.useFactory();
+        const dataSource = await getDataSource();
         const spaceRepository = dataSource.getRepository(Space);
 
         const findSpace = await spaceRepository.findOne({

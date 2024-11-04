@@ -48,6 +48,7 @@ export default function Header() {
       method: "GET",
       url: requests.LOGOUT,
     });
+
     if (!res.resultCode) {
       toggleAlert(res.message);
     }

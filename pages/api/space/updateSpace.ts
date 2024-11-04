@@ -1,6 +1,6 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import {
   AuthenticatedRequest,
   authenticateToken,
@@ -70,7 +70,7 @@ export default async function handler(
       const file: Express.Multer.File | undefined = req.file;
 
       try {
-        const dataSource = await AppDataSource.useFactory();
+        const dataSource = await getDataSource();
         const spaceRepository = dataSource.getRepository(Space);
 
         if (!spaceUid) {
@@ -103,8 +103,8 @@ export default async function handler(
               await handleFileDelete(findSpace.space_profile_seq);
             }
             const saveFile = await handleFileUpload(file);
-            console.log(saveFile.data.seq);
-            findSpace.space_profile_seq = saveFile.data.seq;
+
+            findSpace.space_profile_seq = saveFile.data?.seq || 0;
           }
 
           const updateSpace = await spaceRepository.save(findSpace);

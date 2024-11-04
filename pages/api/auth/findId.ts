@@ -1,6 +1,6 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { Emps } from "@entities/Emps.entity";
 
 export default async function handler(
@@ -33,7 +33,7 @@ export default async function handler(
   }
 
   try {
-    const dataSource = await AppDataSource.useFactory();
+    const dataSource = await getDataSource();
     const empsRepository = dataSource.getRepository(Emps);
 
     const existingUser = await empsRepository.findOne({
@@ -45,12 +45,10 @@ export default async function handler(
     });
 
     if (existingUser) {
-      return res
-        .status(200)
-        .json({
-          message: `아이디는 ${existingUser.user_id} 입니다.`,
-          resultCode: true,
-        });
+      return res.status(200).json({
+        message: `아이디는 ${existingUser.user_id} 입니다.`,
+        resultCode: true,
+      });
     } else {
       return res
         .status(200)

@@ -1,6 +1,6 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { File } from "@entities/File.entity";
 import {
   AuthenticatedRequest,
@@ -18,7 +18,7 @@ export default async function handler(
     const seqParam = req.query.seq as string;
     if (seqParam) {
       try {
-        const dataSource = await AppDataSource.useFactory();
+        const dataSource = await getDataSource();
         const fileRepository = dataSource.getRepository(File);
         const findFile = await fileRepository.findOne({
           where: { seq: parseInt(seqParam, 10) },

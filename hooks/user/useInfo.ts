@@ -58,9 +58,8 @@ export const useInfo = () => {
         method: "GET",
         url: requests.USER_INFO,
       });
-
-      if (!res.resultCode) {
-        throw new Error(res.message);
+      if (!res) {
+        throw new Error("데이터를 가져오는 데 실패했습니다.");
       }
 
       return res.data;
@@ -81,6 +80,7 @@ export const useInfo = () => {
     queryKey: ["info"],
     queryFn: fetchInfo,
     staleTime: 5 * 60 * 1000,
+    enabled: !!storage.getAccessToken(),
   });
 
   const fetchDataAndUpdateState = async (seq: number) => {

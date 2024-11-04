@@ -1,6 +1,6 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import {
   AuthenticatedRequest,
   authenticateToken,
@@ -21,7 +21,7 @@ export default async function handler(
 
     if (req.user && spaceUid && searchUid) {
       try {
-        const dataSource = await AppDataSource.useFactory();
+        const dataSource = await getDataSource();
         const empsRepository = dataSource.getRepository(Emps);
         const notificationsRepository = dataSource.getRepository(Notifications);
         const findUser = await empsRepository.findOne({

@@ -2,7 +2,6 @@
 import { useEffect } from "react";
 import styles from "./page.module.scss";
 import MainMenu from "@components/menu/MainMenu";
-import { useNotification } from "@hooks/useNotification";
 import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 import RoutAlert from "@components/popup/RouteAlert";
 import FnAndCancelAlert from "@components/popup/FnAndCancelAlert";
@@ -23,7 +22,6 @@ import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
 import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
 
 export default function Home() {
-  const { fetchNotification } = useNotification();
   const { useAlertState } = useAlert();
   const { useRouteAlertState, toggleRouteAlert } = useRouteAlert();
   const { useFnAndCancelAlertState } = useFnAndCancelAlert();

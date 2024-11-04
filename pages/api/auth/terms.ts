@@ -1,6 +1,6 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { Terms } from "@/server/entities/Terms.entity";
 
 export default async function handler(
@@ -12,7 +12,7 @@ export default async function handler(
   }
 
   try {
-    const dataSource = await AppDataSource.useFactory();
+    const dataSource = await getDataSource();
     const termsRepository = dataSource.getRepository(Terms);
     const terms = await termsRepository.find({
       where: {

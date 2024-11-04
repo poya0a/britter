@@ -1,11 +1,11 @@
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { File } from "@entities/File.entity";
 import fs from "fs";
 import path from "path";
 
 export async function handleFileDelete(fileSeq: number) {
   try {
-    const dataSource = await AppDataSource.useFactory();
+    const dataSource = await getDataSource();
     const fileRepository = dataSource.getRepository(File);
 
     const findFile = await fileRepository.findOne({

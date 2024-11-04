@@ -7,7 +7,7 @@ const fetchFile = async (seq: number): Promise<string> => {
       method: "GET",
       url: `${requests.GET_FILE}?seq=${seq}`,
     });
-
+    console.log(seq);
     if (!res || !res?.resultCode) {
       throw new Error("서버 에러가 발생하였습니다.");
     }

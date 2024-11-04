@@ -1,6 +1,6 @@
 "use server";
 import { NextApiResponse } from "next";
-import { AppDataSource } from "@database/typeorm.config";
+import { getDataSource } from "@database/typeorm.config";
 import { v4 as uuidv4 } from "uuid";
 import { DeepPartial } from "typeorm";
 import { Post } from "@entities/Post.entity";
@@ -39,7 +39,7 @@ export default async function handler(
       }
       if (req.user) {
         try {
-          const dataSource = await AppDataSource.useFactory();
+          const dataSource = await getDataSource();
           const postRepository = dataSource.getRepository(Post);
 
           // 토큰 이용하여 UID GET

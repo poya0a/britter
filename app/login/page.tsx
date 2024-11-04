@@ -12,7 +12,6 @@ import Alert from "@components/popup/Alert";
 import { useAlert } from "@/hooks/popup/useAlert";
 import encryptRSA from "@/utils/encryptRSA";
 import storage from "@fetch/auth/storage";
-import { usePost } from "@/hooks/usePost";
 
 export default function Login() {
   const router = useRouter();
