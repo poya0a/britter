@@ -111,7 +111,7 @@ export const usePost = () => {
     },
   });
 
-  const fetchPostList = async (): Promise<PostData[]> => {
+  const fetchPostList = async (): Promise<PostListData[]> => {
     try {
       const res = await fetchApi({
         method: "POST",
@@ -144,13 +144,13 @@ export const usePost = () => {
   };
 
   const { data: postList, refetch: refetchPostList } = useQuery<
-    PostData[],
+    PostListData[],
     Error
   >({
     queryKey: ["postList"],
     queryFn: fetchPostList,
     staleTime: 5 * 60 * 1000,
-    enabled: postUid !== "",
+    enabled: postUid !== "" && postUid !== undefined,
   });
 
   const { data: post } = useQuery<PostData, Error>({
@@ -159,10 +159,10 @@ export const usePost = () => {
   });
 
   const { mutate: fetchPost } = useMutation({
-    mutationFn: () =>
+    mutationFn: (pageSeq: string) =>
       fetchApi({
         method: "GET",
-        url: `${requests.GET_POST}?postSeq=${pageSeq.seq}`,
+        url: `${requests.GET_POST}?postSeq=${pageSeq}`,
       }),
     onSuccess: (res: PostResponse) => {
       queryClient.invalidateQueries({ queryKey: ["post"] });
@@ -235,13 +235,13 @@ export const usePost = () => {
     if (postList) {
       setUsePostListState(postList);
     }
-  }, [postList, setUsePostListState]);
+  }, [postList]);
 
   useEffect(() => {
     if (post) {
       setUsePostState(post);
     }
-  }, [post, setUsePostState]);
+  }, [post]);
 
   const setType = (type: string) => {
     queryClient.setQueryData(["type"], type);
@@ -249,6 +249,7 @@ export const usePost = () => {
 
   const setPageSeq = (pageSeq: { seq: string; pSeq: string }) => {
     queryClient.setQueryData(["pageSeq"], pageSeq);
+    fetchPost(pageSeq.seq);
   };
 
   const setPathname = (
@@ -259,12 +260,6 @@ export const usePost = () => {
   ) => {
     queryClient.setQueryData(["pathname"], pathname);
   };
-
-  useUpdateEffect(() => {
-    if (pageSeq.seq !== "") {
-      fetchPost();
-    }
-  }, [pageSeq]);
 
   return {
     usePostListState,

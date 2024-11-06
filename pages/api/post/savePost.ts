@@ -4,6 +4,7 @@ import { getDataSource } from "@database/typeorm.config";
 import { v4 as uuidv4 } from "uuid";
 import { DeepPartial } from "typeorm";
 import { Post } from "@entities/Post.entity";
+import { Space } from "@/server/entities/Space.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
@@ -45,119 +46,145 @@ export default async function handler(
           // 토큰 이용하여 UID GET
           const uid = req.user.claims.UID;
 
-          var pSeq: string = "";
-          var orderNumber: number = 0;
-
-          // 부모 페이지가 있는 경우
-          if (fields.p_seq) {
-            pSeq = fields.p_seq[0];
-
-            const parent = await postRepository.find({
-              where: {
-                p_seq: fields.p_seq[0],
-              },
-            });
-
-            orderNumber = parent.length;
-          } else {
-            // 부모 페이지가 없고 새 페이지일 때
-            const parent = await postRepository.find({
-              where: {
-                p_seq: "",
-              },
-            });
-            orderNumber = parent.length;
-          }
-
+          // 저장하는 스페이스에 권한이 있는지 체크
           var spaceUid: string = "";
 
           if (fields.space) {
             spaceUid = fields.space[0];
           }
 
-          var title: string = "";
+          const spaceRepository = dataSource.getRepository(Space);
 
-          if (fields.title) {
-            title = fields.title[0];
-          }
+          const findSpace = await spaceRepository.findOne({
+            where: { UID: spaceUid },
+          });
 
-          var content: string = "";
+          if (findSpace) {
+            if (
+              findSpace.space_manager === uid ||
+              findSpace.space_users.includes(uid)
+            ) {
+              var pSeq: string = "";
+              var orderNumber: number = 0;
 
-          if (fields.content) {
-            content = fields.content[0];
-          }
+              // 부모 페이지가 있는 경우
+              if (fields.p_seq) {
+                pSeq = fields.p_seq[0];
 
-          if (fields.seq) {
-            const existingPost = await postRepository.findOne({
-              where: { seq: fields.seq[0] },
-            });
+                const parent = await postRepository.find({
+                  where: {
+                    p_seq: fields.p_seq[0],
+                  },
+                });
 
-            if (existingPost) {
-              const existingSeqList = extractImgDataSeq(existingPost.content);
-              const newSeqList = extractImgDataSeq(content);
-              const toDeleteSeqList = existingSeqList.filter(
-                (seq) => !newSeqList.includes(seq)
-              );
-
-              if (toDeleteSeqList.length > 0) {
-                for (const seq of toDeleteSeqList) {
-                  await handleFileDelete(seq);
-                }
+                orderNumber = parent.length;
+              } else {
+                // 부모 페이지가 없고 새 페이지일 때
+                const parent = await postRepository.find({
+                  where: {
+                    p_seq: "",
+                  },
+                });
+                orderNumber = parent.length;
               }
 
-              existingPost.title = title;
-              existingPost.content = content;
-              existingPost.modify_date = new Date();
+              var title: string = "";
 
-              const updatedPost = await postRepository.save(existingPost);
+              if (fields.title) {
+                title = fields.title[0];
+              }
 
-              if (updatedPost) {
-                return res.status(200).json({
-                  message: "저장되었습니니다.",
-                  data: { seq: fields.seq[0] },
-                  resultCode: true,
+              var content: string = "";
+
+              if (fields.content) {
+                content = fields.content[0];
+              }
+
+              if (fields.seq) {
+                const existingPost = await postRepository.findOne({
+                  where: { seq: fields.seq[0] },
                 });
+
+                if (existingPost) {
+                  const existingSeqList = extractImgDataSeq(
+                    existingPost.content
+                  );
+                  const newSeqList = extractImgDataSeq(content);
+                  const toDeleteSeqList = existingSeqList.filter(
+                    (seq) => !newSeqList.includes(seq)
+                  );
+
+                  if (toDeleteSeqList.length > 0) {
+                    for (const seq of toDeleteSeqList) {
+                      await handleFileDelete(seq);
+                    }
+                  }
+
+                  existingPost.title = title;
+                  existingPost.content = content;
+                  existingPost.modify_date = new Date();
+
+                  const updatedPost = await postRepository.save(existingPost);
+
+                  if (updatedPost) {
+                    return res.status(200).json({
+                      message: "저장되었습니니다.",
+                      data: { seq: fields.seq[0] },
+                      resultCode: true,
+                    });
+                  } else {
+                    return res.status(200).json({
+                      message: "저장에 실패하였습니니다.",
+                      resultCode: false,
+                    });
+                  }
+                } else {
+                  return res.status(200).json({
+                    message: "일치하는 게시글을 찾을 수 없습니다.",
+                    resultCode: false,
+                  });
+                }
               } else {
-                return res.status(200).json({
-                  message: "저장에 실패하였습니니다.",
-                  resultCode: false,
-                });
+                const uuid = uuidv4();
+                const post: DeepPartial<Post> = {
+                  seq: uuid,
+                  p_seq: pSeq,
+                  UID: uid,
+                  title: title,
+                  content: content,
+                  create_date: new Date(),
+                  order_number: orderNumber,
+                  space_uid: spaceUid,
+                };
+
+                const newPost = postRepository.create(post);
+
+                const savePost = await postRepository.save(newPost);
+
+                if (savePost) {
+                  return res.status(200).json({
+                    message: "저장되었습니니다.",
+                    data: { seq: uuid },
+                    resultCode: true,
+                  });
+                } else {
+                  return res.status(200).json({
+                    message: "저장에 실패하였습니니다.",
+                    resultCode: false,
+                  });
+                }
               }
             } else {
               return res.status(200).json({
-                message: "일치하는 게시글을 찾을 수 없습니다.",
+                message: "게시글 작성 권한이 없습니다.",
                 resultCode: false,
               });
             }
           } else {
-            const uuid = uuidv4();
-            const post: DeepPartial<Post> = {
-              seq: uuid,
-              p_seq: pSeq,
-              UID: uid,
-              title: title,
-              content: content,
-              create_date: new Date(),
-              order_number: orderNumber,
-              space_uid: spaceUid,
-            };
-
-            const newPost = postRepository.create(post);
-
-            const savePost = await postRepository.save(newPost);
-
-            if (savePost) {
-              return res.status(200).json({
-                message: "저장되었습니니다.",
-                data: { seq: uuid },
-                resultCode: true,
-              });
-            } else {
-              return res.status(200).json({
-                message: "저장에 실패하였습니니다.",
-                resultCode: false,
-              });
-            }
+            return res.status(200).json({
+              message: "스페이스를 찾을 수 없습니다.",
+              resultCode: false,
+            });
           }
         } catch (error) {
           console.log(error);

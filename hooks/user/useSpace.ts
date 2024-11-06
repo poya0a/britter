@@ -268,7 +268,7 @@ export const useSpace = () => {
     };
 
     updateSpace();
-  }, []);
+  }, [space]);
 
   const setSpace = (uid: string) => {
     if (uid !== queryClient.getQueryData<SpaceData>(["selectedSpace"])?.UID) {
