@@ -153,13 +153,17 @@
   }
 }
 
-.settingMenu {
+.settingMenu, .otherMenu {
   position: fixed;
   z-index: 2;
   border-radius: 5px;
   background-color: $chat-background;
   filter: brightness(105%);
   box-shadow: 5px 5px 5px rgba(171,189,255, .5);
+  &.otherMenu > button {
+    width: 100px;
+    height: auto;
+  }
   button {
     display: block;
     width: 200px;

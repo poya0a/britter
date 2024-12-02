@@ -11,7 +11,6 @@ import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 import { useRouteAndCancelAlert } from "@hooks/popup/useRouteAndCancelAlert";
 import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
-import { useSettingMenu } from "@hooks/menu/useSettingMenu";
 import { useCreatePopup } from "@hooks/popup/useCreatePopup";
 
 export default function Header() {
@@ -31,7 +30,6 @@ export default function Header() {
   const { useRouteAndCancelAlertState } = useRouteAndCancelAlert();
   const { useFnAndCancelAlertState, toggleFnAndCancelAlert } =
     useFnAndCancelAlert();
-  const { toggleSettingMenu } = useSettingMenu();
   const { useSearchState } = useSearchPopup();
   const { useCreateState } = useCreatePopup();
 
@@ -62,7 +60,7 @@ export default function Header() {
   };
 
   return (
-    <header className={styles.header} onClick={() => toggleSettingMenu(false)}>
+    <header className={styles.header}>
       <HeaderLogo />
       {!pathWithoutLogout.includes(pathname || "") && (
         <button

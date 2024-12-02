@@ -39,6 +39,7 @@ export default function SettingMenu() {
         top: useSettingMenuState.position.y + "px",
         left: useSettingMenuState.position.x + "px",
       }}
+      data-ignore-outside-click
     >
       <div className={styles.spaceList}>
         {useSpaceState.map((space: SpaceData, idx: number) => (

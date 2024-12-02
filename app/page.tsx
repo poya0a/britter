@@ -29,7 +29,7 @@ export default function Home() {
   const { useFnAndCancelAlertState } = useFnAndCancelAlert();
   const { useToastState } = useToast();
   const { useSearchState } = useSearchPopup();
-  const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
+  const { useSettingMenuState } = useSettingMenu();
   const { useCreateState } = useCreatePopup();
   const { useSpaceSettingState } = useSpaceSettingPopup();
   const { useMessagePopupState } = useMessagePopup();
@@ -50,7 +50,7 @@ export default function Home() {
     <>
       <div className={styles.home}>
         <MainMenu />
-        <div onClick={() => toggleSettingMenu(false)} />
+        <div />
       </div>
       {useSearchState.isActOpen && <SearchPopup />}
       {useSettingMenuState.isActOpen && <SettingMenu />}

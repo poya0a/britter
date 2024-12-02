@@ -29,11 +29,24 @@ export default function MainMenu() {
   const { useNotificationState, postNotification, postLeaveNotification } =
     useNotification();
   const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
+  const otherMenuRef = useRef<HTMLButtonElement>(null);
+  const settingMenuRef = useRef<HTMLButtonElement>(null);
+  const [otherMenuPopup, setOtherMenuPopup] = useState<{
+    top: number;
+    left: number;
+    seq: string | null;
+  }>({
+    top: 0,
+    left: 0,
+    seq: null,
+  });
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
   const { toggleSpaceSettingPopup } = useSpaceSettingPopup();
   let startX: number, startWidth: number;
 
-  const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleMouseDown = (
+    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+  ) => {
     e.preventDefault();
     startX = "clientX" in e ? e.clientX : e.touches[0].clientX;
     startWidth = nodeRef.current!.offsetWidth;
@@ -68,9 +81,30 @@ export default function MainMenu() {
     document.removeEventListener("touchend", handleMouseUp);
   }, []);
 
+  // 기타 메뉴 클릭 이벤트
+  const handleToggleOtherMenu = (
+    e:
+      | React.MouseEvent<HTMLButtonElement>
+      | React.TouchEvent<HTMLButtonElement>,
+    seq: string
+  ) => {
+    const target = e.target as HTMLElement;
+    const { top, left } = target.getBoundingClientRect();
+
+    if (otherMenuPopup.seq === seq) {
+      // 동일 버튼 클릭 시 토글
+      setOtherMenuPopup({ top: 0, left: 0, seq: null });
+    } else {
+      setOtherMenuPopup({
+        top: top + window.scrollY,
+        left: left + window.scrollX,
+        seq: seq,
+      });
+    }
+  };
+
   // 페이지 생성
   const handleCreate = (seq?: string) => {
-    toggleSettingMenu(false);
     if (!useInfoState.user_id) {
       return toggleRouteAlert({
         isActOpen: true,
@@ -125,6 +159,8 @@ export default function MainMenu() {
                 <button
                   type="button"
                   className={`button ${styles.pageMoreButton}`}
+                  ref={otherMenuRef}
+                  onClick={(e) => handleToggleOtherMenu(e, post.seq)}
                 >
                   <img
                     src="/images/icon/more.svg"
@@ -166,7 +202,6 @@ export default function MainMenu() {
 
   // 페이지 이동
   const handleView = (seq: string) => {
-    toggleSettingMenu(false);
     const newExpandedPosts = expandedPosts.includes(seq)
       ? expandedPosts.filter((item) => item !== seq)
       : [...expandedPosts, seq];
@@ -189,17 +224,14 @@ export default function MainMenu() {
 
   const handleHome = () => {
     router.push("/");
-    toggleSettingMenu(false);
   };
 
   const handleSearch = () => {
     toggleSearchPopup({ isActOpen: true, mode: "space" });
-    toggleSettingMenu(false);
   };
 
   const notService = () => {
     toggleAlert("서비스 준비 중입니다.");
-    toggleSettingMenu(false);
   };
 
   const handleExit = (spaceUid: string) => {
@@ -230,6 +262,52 @@ export default function MainMenu() {
     postNotification(formData);
   };
 
+  useEffect(() => {
+    // 외부 클릭을 감지하는 함수
+    const handleClickOutsideSettingMenu = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest) return;
+      const closestIgnoreElement = target.closest(
+        "[data-ignore-outside-click]"
+      );
+
+      if (
+        settingMenuRef.current &&
+        !settingMenuRef.current.contains(target) &&
+        (!closestIgnoreElement ||
+          closestIgnoreElement.getAttribute("data-ignore-outside-click") !==
+            "true")
+      ) {
+        toggleSettingMenu(false);
+      }
+    };
+
+    const handleClickOutsideOtherMenu = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest) return;
+      const closestIgnoreElement = target.closest(
+        "[data-ignore-outside-click]"
+      );
+
+      if (
+        otherMenuRef.current &&
+        !otherMenuRef.current.contains(target) &&
+        (!closestIgnoreElement ||
+          closestIgnoreElement.getAttribute("data-ignore-outside-click") !==
+            "true")
+      ) {
+        setOtherMenuPopup({ top: 0, left: 0, seq: null });
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutsideSettingMenu);
+    document.addEventListener("mousedown", handleClickOutsideOtherMenu);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideSettingMenu);
+      document.removeEventListener("mousedown", handleClickOutsideOtherMenu);
+    };
+  }, []);
   return (
     <div
       style={{ width: `${useMainMenuWidthState}px` }}
@@ -243,6 +321,7 @@ export default function MainMenu() {
               className={`button ${styles.pageNameButton} ${
                 useSettingMenuState.isActOpen ? styles.active : ""
               }`}
+              ref={settingMenuRef}
               onClick={handleSetting}
             >
               {useInfoState.user_profile_path ? (
@@ -427,6 +506,8 @@ export default function MainMenu() {
                   <button
                     type="button"
                     className={`button ${styles.pageMoreButton}`}
+                    ref={otherMenuRef}
+                    onClick={(e) => handleToggleOtherMenu(e, post.seq)}
                   >
                     <img
                       src="/images/icon/more.svg"
@@ -461,6 +542,24 @@ export default function MainMenu() {
         onMouseDown={handleMouseDown}
         onTouchStart={handleMouseDown}
       />
+      {/* 기타 메뉴 */}
+      {otherMenuPopup.seq !== null && (
+        <div
+          className={styles.otherMenu}
+          style={{ top: otherMenuPopup.top, left: otherMenuPopup.left }}
+          data-ignore-outside-click
+        >
+          <button type="button" className="button">
+            이동
+          </button>
+          <button type="button" className="button">
+            복사
+          </button>
+          <button type="button" className="button">
+            삭제
+          </button>
+        </div>
+      )}
     </div>
   );
 }
