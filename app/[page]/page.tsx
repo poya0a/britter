@@ -404,7 +404,7 @@ export default function Page() {
             onUpdate={({ editor }) => {
               setEditorContent(editor.getHTML());
             }}
-            // SSR과 클라이언트 측 렌더링을 일치를 위한 속성 제거
+            // SSR과 클라이언트 측 렌더링 일치를 위한 속성 제거
             immediatelyRender={false}
           />
         ) : (

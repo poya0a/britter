@@ -22,7 +22,9 @@ import { ErrorMessage } from "@hookform/error-message";
 import { useSpace } from "@hooks/user/useSpace";
 import { useNotification, RequestData } from "@hooks/useNotification";
 import { useInfo } from "@hooks/user/useInfo";
+import { usePost } from "@hooks/usePost";
 import Image from "next/image";
+import { useAlert } from "@/hooks/popup/useAlert";
 
 export default function SearchPopup() {
   const {
@@ -45,7 +47,10 @@ export default function SearchPopup() {
   } = useSearch();
   const { useInfoState } = useInfo();
   const { useSpaceState, selectedSpace, spaceMember } = useSpace();
+  const { setPageSeq } = usePost();
   const { postNotification, postLeaveNotification } = useNotification();
+  const { setType } = usePost();
+  const { toggleAlert } = useAlert();
   const [pressEnter, setPressEnter] = useState(false);
   const [inputValue, setInputValue] = useState<string>("");
   const [prevInputValue, setPrevInputValue] = useState<string>("");
@@ -190,19 +195,47 @@ export default function SearchPopup() {
     useSearchState.postList,
   ]);
 
+  // 속한 스페이스거나 공개인 경우 페이지 이동
   const handleGoToSpace = async (spaceUid: string) => {
-    const searchSpace = await handleSearchSpace(spaceUid);
-
-    if (searchSpace?.UID) {
+    // 현재 접속한 스페이스와 동일
+    if (selectedSpace?.UID === spaceUid) {
       handleClose();
       router.push("/");
+      return;
+    }
+    const searchSpace = await handleSearchSpace(spaceUid);
+
+    if (searchSpace) {
+      handleClose();
+      router.push("/");
+    } else {
+      toggleAlert("비공개 스페이스입니다.");
     }
   };
 
   const handleSendMessage = (userUid: string) => {};
 
-  const handleGoToPost = async (spaceUid: string, postSeq: number) => {
+  // 게시글의 스페이스에 속해있거나 공개인 경우 페이지 이동
+  const handleGoToPost = async (spaceUid: string, postSeq: string) => {
+    // 현재 접속한 스페이스와 동일
+    if (selectedSpace?.UID === spaceUid) {
+      handleClose();
+      setType("view");
+      setPageSeq({ seq: postSeq, pSeq: "" });
+      router.push(`/${useInfoState.user_id}`);
+      return;
+    }
+
     const searchSpace = await handleSearchSpace(spaceUid);
+
+    if (searchSpace) {
+      handleClose();
+      setType("view");
+      setPageSeq({ seq: postSeq, pSeq: "" });
+      router.push(`/${useInfoState.user_id}`);
+    } else {
+      toggleAlert("비공개 스페이스입니다.");
+    }
   };
 
   const handleRequest = (data: RequestData) => {

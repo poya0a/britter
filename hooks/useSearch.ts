@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FetchError } from "@fetch/types";
 import fetchApi from "@fetch/fetch";
+import storage from "@/app/fetch/auth/storage";
 import requests from "@fetch/requests";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRecoilState } from "recoil";
@@ -8,8 +9,8 @@ import { atom } from "recoil";
 import { useAlert } from "./popup/useAlert";
 import fetchFile from "@fetch/fetchFile";
 import convertHtmlToPreviewText from "@/utils/previewText";
+import { useInfo } from "./user/useInfo";
 import { SpaceData } from "./user/useSpace";
-import storage from "@/app/fetch/auth/storage";
 
 export interface Notify {
   notifyUID: string;
@@ -39,7 +40,7 @@ export interface UserListData {
 
 export interface PostListData {
   UID: string;
-  seq: number;
+  seq: string;
   title: string;
   content: string;
   space_uid: string;
@@ -78,6 +79,7 @@ export const useSearch = () => {
   const queryClient = useQueryClient();
   const [useSearchState, setUseSearchState] =
     useRecoilState<SearchData>(searchData);
+  const { useInfoState } = useInfo();
   const { toggleAlert } = useAlert();
   const [searchPageNo, setSearchPageNo] = useState<{
     space: number;
@@ -306,13 +308,18 @@ export const useSearch = () => {
     });
 
     if (res?.data) {
-      if (!res.data.space_public) {
-        toggleAlert("비공개 스페이스입니다.");
+      // 내가 해당된 스페이스는 제외
+      const includeSpace =
+        res.data.space_manager === useInfoState.UID ||
+        res.data.space_users?.includes(useInfoState.UID);
+
+      if (!res.data.space_public && !includeSpace) {
+        return false;
       } else {
         queryClient.setQueryData(["selectedSpace"], res.data);
-        // 게시물 및 멤버 업데이트에 사용
+        // 게시물 목록 및 멤버 업데이트에 사용
         storage.setSpaceUid(res.data.UID);
-        return res.data;
+        return true;
       }
     } else {
       toggleAlert(res.message);
