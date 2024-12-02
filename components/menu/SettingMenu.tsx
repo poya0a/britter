@@ -6,12 +6,14 @@ import { useInfo } from "@hooks/user/useInfo";
 import { useAlert } from "@hooks/popup/useAlert";
 import { useRouter } from "next/navigation";
 import { usePost } from "@hooks/usePost";
+import storage from "@fetch/auth/storage";
+import Image from "next/image";
 
 export default function SettingMenu() {
   const router = useRouter();
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
   const { useInfoState } = useInfo();
-  const { useSpaceState, selectedSpace, setSpace } = useSpace();
+  const { useSpaceState, selectedSpace } = useSpace();
   const { setPageSeq } = usePost();
   const { toggleAlert } = useAlert();
   const { toggleCreatePopup } = useCreatePopup();
@@ -24,7 +26,7 @@ export default function SettingMenu() {
   };
 
   const handleSetSpace = (uid: string) => {
-    setSpace(uid);
+    storage.setSpaceUid(uid);
     router.push("/");
     toggleSettingMenu(false);
     setPageSeq({ seq: "", pSeq: "" });
@@ -50,8 +52,14 @@ export default function SettingMenu() {
           >
             <div className={styles.spaceProfile}>
               {space.space_profile_path ? (
-                <img src={space.space_profile_path} alt="" />
+                <Image
+                  src={space.space_profile_path}
+                  alt="profile"
+                  width={30}
+                  height={30}
+                />
               ) : (
+                // <img src={space.space_profile_path} alt="" />
                 <i className="normal">{space.space_name.charAt(0)}</i>
               )}
             </div>

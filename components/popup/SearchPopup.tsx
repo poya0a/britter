@@ -1,4 +1,12 @@
-import { ChangeEvent, useState, useEffect, useRef, useCallback } from "react";
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
+import { useRouter } from "next/navigation";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
 import {
   PostListData,
@@ -14,6 +22,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import { useSpace } from "@hooks/user/useSpace";
 import { useNotification, RequestData } from "@hooks/useNotification";
 import { useInfo } from "@hooks/user/useInfo";
+import Image from "next/image";
 
 export default function SearchPopup() {
   const {
@@ -22,19 +31,25 @@ export default function SearchPopup() {
     reset,
     formState: { errors },
   } = useForm({ mode: "onChange" });
+  const router = useRouter();
   const { useSearchState: popup, toggleSearchPopup } = useSearchPopup();
   const {
     useSearchState,
+    setUseSearchState,
     setSearchPageNo,
     searchSpaceList,
     searchUserList,
     searchPostList,
     lastPage,
+    handleSearchSpace,
   } = useSearch();
   const { useInfoState } = useInfo();
   const { useSpaceState, selectedSpace, spaceMember } = useSpace();
   const { postNotification, postLeaveNotification } = useNotification();
+  const [pressEnter, setPressEnter] = useState(false);
   const [inputValue, setInputValue] = useState<string>("");
+  const [prevInputValue, setPrevInputValue] = useState<string>("");
+
   const [searchLength, setSearchLength] = useState<number>(0);
   const [noSearchResults, setNoSearchResults] = useState<boolean>(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -52,7 +67,17 @@ export default function SearchPopup() {
   const handleMode = (mode: string) => {
     if (popup.mode !== mode) {
       toggleSearchPopup({ isActOpen: popup.isActOpen, mode: mode });
-      callSearch(mode);
+      setInputValue("");
+      setPrevInputValue("");
+      setUseSearchState({
+        searchWord: "",
+        spaceList: [],
+        userList: [],
+        postList: [],
+      });
+      setNoSearchResults(false);
+      clearErrors();
+      // callSearch(mode);
     }
   };
 
@@ -64,13 +89,25 @@ export default function SearchPopup() {
     }
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (pressEnter && inputValue === prevInputValue) {
+      return;
+    }
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   const handleSearch = async () => {
     if (inputValue === "") {
       setNoSearchResults(false);
+      setPrevInputValue(inputValue);
       return setError("value", {
         message: "검색어를 입력해 주세요.",
       });
     }
+    setPressEnter(true);
+    setPrevInputValue(inputValue);
     callSearch(popup.mode);
   };
 
@@ -153,7 +190,20 @@ export default function SearchPopup() {
     useSearchState.postList,
   ]);
 
-  const handleGoToSpace = (spaceUid: string) => {};
+  const handleGoToSpace = async (spaceUid: string) => {
+    const searchSpace = await handleSearchSpace(spaceUid);
+
+    if (searchSpace?.UID) {
+      handleClose();
+      router.push("/");
+    }
+  };
+
+  const handleSendMessage = (userUid: string) => {};
+
+  const handleGoToPost = async (spaceUid: string, postSeq: number) => {
+    const searchSpace = await handleSearchSpace(spaceUid);
+  };
 
   const handleRequest = (data: RequestData) => {
     const formData = new FormData();
@@ -201,6 +251,7 @@ export default function SearchPopup() {
                 className="input"
                 maxLength={50}
                 value={inputValue}
+                onKeyDown={handleKeyDown}
                 onChange={handleValue}
               />
               <button type="submit" className="button" onClick={handleSearch}>
@@ -292,11 +343,16 @@ export default function SearchPopup() {
                             type="button"
                             className={`button ${styles.goToSearchResult}`}
                             title={`${space.space_name} 스페이스 이동`}
-                            // onClick={() => handleGoToSpace(space.UID)}
+                            onClick={() => handleGoToSpace(space.UID)}
                           >
                             {space.space_profile_path &&
                             space.space_profile_path !== "" ? (
-                              <img src={space.space_profile_path} alt="" />
+                              <Image
+                                src={space.space_profile_path}
+                                alt="profile"
+                                width={30}
+                                height={30}
+                              />
                             ) : (
                               <i className="normal">
                                 {space.space_name.charAt(0)}
@@ -419,7 +475,8 @@ export default function SearchPopup() {
                             type="button"
                             key={`search-user-${index}`}
                             className={`button ${styles.goToSearchResult}`}
-                            title={`${user.user_id} 사용자 스페이스 이동`}
+                            title={`${user.user_id} 님에게 메시지 보내기`}
+                            onClick={() => handleSendMessage(user.UID)}
                           >
                             {user.user_profile_path &&
                             user.user_profile_path !== "" ? (
@@ -517,6 +574,9 @@ export default function SearchPopup() {
                           key={`search-user-${index}`}
                           className={`button ${styles.goToSearchPost}`}
                           title={`${post.title} 포스트 이동`}
+                          onClick={() =>
+                            handleGoToPost(post.space_uid, post.seq)
+                          }
                         >
                           <p className={styles.postTitle}>{post.title}</p>
                           <div

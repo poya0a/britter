@@ -32,7 +32,7 @@ import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
 import { useAlert } from "@/hooks/popup/useAlert";
 import Alert from "@components/popup/Alert";
-import { PostData, PostListData, usePost } from "@hooks/usePost";
+import { PostListData, usePost } from "@hooks/usePost";
 import Toast from "@components/popup/Toast";
 import { useToast } from "@hooks/popup/useToast";
 import RoutAlert from "@components/popup/RouteAlert";
@@ -49,6 +49,8 @@ import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
 import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
 import SearchPopup from "@components/popup/SearchPopup";
+import { useURLPopup } from "@/hooks/popup/useURLPopup";
+import URLPopup from "@/components/popup/URLPopup";
 
 const lowlight = createLowlight(common);
 
@@ -96,6 +98,8 @@ const extensions = [
   Link.configure({
     openOnClick: true,
     autolink: true,
+    defaultProtocol: "https",
+    protocols: ["http", "https"],
   }),
   Mention.configure({
     HTMLAttributes: {
@@ -169,6 +173,7 @@ export default function Page() {
   const { selectedSpace } = useSpace();
   const { useCreateState } = useCreatePopup();
   const { useSpaceSettingState } = useSpaceSettingPopup();
+  const { useURLPopupState } = useURLPopup();
   const {
     usePostListState,
     usePostState,
@@ -192,14 +197,14 @@ export default function Page() {
     if (!(type === "create" && seq === "")) {
       const parentTitles = findParentTitles(usePostListState, seq);
       setPathname(parentTitles);
-      if (usePostState.seq !== "") {
-        setViewPost(usePostState);
-      }
       if (type === "view" && seq === "") router.push("/");
     } else {
       setPathname([]);
     }
-  }, [pageSeq, usePostListState]);
+    if (usePostState.seq !== "") {
+      setViewPost(usePostState);
+    }
+  }, [pageSeq, usePostListState, usePostState]);
 
   useUpdateEffect(() => {
     if (type === "create" && auto !== null) {
@@ -449,6 +454,7 @@ export default function Page() {
       {useSettingMenuState.isActOpen && <SettingMenu />}
       {useCreateState.isActOpen && <CreatePopup />}
       {useSpaceSettingState.isActOpen && <SpaceSettingPopup />}
+      {useURLPopupState.isActOpen && <URLPopup />}
     </div>
   );
 }

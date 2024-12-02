@@ -10,7 +10,6 @@ import { useRouteAlert } from "./popup/useRouteAlert";
 import { useToast } from "./popup/useToast";
 import storage from "@fetch/auth/storage";
 import { SpaceData } from "./user/useSpace";
-import { useUpdateEffect } from "@/utils/useUpdateEffect";
 
 export interface PostListData {
   seq: string;
@@ -122,11 +121,8 @@ export const usePost = () => {
         throw new Error("데이터를 가져오는 데 실패했습니다.");
       }
 
-      queryClient.invalidateQueries({ queryKey: ["postList"] });
       if (!res.resultCode) {
         toggleAlert(res.message);
-      } else if (res.resultCode && res.data) {
-        queryClient.setQueryData(["postList"], res.data);
       }
 
       return res.data;
@@ -143,14 +139,11 @@ export const usePost = () => {
     }
   };
 
-  const { data: postList, refetch: refetchPostList } = useQuery<
-    PostListData[],
-    Error
-  >({
-    queryKey: ["postList"],
+  const { data: postList } = useQuery<PostListData[], Error>({
+    queryKey: ["postList", postUid],
     queryFn: fetchPostList,
     staleTime: 5 * 60 * 1000,
-    enabled: postUid !== "" && postUid !== undefined,
+    enabled: !!postUid,
   });
 
   const { data: post } = useQuery<PostData, Error>({
@@ -199,8 +192,9 @@ export const usePost = () => {
         } else {
           setToast(res.message);
         }
-        refetchPostList();
+        queryClient.invalidateQueries({ queryKey: ["postList"] });
         setPageSeq({ seq: res.data.seq, pSeq: "" });
+        fetchPost(res.data.seq);
       }
       setAuto(null);
     },
@@ -220,7 +214,7 @@ export const usePost = () => {
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode && res.data) {
-        refetchPostList();
+        queryClient.invalidateQueries({ queryKey: ["postList"] });
         setPageSeq({ seq: "", pSeq: res.data.seq });
         setType("view");
         setToast(res.message);
@@ -233,6 +227,7 @@ export const usePost = () => {
 
   useEffect(() => {
     if (postList) {
+      queryClient.setQueryData(["postList"], postList);
       setUsePostListState(postList);
     }
   }, [postList]);
@@ -247,9 +242,11 @@ export const usePost = () => {
     queryClient.setQueryData(["type"], type);
   };
 
-  const setPageSeq = (pageSeq: { seq: string; pSeq: string }) => {
-    queryClient.setQueryData(["pageSeq"], pageSeq);
-    fetchPost(pageSeq.seq);
+  const setPageSeq = (seqObject: { seq: string; pSeq: string }) => {
+    queryClient.setQueryData(["pageSeq"], seqObject);
+    if (seqObject.seq !== "" && pageSeq.seq !== seqObject.seq) {
+      fetchPost(seqObject.seq);
+    }
   };
 
   const setPathname = (
@@ -274,7 +271,6 @@ export const usePost = () => {
     setType,
     setPageSeq,
     setPathname,
-    refetchPostList,
     fetchPost,
     savePost,
     deletePost,

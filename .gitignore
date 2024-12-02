@@ -40,3 +40,6 @@ jsonwebtoken.d.ts
 db.vuerd.json
 
 typeorm.config.ts
+
+#history
+.history/*

@@ -89,6 +89,7 @@ export const useSpace = () => {
   const [spaceMemeberPageInfo, setSpaceMemeberPageInfo] =
     useRecoilState<PageInfo>(pageInfo);
 
+  const selectedSpaceUid = storage.getSpaceUid();
   const { toggleAlert } = useAlert();
   const { setToast } = useToast();
   const { toggleRouteAlert } = useRouteAlert();
@@ -134,19 +135,6 @@ export const useSpace = () => {
 
   const { data: selectedSpace } = useQuery<SpaceData>({
     queryKey: ["selectedSpace"],
-    // queryFn: () => {
-    //   return (
-    //     queryClient.getQueryData<SpaceData>(["selectedSpace"]) ?? {
-    //       UID: "",
-    //       space_profile_seq: 0,
-    //       space_profile_path: "",
-    //       space_name: "",
-    //       space_manager: "",
-    //       space_public: false,
-    //       space_users: [],
-    //     }
-    //   );
-    // },
     staleTime: 5 * 60 * 1000,
     enabled: !!storage.getAccessToken(),
   });
@@ -174,8 +162,7 @@ export const useSpace = () => {
           mode: "",
         });
         toggleSettingMenu(false);
-        setSpace(res.data.spaceUid);
-        queryClient.invalidateQueries({ queryKey: ["selectedSpace"] });
+        storage.setSpaceUid(res.data.spaceUid);
       }
     },
     onError: (error: FetchError) => {
@@ -214,7 +201,7 @@ export const useSpace = () => {
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else {
-        setSpace("");
+        storage.removeStorage("space-uid");
         toggleSpaceSettingPopup(false);
         setToast(res.message);
         queryClient.invalidateQueries({ queryKey: ["space"] });
@@ -226,11 +213,11 @@ export const useSpace = () => {
   });
 
   const { mutate: fetchSpaceMember } = useMutation({
-    mutationFn: () =>
+    mutationFn: (uid: string) =>
       fetchApi({
         method: "POST",
         url: requests.GET_SPACE_MEMBER_LIST,
-        body: JSON.stringify({ spaceUid: selectedSpace?.UID }),
+        body: JSON.stringify({ spaceUid: uid }),
       }),
     onSuccess: (res: SpaceMemberListResponse) => {
       if (!res.resultCode) {
@@ -243,7 +230,12 @@ export const useSpace = () => {
       }
     },
     onError: (error: FetchError) => {
-      toggleAlert(error.message);
+      toggleRouteAlert({
+        isActOpen: true,
+        content: error.message,
+        route: "/login",
+      });
+      storage.removeToken();
     },
   });
 
@@ -261,8 +253,15 @@ export const useSpace = () => {
           })
         );
         setUseSpaceState(updatedList);
-        if (!selectedSpace?.UID) {
-          setSpace(space[0].UID);
+        if (!selectedSpaceUid) {
+          storage.setSpaceUid(space[0].UID);
+          const findSpace =
+            updatedList.find((item) => item.UID === space[0].UID) || {};
+          queryClient.setQueryData(["selectedSpace"], findSpace);
+        } else {
+          const findSpace =
+            updatedList.find((item) => item.UID === selectedSpaceUid) || {};
+          queryClient.setQueryData(["selectedSpace"], findSpace);
         }
       }
     };
@@ -270,25 +269,24 @@ export const useSpace = () => {
     updateSpace();
   }, [space]);
 
-  const setSpace = (uid: string) => {
-    if (uid !== queryClient.getQueryData<SpaceData>(["selectedSpace"])?.UID) {
-      if (useSpaceState.length > 0) {
-        const findSpace =
-          useSpaceState.find((space) => space.UID === uid) || {};
-        queryClient.setQueryData(["selectedSpace"], findSpace);
-        console.log();
-      } else {
-        const spaceData = queryClient.getQueryData(["space"]);
+  // 스페이스 검색 및 선택
+  useEffect(() => {
+    if (
+      selectedSpaceUid &&
+      useSpaceState.length > 0 &&
+      selectedSpaceUid !== selectedSpace?.UID
+    ) {
+      // 참여한 스페이스 목록에서 선택한 경우
+      const findSpace =
+        useSpaceState.find((space) => space.UID === selectedSpaceUid) || {};
 
-        const findSpace = Array.isArray(spaceData)
-          ? spaceData.find((space) => space.UID === uid)
-          : {};
-
+      if (findSpace) {
         queryClient.setQueryData(["selectedSpace"], findSpace);
       }
-      fetchSpaceMember();
+      // 스페이스 검색 및 선택으로 스페이스 멤버 목록
+      fetchSpaceMember(selectedSpaceUid);
     }
-  };
+  }, [selectedSpaceUid]);
 
   useEffect(() => {
     const updateSpaceMember = async () => {
@@ -315,7 +313,6 @@ export const useSpace = () => {
     spaceMember,
     spacePageInfo,
     spaceMemeberPageInfo,
-    setSpace,
     createSpace,
     updateSpace,
     deleteSpace,

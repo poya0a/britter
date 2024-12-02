@@ -8,6 +8,7 @@ import { useMainMenuWidth } from "@/hooks/menu/useMainMenuWidth";
 import { useToolBarHeight } from "@hooks/useToolBarHeight";
 import { usePost } from "@hooks/usePost";
 import { useUpdateEffect } from "@/utils/useUpdateEffect";
+import { useURLPopup } from "@hooks/popup/useURLPopup";
 
 const isTablePresent = (editor: Editor): boolean => {
   const { selection } = editor.state;
@@ -45,6 +46,7 @@ export default function ToolBar() {
     plusFontSize,
     minusFontSize,
   } = useEditor();
+  const { useURLPopupState, toggleURLPopup } = useURLPopup();
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const {
     auto,
@@ -74,20 +76,26 @@ export default function ToolBar() {
     };
   }, []);
 
-  // 컬러피커
+  // 컬러 피커
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (editor === null || colorPickerRef.current === null) return;
 
+      const target = event.target as Element | null;
+
+      if (target === null) return;
+
+      const closestIgnoreElement = target.closest(
+        "[data-ignore-outside-click]"
+      );
+
       if (
-        colorPickerRef.current &&
+        !closestIgnoreElement &&
         !colorPickerRef.current.contains(event.target as Node)
       ) {
         setShowColorPicker(false);
         setType("");
         editor.view.dom.style.pointerEvents = "auto";
-      } else {
-        editor.view.dom.style.pointerEvents = "none";
       }
     }
 
@@ -153,21 +161,22 @@ export default function ToolBar() {
 
   const setMention = () => {};
 
-  const setLink = useCallback(() => {
-    const previousUrl = editor.getAttributes("link").href;
-    const url = window.prompt("URL", previousUrl);
+  // const setLink = useCallback(() => {
+  //   toggleLinkPopup(true);
 
-    if (url === null) {
-      return;
+  // }, [editor]);
+
+  // 보류
+  useUpdateEffect(() => {
+    if (!useURLPopupState.isActOpen && useURLPopupState.url !== "") {
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange("link")
+        .setLink({ href: useURLPopupState.url })
+        .run();
     }
-    if (url === "") {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run();
-
-      return;
-    }
-
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
-  }, [editor]);
+  }, [useURLPopupState.isActOpen]);
 
   const createTable = useCallback(() => {
     editor
@@ -307,6 +316,8 @@ export default function ToolBar() {
           </button>
           <button
             type="button"
+            name="text"
+            data-ignore-outside-click={true}
             onClick={() => handleButtonClick("text")}
             className={type === "text" ? `${styles.active}` : ""}
             title="색상"
@@ -323,6 +334,8 @@ export default function ToolBar() {
           </button>
           <button
             type="button"
+            name="highlight"
+            data-ignore-outside-click={true}
             onClick={() => handleButtonClick("highlight")}
             className={type === "highlight" ? `${styles.active}` : ""}
             title="하이라이트"
@@ -502,8 +515,11 @@ export default function ToolBar() {
           <button type="button" onClick={setMention} title="언급">
             <img src="/images/icon/at.svg" alt="mention" />
           </button>
-
-          <button type="button" onClick={setLink} title="연결 삽입">
+          <button
+            type="button"
+            onClick={() => toggleURLPopup(true)}
+            title="연결 삽입"
+          >
             <img src="/images/icon/link.svg" alt="link" />
           </button>
         </div>

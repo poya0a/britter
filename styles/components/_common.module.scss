@@ -189,3 +189,15 @@
   top: 36px;
   right: 0;
 }
+
+.linkPreview {
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  margin: 10px 0;
+  overflow: hidden;
+  .linkPreviewFrame {
+    width: 100%;
+    height: 300px;
+    border: none;
+  }
+}

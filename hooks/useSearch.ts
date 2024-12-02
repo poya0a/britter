@@ -9,6 +9,7 @@ import { useAlert } from "./popup/useAlert";
 import fetchFile from "@fetch/fetchFile";
 import convertHtmlToPreviewText from "@/utils/previewText";
 import { SpaceData } from "./user/useSpace";
+import storage from "@/app/fetch/auth/storage";
 
 export interface Notify {
   notifyUID: string;
@@ -297,6 +298,27 @@ export const useSearch = () => {
     }
   };
 
+  // 스페이스 검색 후 이동 시 선택한 스페이스 업데이트
+  const handleSearchSpace = async (uid: string) => {
+    const res = await fetchApi({
+      method: "GET",
+      url: `${requests.GET_SPACE}?searchUid=${uid}`,
+    });
+
+    if (res?.data) {
+      if (!res.data.space_public) {
+        toggleAlert("비공개 스페이스입니다.");
+      } else {
+        queryClient.setQueryData(["selectedSpace"], res.data);
+        // 게시물 및 멤버 업데이트에 사용
+        storage.setSpaceUid(res.data.UID);
+        return res.data;
+      }
+    } else {
+      toggleAlert(res.message);
+    }
+  };
+
   return {
     useSearchState,
     setUseSearchState,
@@ -305,5 +327,6 @@ export const useSearch = () => {
     searchUserList,
     searchPostList,
     lastPage,
+    handleSearchSpace,
   };
 };

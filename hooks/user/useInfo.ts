@@ -96,7 +96,7 @@ export const useInfo = () => {
   };
 
   useEffect(() => {
-    if (data) {
+    if (data && useInfoState.UID !== data.UID) {
       setUseInfoState(data);
       if (useInfoState.user_profile_path === "") {
         fetchDataAndUpdateState(data.user_profile_seq);

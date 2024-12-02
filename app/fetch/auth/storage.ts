@@ -28,6 +28,14 @@ const setRefreshToken = (value: string) => {
   return setStorage("user-refresh-token", value);
 };
 
+const getSpaceUid = () => {
+  return getStorage("space-uid");
+};
+
+const setSpaceUid = (value: string) => {
+  return setStorage("space-uid", value);
+};
+
 const getExpandedPosts = () => {
   return getStorage("expanded-posts");
 };
@@ -40,6 +48,7 @@ const removeToken = () => {
   removeStorage("user-access-token");
   removeStorage("user-refresh-token");
   removeStorage("user-id");
+  removeStorage("space-uid");
   removeStorage("expanded-posts");
 };
 
@@ -48,7 +57,10 @@ export default {
   setAccessToken: setAccessToken,
   getRefreshToken: getRefreshToken,
   setRefreshToken: setRefreshToken,
+  getSpaceUid: getSpaceUid,
+  setSpaceUid: setSpaceUid,
   setExpandedPosts: setExpandedPosts,
   getExpandedPosts: getExpandedPosts,
+  removeStorage: removeStorage,
   removeToken: removeToken,
 };

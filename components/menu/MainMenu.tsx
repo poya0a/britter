@@ -11,7 +11,9 @@ import { useAlert } from "@hooks/popup/useAlert";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
 import { useSettingMenu } from "@hooks/menu/useSettingMenu";
 import { useSpace } from "@hooks/user/useSpace";
+import { useNotification } from "@/hooks/useNotification";
 import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
+import Image from "next/image";
 
 export default function MainMenu() {
   const { useMainMenuWidthState, handleMainMenuWidth } = useMainMenuWidth();
@@ -24,6 +26,8 @@ export default function MainMenu() {
   const { useInfoState } = useInfo();
   const { useSpaceState, selectedSpace } = useSpace();
   const { usePostListState, pageSeq, setPageSeq, setType } = usePost();
+  const { useNotificationState, postNotification, postLeaveNotification } =
+    useNotification();
   const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
   const { toggleSpaceSettingPopup } = useSpaceSettingPopup();
@@ -198,6 +202,34 @@ export default function MainMenu() {
     toggleSettingMenu(false);
   };
 
+  const handleExit = (spaceUid: string) => {
+    const formData = new FormData();
+    formData.append("exitUid", spaceUid);
+    formData.append("senderUid", useInfoState.UID);
+    formData.append("exitType", "space");
+    postLeaveNotification(formData);
+  };
+
+  const handleRequest = (
+    spaceUid: string,
+    notifyUID?: string,
+    response?: boolean
+  ) => {
+    const maxSpace = useInfoState.user_level === 1 && useSpaceState.length > 2;
+    if (maxSpace) {
+      return toggleAlert("최대 참여할 수 있는 스페이스는 3개입니다.");
+    }
+    const formData = new FormData();
+    if (notifyUID) {
+      formData.append("UID", notifyUID);
+      formData.append("response", JSON.stringify(response));
+    }
+    formData.append("senderUid", useInfoState.UID);
+    formData.append("recipientUid", spaceUid);
+    formData.append("notifyType", "space");
+    postNotification(formData);
+  };
+
   return (
     <div
       style={{ width: `${useMainMenuWidthState}px` }}
@@ -214,7 +246,12 @@ export default function MainMenu() {
               onClick={handleSetting}
             >
               {useInfoState.user_profile_path ? (
-                <img src={useInfoState.user_profile_path} alt="" />
+                <Image
+                  src={useInfoState.user_profile_path}
+                  alt="profile"
+                  width={30}
+                  height={30}
+                />
               ) : (
                 <i className="normal">
                   {useInfoState.user_nick_name.charAt(0)}
@@ -255,34 +292,113 @@ export default function MainMenu() {
             <img src="/images/icon/inbox.svg" alt="" />
             <em className="normal">수신함</em>
           </button>
-          {useSpaceState.find((space) => space.UID === selectedSpace?.UID)
-            ?.space_manager === useInfoState.UID ? (
-            <button
-              type="button"
-              className={`button ${styles.mainMenuDefault}`}
-              onClick={() =>
-                toggleSpaceSettingPopup({ isActOpen: true, mode: "setting" })
-              }
-            >
-              <img src="/images/icon/settings.svg" alt="" />
-              <em className="normal">설정과 멤버</em>
-            </button>
-          ) : (
-            <button
-              type="button"
-              className={`button ${styles.mainMenuDefault}`}
-            >
-              <img src="/images/icon/exit.svg" alt="" />
-              <em className="normal">스페이스 나가기</em>
-            </button>
-          )}
+          {selectedSpace &&
+            (useSpaceState
+              .map((space) => space.UID)
+              .includes(selectedSpace.UID) ? (
+              selectedSpace.space_manager === useInfoState.UID ? (
+                <button
+                  type="button"
+                  className={`button ${styles.mainMenuDefault}`}
+                  onClick={() =>
+                    toggleSpaceSettingPopup({
+                      isActOpen: true,
+                      mode: "setting",
+                    })
+                  }
+                >
+                  <img src="/images/icon/settings.svg" alt="" />
+                  <em className="normal">설정과 멤버</em>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className={`button ${styles.mainMenuDefault}`}
+                >
+                  <img src="/images/icon/exit.svg" alt="" />
+                  <em
+                    className="normal"
+                    onClick={() => handleExit(selectedSpace.UID)}
+                  >
+                    스페이스 나가기
+                  </em>
+                </button>
+              )
+            ) : useNotificationState.filter(
+                (notify) =>
+                  notify.sender_uid === useInfoState.UID &&
+                  notify.notify_type === "space"
+              )[0]?.UID ? (
+              <button
+                type="button"
+                className={`button ${styles.mainMenuDefault}`}
+                style={{ lineHeight: "20px" }}
+                onClick={() => {
+                  const notifyUid = useNotificationState.filter(
+                    (notify) =>
+                      notify.sender_uid === useInfoState.UID &&
+                      notify.notify_type === "space"
+                  )[0].UID;
+                  handleRequest(selectedSpace.UID, notifyUid, false);
+                }}
+              >
+                <img src="/images/icon/emoji_sad.svg" alt="" />
+                <em className="normal">스페이스 참여 취소</em>
+              </button>
+            ) : useNotificationState.filter(
+                (notify) =>
+                  notify.recipient_uid === useInfoState.UID &&
+                  notify.notify_type === "user"
+              )[0]?.UID ? (
+              <>
+                <button
+                  type="button"
+                  className={`button ${styles.mainMenuDefault}`}
+                  style={{ lineHeight: "20px" }}
+                  onClick={() => {
+                    const notifyUid = useNotificationState.filter(
+                      (notify) =>
+                        notify.recipient_uid === useInfoState.UID &&
+                        notify.notify_type === "user"
+                    )[0].UID;
+                    handleRequest(selectedSpace.UID, notifyUid, true);
+                  }}
+                >
+                  <img src="/images/icon/emoji_smile.svg" alt="" />
+                  <em className="normal">스페이스 초대 수락</em>
+                </button>
+                <button
+                  type="button"
+                  className={`button ${styles.mainMenuDefault}`}
+                  style={{ lineHeight: "20px" }}
+                  onClick={() => {
+                    const notifyUid = useNotificationState.filter(
+                      (notify) =>
+                        notify.recipient_uid === useInfoState.UID &&
+                        notify.notify_type === "user"
+                    )[0].UID;
+                    handleRequest(selectedSpace.UID, notifyUid, false);
+                  }}
+                >
+                  <img src="/images/icon/emoji_sad.svg" alt="" />
+                  <em className="normal">스페이스 초대 거절</em>
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className={`button ${styles.mainMenuDefault}`}
+                style={{ lineHeight: "20px" }}
+                onClick={() => handleRequest(selectedSpace.UID)}
+              >
+                <img src="/images/icon/emoji_smile.svg" alt="" />
+                <em className="normal">스페이스 참여</em>
+              </button>
+            ))}
         </div>
         <div className={styles.pageMenu}>
           <h6 className={styles.pageMenuName}>
-            {
-              useSpaceState.find((space) => space.UID === selectedSpace?.UID)
-                ?.space_name
-            }
+            {selectedSpace?.space_name}
             &nbsp;스페이스
           </h6>
           <ul className={`list ${styles.pageList} ${styles.pageListWrap}`}>

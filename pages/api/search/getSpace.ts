@@ -35,6 +35,7 @@ export default async function handler(
             "space_name",
             "space_public",
             "space_manager",
+            "space_users",
           ],
         });
 
