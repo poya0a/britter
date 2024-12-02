@@ -36,37 +36,31 @@ export default function LinkPopup() {
     <div className={styles.popup}>
       <div className={styles.dim} onClick={() => toggleURLPopup("")} />
       <div className={styles.popupWrapper}>
-        <div className={styles.urlWrapper}>
-          <h1>URL</h1>
-          <div className={inputStyles.inputText}>
-            <div className={inputStyles.inputCheckWrapper}>
-              <input
-                type="text"
-                className="input"
-                maxLength={100}
-                value={inputValue}
-                onChange={(e) => {
-                  setNotURL(false);
-                  setInputValue(e.target.value);
-                }}
-                onKeyDown={handleKeyDown}
-              />
-              <button
-                type="button"
-                className={`button ${buttonStyles.buttonBlue}`}
-                onClick={handleLinkSave}
-              >
-                확인
-              </button>
-            </div>
+        <h1>URL</h1>
+        <div className={inputStyles.inputText}>
+          <div className={inputStyles.inputCheckWrapper}>
+            <input
+              type="text"
+              className="input"
+              maxLength={100}
+              value={inputValue}
+              onChange={(e) => {
+                setNotURL(false);
+                setInputValue(e.target.value);
+              }}
+              onKeyDown={handleKeyDown}
+            />
+            <button
+              type="button"
+              className={`button ${buttonStyles.buttonBlue}`}
+              onClick={handleLinkSave}
+            >
+              확인
+            </button>
           </div>
         </div>
-        {notURL && (
-          <p className={styles.information}>
-            URL 형식이 올바르지 않습니다. 다시 입력해 주세요.
-          </p>
-        )}
       </div>
+      {notURL && <p>URL 형식이 올바르지 않습니다. 다시 입력해 주세요.</p>}
     </div>
   );
 }

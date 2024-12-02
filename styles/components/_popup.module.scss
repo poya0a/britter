@@ -140,6 +140,32 @@
     border-radius: 5px;
     background-color: $background-color;
     padding: 16px;
+    textarea {
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+
+      outline: none;
+      resize: none;
+
+      font-size: 14px;
+      word-break: keep-all;
+      padding: 10px;
+
+      border-radius: 5px;
+      border: 1px solid $main-color;
+
+      margin-bottom: 16px;
+      &::-webkit-scrollbar {
+        width: 2px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: $main-color;
+      }
+    }
+    .error {
+      margin-bottom: 16px;
+    }
   }
 }
 

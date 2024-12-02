@@ -21,6 +21,9 @@ const requests = {
   GET_SPACE_MEMBER_LIST: "api/space/getSpaceMemberList",
   GET_NOTIFICATION_LIST: "api/notification/getNotificationList",
   POST_NOTIFICATION: "api/notification/postNotification",
+  GET_MESSAGE_LIST: "api/message/getMessageList",
+  GET_MESSAGE: "api/message/getMessage",
+  POST_MESSAGE: "api/message/postMessage",
 };
 
 export default requests;

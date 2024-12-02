@@ -24,7 +24,8 @@ import { useNotification, RequestData } from "@hooks/useNotification";
 import { useInfo } from "@hooks/user/useInfo";
 import { usePost } from "@hooks/usePost";
 import Image from "next/image";
-import { useAlert } from "@/hooks/popup/useAlert";
+import { useAlert } from "@hooks/popup/useAlert";
+import { useMessagePopup } from "@hooks/popup/useMessagePopup";
 
 export default function SearchPopup() {
   const {
@@ -51,6 +52,7 @@ export default function SearchPopup() {
   const { postNotification, postLeaveNotification } = useNotification();
   const { setType } = usePost();
   const { toggleAlert } = useAlert();
+  const { toggleMessagePopup } = useMessagePopup();
   const [pressEnter, setPressEnter] = useState(false);
   const [inputValue, setInputValue] = useState<string>("");
   const [prevInputValue, setPrevInputValue] = useState<string>("");
@@ -212,8 +214,6 @@ export default function SearchPopup() {
       toggleAlert("비공개 스페이스입니다.");
     }
   };
-
-  const handleSendMessage = (userUid: string) => {};
 
   // 게시글의 스페이스에 속해있거나 공개인 경우 페이지 이동
   const handleGoToPost = async (spaceUid: string, postSeq: string) => {
@@ -509,7 +509,14 @@ export default function SearchPopup() {
                             key={`search-user-${index}`}
                             className={`button ${styles.goToSearchResult}`}
                             title={`${user.user_id} 님에게 메시지 보내기`}
-                            onClick={() => handleSendMessage(user.UID)}
+                            onClick={() =>
+                              // 메시지 보내기
+                              toggleMessagePopup({
+                                isActOpen: true,
+                                recipientUid: user.UID,
+                                recipientName: user.user_name,
+                              })
+                            }
                           >
                             {user.user_profile_path &&
                             user.user_profile_path !== "" ? (

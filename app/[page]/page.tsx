@@ -49,8 +49,10 @@ import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
 import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
 import SearchPopup from "@components/popup/SearchPopup";
-import { useURLPopup } from "@/hooks/popup/useURLPopup";
-import URLPopup from "@/components/popup/URLPopup";
+import { useURLPopup } from "@hooks/popup/useURLPopup";
+import URLPopup from "@components/popup/URLPopup";
+import { useMessagePopup } from "@hooks/popup/useMessagePopup";
+import MessagePopup from "@components/popup/MessagePopup";
 
 const lowlight = createLowlight(common);
 
@@ -174,6 +176,7 @@ export default function Page() {
   const { useCreateState } = useCreatePopup();
   const { useSpaceSettingState } = useSpaceSettingPopup();
   const { useURLPopupState } = useURLPopup();
+  const { useMessagePopupState } = useMessagePopup();
   const {
     usePostListState,
     usePostState,
@@ -446,15 +449,16 @@ export default function Page() {
           </button>
         </div>
       </div>
-      {useAlertState.isActOpen && <Alert />}
-      {useRouteAlertState.isActOpen && <RoutAlert />}
-      {useFnAndCancelAlertState.isActOpen && <FnAndCancelAlert />}
-      {useToastState.isActOpen && <Toast />}
       {useSearchState.isActOpen && <SearchPopup />}
       {useSettingMenuState.isActOpen && <SettingMenu />}
       {useCreateState.isActOpen && <CreatePopup />}
       {useSpaceSettingState.isActOpen && <SpaceSettingPopup />}
       {useURLPopupState.isActOpen && <URLPopup />}
+      {useMessagePopupState.isActOpen && <MessagePopup />}
+      {useAlertState.isActOpen && <Alert />}
+      {useRouteAlertState.isActOpen && <RoutAlert />}
+      {useFnAndCancelAlertState.isActOpen && <FnAndCancelAlert />}
+      {useToastState.isActOpen && <Toast />}
     </div>
   );
 }

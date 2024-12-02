@@ -73,6 +73,10 @@ const nextConfig = {
         source: "/:userId/api/notification/getNotification",
         destination: "/api/notification/getNotification",
       },
+      {
+        source: "/:userId/api/notification/postNotification",
+        destination: "/api/notification/postNotification",
+      },
       // 검색
       {
         source: "/:userId/api/search/getPostList",
@@ -93,6 +97,19 @@ const nextConfig = {
       {
         source: "/:userId/api/search/getUser",
         destination: "/api/search/getUser",
+      },
+      // 메시지
+      {
+        source: "/:userId/api/message/getMessageList",
+        destination: "/api/message/getMessageList",
+      },
+      {
+        source: "/:userId/api/message/getMessage",
+        destination: "/api/message/getMessage",
+      },
+      {
+        source: "/:userId/api/message/postMessage",
+        destination: "/api/message/postMessage",
       },
     ];
   },

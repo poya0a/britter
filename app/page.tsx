@@ -20,6 +20,8 @@ import CreatePopup from "@components/popup/CreatePopup";
 import { useCreatePopup } from "@hooks/popup/useCreatePopup";
 import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
 import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
+import { useMessagePopup } from "@hooks/popup/useMessagePopup";
+import MessagePopup from "@components/popup/MessagePopup";
 
 export default function Home() {
   const { useAlertState } = useAlert();
@@ -30,6 +32,7 @@ export default function Home() {
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
   const { useCreateState } = useCreatePopup();
   const { useSpaceSettingState } = useSpaceSettingPopup();
+  const { useMessagePopupState } = useMessagePopup();
   const pathname = usePathname();
   const userToken = storage.getAccessToken();
 
@@ -53,6 +56,7 @@ export default function Home() {
       {useSettingMenuState.isActOpen && <SettingMenu />}
       {useCreateState.isActOpen && <CreatePopup />}
       {useSpaceSettingState.isActOpen && <SpaceSettingPopup />}
+      {useMessagePopupState.isActOpen && <MessagePopup />}
       {useAlertState.isActOpen && <Alert />}
       {useRouteAlertState.isActOpen && <RoutAlert />}
       {useFnAndCancelAlertState.isActOpen && <FnAndCancelAlert />}

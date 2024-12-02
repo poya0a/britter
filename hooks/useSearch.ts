@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FetchError } from "@fetch/types";
 import fetchApi from "@fetch/fetch";
-import storage from "@/app/fetch/auth/storage";
+import storage from "@fetch/auth/storage";
 import requests from "@fetch/requests";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRecoilState } from "recoil";
