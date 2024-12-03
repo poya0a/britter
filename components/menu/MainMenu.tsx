@@ -5,6 +5,7 @@ import { useMainMenuWidth } from "@hooks/menu/useMainMenuWidth";
 import { useRouter } from "next/navigation";
 import storage from "@fetch/auth/storage";
 import { useRouteAlert } from "@hooks/popup/useRouteAlert";
+import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
 import { PostListData, usePost } from "@hooks/usePost";
 import { useInfo } from "@hooks/user/useInfo";
 import { useAlert } from "@hooks/popup/useAlert";
@@ -13,6 +14,7 @@ import { useSettingMenu } from "@hooks/menu/useSettingMenu";
 import { useSpace } from "@hooks/user/useSpace";
 import { useNotification } from "@/hooks/useNotification";
 import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
+import { usePostFolderPopup } from "@hooks/popup/usePostFolderPopup";
 import Image from "next/image";
 
 export default function MainMenu() {
@@ -22,10 +24,14 @@ export default function MainMenu() {
   const router = useRouter();
   const { toggleAlert } = useAlert();
   const { toggleRouteAlert } = useRouteAlert();
+  const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
   const { toggleSearchPopup } = useSearchPopup();
+  const { usePostFolderPopupState, togglePostFolderPopup } =
+    usePostFolderPopup();
   const { useInfoState } = useInfo();
   const { useSpaceState, selectedSpace } = useSpace();
-  const { usePostListState, pageSeq, setPageSeq, setType } = usePost();
+  const { usePostListState, pageSeq, setPageSeq, setType, deletePost } =
+    usePost();
   const { useNotificationState, postNotification, postLeaveNotification } =
     useNotification();
   const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
@@ -131,7 +137,11 @@ export default function MainMenu() {
               className={`list ${styles.pageItem}`}
               key={`post-sub${depth}-${idx}`}
             >
-              <div className={`button ${styles.pageWrapper}`}>
+              <div
+                className={`button ${styles.pageWrapper} ${
+                  otherMenuPopup.seq === post.seq ? styles.active : ""
+                }`}
+              >
                 <button
                   type="button"
                   className={`button ${styles.pageButton} 
@@ -140,7 +150,8 @@ export default function MainMenu() {
                     (pageSeq.seq === "" &&
                       post.subPost?.find(
                         (sub: PostListData) => sub.p_seq === pageSeq.pSeq
-                      ))
+                      )) ||
+                    otherMenuPopup.seq === post.seq
                       ? styles.active
                       : ""
                   }`}
@@ -158,14 +169,16 @@ export default function MainMenu() {
                 </button>
                 <button
                   type="button"
-                  className={`button ${styles.pageMoreButton}`}
+                  className={`button ${styles.pageMoreButton}${
+                    otherMenuPopup.seq === post.seq ? styles.active : ""
+                  }`}
                   ref={otherMenuRef}
                   onClick={(e) => handleToggleOtherMenu(e, post.seq)}
                 >
                   <img
                     src="/images/icon/more.svg"
-                    alt="삭제, 복제 등"
-                    title="삭제, 복제 등"
+                    alt="이동, 복사, 삭제 등"
+                    title="이동, 복사, 삭제 등"
                   />
                 </button>
                 <button
@@ -262,6 +275,34 @@ export default function MainMenu() {
     postNotification(formData);
   };
 
+  const handleMoveAndCopyPost = (type: string) => {
+    togglePostFolderPopup({
+      isActOpen: true,
+      spaceUid: selectedSpace?.UID || "",
+      type: type,
+      seq: otherMenuPopup.seq || "",
+    });
+  };
+
+  const handleDeletePost = () => {
+    let content = "삭제하시겠습니까?";
+
+    const subPost = usePostListState.find(
+      (post) => post.seq === otherMenuPopup.seq
+    )?.subPost;
+    if (subPost && subPost.length > 0) {
+      content = "하위 게시글도 함께 삭제됩니다. 삭제하시겠습니까?";
+    }
+
+    if (otherMenuPopup.seq) {
+      toggleFnAndCancelAlert({
+        isActOpen: true,
+        content: content,
+        fn: () => deletePost(otherMenuPopup.seq || ""),
+      });
+    }
+  };
+
   useEffect(() => {
     // 외부 클릭을 감지하는 함수
     const handleClickOutsideSettingMenu = (e: MouseEvent | TouchEvent) => {
@@ -282,6 +323,15 @@ export default function MainMenu() {
       }
     };
 
+    document.addEventListener("mousedown", handleClickOutsideSettingMenu);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideSettingMenu);
+    };
+  }, []);
+
+  useEffect(() => {
+    // 외부 클릭을 감지하는 함수
     const handleClickOutsideOtherMenu = (e: MouseEvent | TouchEvent) => {
       const target = e.target as HTMLElement;
       if (!target.closest) return;
@@ -294,20 +344,20 @@ export default function MainMenu() {
         !otherMenuRef.current.contains(target) &&
         (!closestIgnoreElement ||
           closestIgnoreElement.getAttribute("data-ignore-outside-click") !==
-            "true")
+            "true") &&
+        !usePostFolderPopupState.isActOpen
       ) {
         setOtherMenuPopup({ top: 0, left: 0, seq: null });
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutsideSettingMenu);
     document.addEventListener("mousedown", handleClickOutsideOtherMenu);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutsideSettingMenu);
       document.removeEventListener("mousedown", handleClickOutsideOtherMenu);
     };
-  }, []);
+  }, [usePostFolderPopupState]);
+
   return (
     <div
       style={{ width: `${useMainMenuWidthState}px` }}
@@ -483,11 +533,12 @@ export default function MainMenu() {
           <ul className={`list ${styles.pageList} ${styles.pageListWrap}`}>
             {usePostListState.map((post: PostListData, idx: number) => (
               <li className={`list ${styles.pageItem}`} key={`post-${idx}`}>
-                <div className={styles.pageWrapper}>
+                <div className={`button ${styles.pageWrapper}`}>
                   <button
                     type="button"
                     className={`button ${styles.pageButton} ${
-                      pageSeq.seq === post.seq && pageSeq.pSeq === ""
+                      (pageSeq.seq === post.seq && pageSeq.pSeq === "") ||
+                      otherMenuPopup.seq === post.seq
                         ? styles.active
                         : ""
                     }`}
@@ -505,14 +556,16 @@ export default function MainMenu() {
                   </button>
                   <button
                     type="button"
-                    className={`button ${styles.pageMoreButton}`}
+                    className={`button ${styles.pageMoreButton} ${
+                      otherMenuPopup.seq === post.seq ? styles.active : ""
+                    }`}
                     ref={otherMenuRef}
                     onClick={(e) => handleToggleOtherMenu(e, post.seq)}
                   >
                     <img
                       src="/images/icon/more.svg"
-                      alt="삭제, 복제 등"
-                      title="삭제, 복제 등"
+                      alt="이동, 복사, 삭제 등"
+                      title="이동, 복사, 삭제 등"
                     />
                   </button>
                   <button
@@ -546,16 +599,27 @@ export default function MainMenu() {
       {otherMenuPopup.seq !== null && (
         <div
           className={styles.otherMenu}
-          style={{ top: otherMenuPopup.top, left: otherMenuPopup.left }}
+          style={{
+            top: otherMenuPopup.top + 20,
+            left: otherMenuPopup.left + 10,
+          }}
           data-ignore-outside-click
         >
-          <button type="button" className="button">
+          <button
+            type="button"
+            className="button"
+            onClick={() => handleMoveAndCopyPost("move")}
+          >
             이동
           </button>
-          <button type="button" className="button">
+          <button
+            type="button"
+            className="button"
+            onClick={() => handleMoveAndCopyPost("copy")}
+          >
             복사
           </button>
-          <button type="button" className="button">
+          <button type="button" className="button" onClick={handleDeletePost}>
             삭제
           </button>
         </div>

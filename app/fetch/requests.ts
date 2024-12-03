@@ -7,6 +7,7 @@ const requests = {
   GET_POST: "api/post/getPost",
   SAVE_POST: "api/post/savePost",
   DELETE_POST: "api/post/deletePost",
+  MOVE_AND_COPY_POST: "api/post/moveAndCopyPost",
   FILE_UPLOAD: "api/file/upload",
   GET_FILE: "api/file/getFile",
   GET_SPACE: "api/search/getSpace",

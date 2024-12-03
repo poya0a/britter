@@ -47,6 +47,8 @@ import { useCreatePopup } from "@hooks/popup/useCreatePopup";
 import { useSpace } from "@hooks/user/useSpace";
 import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
 import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
+import { usePostFolderPopup } from "@hooks/popup/usePostFolderPopup";
+import PostFolderPopup from "@components/popup/postFolderPopup";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
 import SearchPopup from "@components/popup/SearchPopup";
 import { useURLPopup } from "@hooks/popup/useURLPopup";
@@ -172,6 +174,7 @@ export default function Page() {
   const { useToastState } = useToast();
   const { useSearchState } = useSearchPopup();
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
+  const { usePostFolderPopupState } = usePostFolderPopup();
   const { selectedSpace } = useSpace();
   const { useCreateState } = useCreatePopup();
   const { useSpaceSettingState } = useSpaceSettingPopup();
@@ -454,6 +457,7 @@ export default function Page() {
       {useCreateState.isActOpen && <CreatePopup />}
       {useSpaceSettingState.isActOpen && <SpaceSettingPopup />}
       {useURLPopupState.isActOpen && <URLPopup />}
+      {usePostFolderPopupState.isActOpen && <PostFolderPopup />}
       {useMessagePopupState.isActOpen && <MessagePopup />}
       {useAlertState.isActOpen && <Alert />}
       {useRouteAlertState.isActOpen && <RoutAlert />}

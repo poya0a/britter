@@ -39,10 +39,6 @@ export default async function handler(
           where: { seq, UID: uid },
         });
 
-        // const childPosts = await postRepository.find({
-        //   where: { p_seq: seq, UID: uid },
-        // });
-
         if (!currentPost) {
           return res.status(200).json({
             message: "삭제할 게시글을 찾을 수 없습니다.",
@@ -53,17 +49,6 @@ export default async function handler(
         // 삭제한 파일 seq 배열
         let dataSeqList: number[] = [];
 
-        // if (childPosts.length > 0) {
-        //   // 게시글에 포함된 파일 데이터 seq 배열
-        //   for (const post of childPosts) {
-        //     const extractedSeqList = extractImgDataSeq(post.content);
-        //     dataSeqList = dataSeqList.concat(extractedSeqList);
-        //   }
-        // }
-
-        // 게시글에 포함된 파일 데이터와 물리 파일 삭제
-        // const extractedSeqList = extractImgDataSeq(currentPost.content);
-        // dataSeqList = dataSeqList.concat(extractedSeqList);
         await deletePostAndChildren(seq, postRepository, uid, dataSeqList);
 
         if (dataSeqList.length > 0) {
@@ -73,10 +58,6 @@ export default async function handler(
         }
 
         let pSeq: string = currentPost?.p_seq || "";
-
-        // // 게시글 데이터 삭제
-        // await postRepository.remove(childPosts);
-        // await postRepository.remove(currentPost);
 
         // 남은 게시글 재정렬
         const postsWithSamePSeq = await postRepository.find({

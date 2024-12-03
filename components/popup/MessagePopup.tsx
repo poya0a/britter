@@ -38,9 +38,8 @@ export default function MessagePopup() {
         className={styles.dim}
         onClick={() => {
           toggleMessagePopup({
+            ...useMessagePopupState,
             isActOpen: false,
-            recipientUid: useMessagePopupState.recipientUid,
-            recipientName: useMessagePopupState.recipientName,
           });
         }}
       />

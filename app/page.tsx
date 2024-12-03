@@ -20,6 +20,8 @@ import CreatePopup from "@components/popup/CreatePopup";
 import { useCreatePopup } from "@hooks/popup/useCreatePopup";
 import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
 import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
+import { usePostFolderPopup } from "@hooks/popup/usePostFolderPopup";
+import PostFolderPopup from "@components/popup/postFolderPopup";
 import { useMessagePopup } from "@hooks/popup/useMessagePopup";
 import MessagePopup from "@components/popup/MessagePopup";
 
@@ -32,6 +34,7 @@ export default function Home() {
   const { useSettingMenuState } = useSettingMenu();
   const { useCreateState } = useCreatePopup();
   const { useSpaceSettingState } = useSpaceSettingPopup();
+  const { usePostFolderPopupState } = usePostFolderPopup();
   const { useMessagePopupState } = useMessagePopup();
   const pathname = usePathname();
   const userToken = storage.getAccessToken();
@@ -56,6 +59,7 @@ export default function Home() {
       {useSettingMenuState.isActOpen && <SettingMenu />}
       {useCreateState.isActOpen && <CreatePopup />}
       {useSpaceSettingState.isActOpen && <SpaceSettingPopup />}
+      {usePostFolderPopupState.isActOpen && <PostFolderPopup />}
       {useMessagePopupState.isActOpen && <MessagePopup />}
       {useAlertState.isActOpen && <Alert />}
       {useRouteAlertState.isActOpen && <RoutAlert />}

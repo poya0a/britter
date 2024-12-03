@@ -1,6 +1,4 @@
-import { FetchError } from "@fetch/types";
 import fetchApi from "@fetch/fetch";
-import storage from "@fetch/auth/storage";
 import requests from "@fetch/requests";
 import { useRecoilState } from "recoil";
 import { atom } from "recoil";
@@ -43,6 +41,8 @@ export const useMessagePopup = () => {
         if (send) {
           setUseMessagePopupState(props);
         }
+      } else {
+        setUseMessagePopupState(props);
       }
     }
   };

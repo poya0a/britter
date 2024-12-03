@@ -53,6 +53,11 @@ const nextConfig = {
         destination: "/api/post/deletePost",
       },
       {
+        source: "/:userId/api/post/moveAndCopyPost",
+        destination: "/api/post/moveAndCopyPost",
+      },
+      // 파일
+      {
         source: "/:userId/api/file/upload",
         destination: "/api/file/upload",
       },
