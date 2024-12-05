@@ -25,6 +25,8 @@ const requests = {
   GET_MESSAGE_LIST: "api/message/getMessageList",
   GET_MESSAGE: "api/message/getMessage",
   POST_MESSAGE: "api/message/postMessage",
+  READ_MESSAGE: "api/message/readMessage",
+  DELETE_MESSAGE: "api/message/deleteMessage",
 };
 
 export default requests;

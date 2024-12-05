@@ -14,6 +14,11 @@ export class Notifications {
   @Column({ type: "varchar", length: 255, comment: "종류" })
   notify_type: string;
 
-  @Column({ type: "boolean", default: false, comment: "확인 여부" })
-  confirm: boolean;
+  @Column({
+    type: "datetime",
+    nullable: false,
+    default: () => "CURRENT_TIMESTAMP",
+    comment: "생성일",
+  })
+  create_date: Date;
 }

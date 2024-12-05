@@ -4,6 +4,7 @@ export interface MessageInterface {
   sender_uid: string;
   message: string;
   confirm: boolean;
+  create_date: Date;
 }
 
 export class MessageModel implements MessageInterface {
@@ -12,6 +13,7 @@ export class MessageModel implements MessageInterface {
   sender_uid: string;
   message: string;
   confirm: boolean;
+  create_date: Date;
 
   constructor(message: MessageInterface) {
     this.UID = message.UID;
@@ -19,5 +21,6 @@ export class MessageModel implements MessageInterface {
     this.sender_uid = message.sender_uid;
     this.confirm = message.confirm;
     this.confirm = message.confirm;
+    this.create_date = message.create_date;
   }
 }

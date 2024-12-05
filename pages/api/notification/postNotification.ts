@@ -138,7 +138,7 @@ export default async function handler(
                         recipient_uid: recipientUid,
                         sender_uid: senderUid,
                         notify_type: "acceptance",
-                        confirm: false,
+                        create_date: new Date(),
                       };
 
                       const newNotify = notificationsRepository.create(notify);
@@ -187,7 +187,7 @@ export default async function handler(
                       recipient_uid: recipientUid,
                       sender_uid: senderUid,
                       notify_type: "refusal",
-                      confirm: false,
+                      create_date: new Date(),
                     };
 
                     const newNotify = notificationsRepository.create(notify);
@@ -240,7 +240,7 @@ export default async function handler(
                       recipient_uid: recipientUid,
                       sender_uid: senderUid,
                       notify_type: "memberIn",
-                      confirm: false,
+                      create_date: new Date(),
                     };
 
                     const newNotify = notificationsRepository.create(notify);
@@ -288,7 +288,7 @@ export default async function handler(
                       recipient_uid: recipientUid,
                       sender_uid: senderUid,
                       notify_type: notifyType,
-                      confirm: false,
+                      create_date: new Date(),
                     };
 
                     const newNotify = notificationsRepository.create(notify);
@@ -331,7 +331,7 @@ export default async function handler(
                     recipient_uid: recipientUid,
                     sender_uid: senderUid,
                     notify_type: notifyType,
-                    confirm: false,
+                    create_date: new Date(),
                   };
 
                   const newNotify = notificationsRepository.create(notify);

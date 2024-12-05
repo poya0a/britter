@@ -67,6 +67,7 @@ export default async function handler(
               sender_uid: uid,
               message: messageText,
               confirm: false,
+              create_date: new Date(),
             };
 
             const newMessage = messageRepository.create(message);

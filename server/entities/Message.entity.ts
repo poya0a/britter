@@ -16,4 +16,12 @@ export class Message {
 
   @Column({ type: "boolean", default: false, comment: "확인 여부" })
   confirm: boolean;
+
+  @Column({
+    type: "datetime",
+    nullable: false,
+    default: () => "CURRENT_TIMESTAMP",
+    comment: "생성일",
+  })
+  create_date: Date;
 }

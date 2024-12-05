@@ -45,6 +45,7 @@ export default function SearchPopup() {
     searchPostList,
     lastPage,
     handleSearchSpace,
+    handleSearchUser,
   } = useSearch();
   const { useInfoState } = useInfo();
   const { useSpaceState, selectedSpace, spaceMember } = useSpace();
@@ -212,6 +213,27 @@ export default function SearchPopup() {
       router.push("/");
     } else {
       toggleAlert("비공개 스페이스입니다.");
+    }
+  };
+
+  // 사용자 정보 검색
+  const handleViewUser = async (userUid: string) => {
+    // 본인
+    if (userUid === useInfoState.UID) {
+      return;
+    }
+
+    const searchUser = await handleSearchUser(userUid);
+
+    if (searchUser) {
+      // 상세 정보 바인딩
+      //   toggleMessagePopup({
+      //     isActOpen: true,
+      //     recipientUid: searchUser.UID,
+      //     recipientName: searchUser.user_name,
+      //   });
+      // } else {
+      toggleAlert("비공개 사용자입니다.");
     }
   };
 
@@ -509,14 +531,7 @@ export default function SearchPopup() {
                             key={`search-user-${index}`}
                             className={`button ${styles.goToSearchResult}`}
                             title={`${user.user_id} 님에게 메시지 보내기`}
-                            onClick={() =>
-                              // 메시지 보내기
-                              toggleMessagePopup({
-                                isActOpen: true,
-                                recipientUid: user.UID,
-                                recipientName: user.user_name,
-                              })
-                            }
+                            onClick={() => handleViewUser(user.UID)}
                           >
                             {user.user_profile_path &&
                             user.user_profile_path !== "" ? (

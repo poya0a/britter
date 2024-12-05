@@ -2,15 +2,15 @@
 import inputStyles from "@styles/components/_input.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import styles from "./page.module.scss";
-import Logo from "@/components/common/Logo";
+import Logo from "@components/common/Logo";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import PasswordInput from "@/components/input/PasswordInput";
+import PasswordInput from "@components/input/PasswordInput";
 import { ErrorMessage } from "@hookform/error-message";
 import { useForm } from "react-hook-form";
 import Alert from "@components/popup/Alert";
-import { useAlert } from "@/hooks/popup/useAlert";
-import encryptRSA from "@/utils/encryptRSA";
+import { useAlert } from "@hooks/popup/useAlert";
+import encryptRSA from "@utils/encryptRSA";
 import storage from "@fetch/auth/storage";
 
 export default function Login() {

@@ -1,14 +1,15 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
 import { getDataSource } from "@database/typeorm.config";
-import { In } from "typeorm";
+import { In, Not } from "typeorm";
 import {
   AuthenticatedRequest,
   authenticateToken,
 } from "@/server/utils/authenticateToken";
 import { Notifications } from "@entities/Notifications.entity";
-import { Space } from "@/server/entities/Space.entity";
-import { SpaceList } from "@/server/entities/SpaceList.entity";
+import { Space } from "@entities/Space.entity";
+import { SpaceList } from "@entities/SpaceList.entity";
+import { Emps } from "@entities/Emps.entity";
 
 export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,
@@ -51,34 +52,78 @@ export default async function handler(
         );
 
         const notificationsRepository = dataSource.getRepository(Notifications);
+        const empsRepository = dataSource.getRepository(Emps);
 
         const [findNotifications, totalCount] =
           await notificationsRepository.findAndCount({
             where: [
               { recipient_uid: uid },
-              { sender_uid: uid },
+              {
+                sender_uid: uid,
+              },
               {
                 recipient_uid: In(findManagedSpaces.map((space) => space.UID)),
               },
-              { sender_uid: In(findManagedSpaces.map((space) => space.UID)) },
+              {
+                sender_uid: In(findManagedSpaces.map((space) => space.UID)),
+              },
             ],
 
-            skip: (pageNumber - 1) * 10,
-            take: 10,
+            skip: (pageNumber - 1) * 50,
+            take: 50,
           });
 
-        const totalPages = Math.ceil(totalCount / 10);
+        const findName = async (type: string, uid: string) => {
+          if (type === "space") {
+            const find = await spaceRepository.findOne({
+              where: { UID: uid },
+              select: ["space_name"],
+            });
+            return find?.space_name;
+          } else if (type === "user") {
+            const find = await empsRepository.findOne({
+              where: { UID: uid },
+              select: ["user_name"],
+            });
+            return find?.user_name;
+          }
+
+          return null;
+        };
+
+        const notificationsWithName = await Promise.all(
+          findNotifications.map(async (notification) => {
+            const includedSender =
+              notification.sender_uid === uid ||
+              findManagedSpaces.some(
+                (space) => space.UID === notification.sender_uid
+              );
+
+            const name = await findName(
+              notification.sender_uid === uid ? "space" : "user",
+              includedSender
+                ? notification.recipient_uid
+                : notification.sender_uid
+            );
+            return {
+              ...notification,
+              name: name,
+            };
+          })
+        );
+
+        const totalPages = Math.ceil(totalCount / 50);
 
         const pageInfo = {
           currentPage: pageNumber,
           totalPages: totalPages,
           totalItems: totalCount,
-          itemsPerPage: 10,
+          itemsPerPage: 50,
         };
 
         return res.status(200).json({
           message: "사용자 알림 목록 조회 완료했습니다.",
-          data: findNotifications ? findNotifications : [],
+          data: notificationsWithName ? notificationsWithName : [],
           pageInfo: pageInfo,
           resultCode: true,
         });

@@ -32,8 +32,7 @@ export default function MainMenu() {
   const { useSpaceState, selectedSpace } = useSpace();
   const { usePostListState, pageSeq, setPageSeq, setType, deletePost } =
     usePost();
-  const { useNotificationState, postNotification, postLeaveNotification } =
-    useNotification();
+  const { postNotification, postLeaveNotification } = useNotification();
   const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
   const otherMenuRef = useRef<HTMLButtonElement>(null);
   const settingMenuRef = useRef<HTMLButtonElement>(null);
@@ -235,16 +234,8 @@ export default function MainMenu() {
     });
   };
 
-  const handleHome = () => {
-    router.push("/");
-  };
-
   const handleSearch = () => {
     toggleSearchPopup({ isActOpen: true, mode: "space" });
-  };
-
-  const notService = () => {
-    toggleAlert("서비스 준비 중입니다.");
   };
 
   const handleExit = (spaceUid: string) => {
@@ -400,7 +391,7 @@ export default function MainMenu() {
           <button
             type="button"
             className={`button ${styles.mainMenuDefault}`}
-            onClick={handleHome}
+            onClick={() => router.push("/")}
           >
             <img src="/images/icon/home.svg" alt="" />
             <em className="normal">홈</em>
@@ -416,7 +407,7 @@ export default function MainMenu() {
           <button
             type="button"
             className={`button ${styles.mainMenuDefault}`}
-            onClick={notService}
+            onClick={() => router.push("/inbox")}
           >
             <img src="/images/icon/inbox.svg" alt="" />
             <em className="normal">수신함</em>
@@ -453,45 +444,37 @@ export default function MainMenu() {
                   </em>
                 </button>
               )
-            ) : useNotificationState.filter(
-                (notify) =>
-                  notify.sender_uid === useInfoState.UID &&
-                  notify.notify_type === "space"
-              )[0]?.UID ? (
+            ) : selectedSpace.notify &&
+              selectedSpace.notify.notifyType === "participation" ? (
               <button
                 type="button"
                 className={`button ${styles.mainMenuDefault}`}
                 style={{ lineHeight: "20px" }}
-                onClick={() => {
-                  const notifyUid = useNotificationState.filter(
-                    (notify) =>
-                      notify.sender_uid === useInfoState.UID &&
-                      notify.notify_type === "space"
-                  )[0].UID;
-                  handleRequest(selectedSpace.UID, notifyUid, false);
-                }}
+                onClick={() =>
+                  handleRequest(
+                    selectedSpace.UID,
+                    selectedSpace.notify?.notifyUID,
+                    false
+                  )
+                }
               >
                 <img src="/images/icon/emoji_sad.svg" alt="" />
                 <em className="normal">스페이스 참여 취소</em>
               </button>
-            ) : useNotificationState.filter(
-                (notify) =>
-                  notify.recipient_uid === useInfoState.UID &&
-                  notify.notify_type === "user"
-              )[0]?.UID ? (
+            ) : selectedSpace.notify &&
+              selectedSpace.notify.notifyType === "invite" ? (
               <>
                 <button
                   type="button"
                   className={`button ${styles.mainMenuDefault}`}
                   style={{ lineHeight: "20px" }}
-                  onClick={() => {
-                    const notifyUid = useNotificationState.filter(
-                      (notify) =>
-                        notify.recipient_uid === useInfoState.UID &&
-                        notify.notify_type === "user"
-                    )[0].UID;
-                    handleRequest(selectedSpace.UID, notifyUid, true);
-                  }}
+                  onClick={() =>
+                    handleRequest(
+                      selectedSpace.UID,
+                      selectedSpace.notify?.notifyUID,
+                      true
+                    )
+                  }
                 >
                   <img src="/images/icon/emoji_smile.svg" alt="" />
                   <em className="normal">스페이스 초대 수락</em>
@@ -500,14 +483,13 @@ export default function MainMenu() {
                   type="button"
                   className={`button ${styles.mainMenuDefault}`}
                   style={{ lineHeight: "20px" }}
-                  onClick={() => {
-                    const notifyUid = useNotificationState.filter(
-                      (notify) =>
-                        notify.recipient_uid === useInfoState.UID &&
-                        notify.notify_type === "user"
-                    )[0].UID;
-                    handleRequest(selectedSpace.UID, notifyUid, false);
-                  }}
+                  onClick={() =>
+                    handleRequest(
+                      selectedSpace.UID,
+                      selectedSpace.notify?.notifyUID,
+                      false
+                    )
+                  }
                 >
                   <img src="/images/icon/emoji_sad.svg" alt="" />
                   <em className="normal">스페이스 초대 거절</em>

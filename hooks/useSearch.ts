@@ -326,6 +326,19 @@ export const useSearch = () => {
     }
   };
 
+  const handleSearchUser = async (uid: string) => {
+    const res = await fetchApi({
+      method: "GET",
+      url: `${requests.GET_USER}?searchUid=${uid}`,
+    });
+
+    if (res?.data) {
+      return res.data;
+    } else {
+      toggleAlert(res.message);
+    }
+  };
+
   return {
     useSearchState,
     setUseSearchState,
@@ -335,5 +348,6 @@ export const useSearch = () => {
     searchPostList,
     lastPage,
     handleSearchSpace,
+    handleSearchUser,
   };
 };

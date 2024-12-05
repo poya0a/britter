@@ -13,7 +13,8 @@ import { useCreatePopup } from "../popup/useCreatePopup";
 import { useToast } from "../popup/useToast";
 import { useSpaceSettingPopup } from "../popup/useSpaceSettingPopup";
 import { useSettingMenu } from "../menu/useSettingMenu";
-import { useUpdateEffect } from "@/utils/useUpdateEffect";
+import { useSearch } from "../useSearch";
+import { useUpdateEffect } from "@utils/useUpdateEffect";
 
 interface PageInfo {
   currentPage: number;
@@ -29,6 +30,10 @@ export interface SpaceData {
   space_manager: string;
   space_public: boolean;
   space_users: string[];
+  notify?: {
+    notifyUID: string;
+    notifyType: string;
+  };
 }
 
 interface SpaceListResponse {
@@ -96,6 +101,7 @@ export const useSpace = () => {
   const { toggleCreatePopup } = useCreatePopup();
   const { toggleSettingMenu } = useSettingMenu();
   const { toggleSpaceSettingPopup } = useSpaceSettingPopup();
+  const { handleSearchSpace } = useSearch();
 
   const fetchSpace = async (): Promise<SpaceData[]> => {
     try {
@@ -259,9 +265,14 @@ export const useSpace = () => {
             updatedList.find((item) => item.UID === space[0].UID) || {};
           queryClient.setQueryData(["selectedSpace"], findSpace);
         } else {
-          const findSpace =
-            updatedList.find((item) => item.UID === selectedSpaceUid) || {};
-          queryClient.setQueryData(["selectedSpace"], findSpace);
+          const findSpace = updatedList.find(
+            (item) => item.UID === selectedSpaceUid
+          );
+          if (findSpace) {
+            queryClient.setQueryData(["selectedSpace"], findSpace);
+          } else {
+            handleSearchSpace(selectedSpaceUid);
+          }
         }
       }
     };

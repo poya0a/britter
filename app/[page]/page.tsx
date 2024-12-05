@@ -48,7 +48,7 @@ import { useSpace } from "@hooks/user/useSpace";
 import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
 import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
 import { usePostFolderPopup } from "@hooks/popup/usePostFolderPopup";
-import PostFolderPopup from "@components/popup/postFolderPopup";
+import PostFolderPopup from "@components/popup/PostFolderPopup";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
 import SearchPopup from "@components/popup/SearchPopup";
 import { useURLPopup } from "@hooks/popup/useURLPopup";

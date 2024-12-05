@@ -19,24 +19,43 @@ export default async function handler(
     const spaceUid = req.query.spaceUid as string;
     const searchUid = req.query.searchUid as string;
 
-    if (req.user && spaceUid && searchUid) {
+    if (req.user && searchUid) {
+      // 토큰 이용하여 UID GET
+      const uid = req.user.claims.UID;
       try {
         const dataSource = await getDataSource();
         const empsRepository = dataSource.getRepository(Emps);
         const notificationsRepository = dataSource.getRepository(Notifications);
         const findUser = await empsRepository.findOne({
-          where: { UID: searchUid },
+          where:
+            searchUid === uid
+              ? { UID: searchUid }
+              : { UID: searchUid, user_public: true },
           select: [
             "UID",
             "user_profile_seq",
             "user_id",
             "user_name",
+            "user_hp",
+            "user_email",
+            "user_nick_name",
+            "user_birth",
             "user_nick_name",
             "user_public",
+            "create_date",
+            "status_emoji",
+            "status_message",
           ],
         });
 
-        if (findUser) {
+        if (!findUser) {
+          return res.status(200).json({
+            message: "검색 결과가 없습니다.",
+            resultCode: true,
+          });
+        }
+
+        if (spaceUid) {
           const notify = await notificationsRepository.findOne({
             where: [
               {
@@ -76,7 +95,8 @@ export default async function handler(
           }
         } else {
           return res.status(200).json({
-            message: "검색 결과가 없습니다.",
+            message: "검색 완료했습니다.",
+            data: findUser,
             resultCode: true,
           });
         }

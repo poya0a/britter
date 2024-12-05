@@ -21,7 +21,7 @@ import { useCreatePopup } from "@hooks/popup/useCreatePopup";
 import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
 import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
 import { usePostFolderPopup } from "@hooks/popup/usePostFolderPopup";
-import PostFolderPopup from "@components/popup/postFolderPopup";
+import PostFolderPopup from "@components/popup/PostFolderPopup";
 import { useMessagePopup } from "@hooks/popup/useMessagePopup";
 import MessagePopup from "@components/popup/MessagePopup";
 

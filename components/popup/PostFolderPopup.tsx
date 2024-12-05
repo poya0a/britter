@@ -83,7 +83,7 @@ export default function PostFolderPopup() {
   };
 
   return (
-    <div className={styles.popup} data-ignore-outside-click>
+    <div className={styles.popup}>
       <div
         className={styles.dim}
         onClick={() =>

@@ -3,7 +3,7 @@ export interface NofiticationsInterface {
   recipient_uid: string;
   sender_uid: string;
   notify_type: string;
-  confirm: boolean;
+  create_date: Date;
 }
 
 export class NofiticationsModel implements NofiticationsInterface {
@@ -11,13 +11,13 @@ export class NofiticationsModel implements NofiticationsInterface {
   recipient_uid: string;
   sender_uid: string;
   notify_type: string;
-  confirm: boolean;
+  create_date: Date;
 
   constructor(notification: NofiticationsInterface) {
     this.UID = notification.UID;
     this.recipient_uid = notification.recipient_uid;
     this.sender_uid = notification.sender_uid;
     this.notify_type = notification.notify_type;
-    this.confirm = notification.confirm;
+    this.create_date = notification.create_date;
   }
 }

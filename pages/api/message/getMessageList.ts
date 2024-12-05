@@ -1,100 +1,94 @@
-// "use server";
-// import { NextApiResponse, NextApiRequest } from "next";
-// import { getDataSource } from "@database/typeorm.config";
-// import { In } from "typeorm";
-// import {
-//   AuthenticatedRequest,
-//   authenticateToken,
-// } from "@/server/utils/authenticateToken";
-// import { Notifications } from "@entities/Notifications.entity";
-// import { Space } from "@/server/entities/Space.entity";
-// import { SpaceList } from "@/server/entities/SpaceList.entity";
+"use server";
+import { NextApiResponse, NextApiRequest } from "next";
+import { getDataSource } from "@database/typeorm.config";
+import {
+  AuthenticatedRequest,
+  authenticateToken,
+} from "@/server/utils/authenticateToken";
+import { Emps } from "@entities/Emps.entity";
+import { Message } from "@entities/Message.entity";
 
-// export default async function handler(
-//   req: AuthenticatedRequest & NextApiRequest,
-//   res: NextApiResponse
-// ) {
-//   if (req.method !== "GET") {
-//     return res.status(405).json({ message: "잘못된 메소드입니다." });
-//   }
+export default async function handler(
+  req: AuthenticatedRequest & NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ message: "잘못된 메소드입니다." });
+  }
 
-//   authenticateToken(req, res, async () => {
-//     if (req.user) {
-//       // 토큰 이용하여 UID GET
-//       const uid = req.user.claims.UID;
+  authenticateToken(req, res, async () => {
+    if (req.user) {
+      // 토큰 이용하여 UID GET
+      const uid = req.user.claims.UID;
 
-//       try {
-//         const pageNumber = parseInt(req.query.page as string);
-//         const dataSource = await getDataSource();
-//         const spaceListRepository = dataSource.getRepository(SpaceList);
-//         const spaceRepository = dataSource.getRepository(Space);
+      try {
+        const messageType = req.query.type;
+        const pageNumber = parseInt(req.query.page as string);
+        const dataSource = await getDataSource();
 
-//         const findSpaceList = await spaceListRepository.findOne({
-//           where: { UID: uid },
-//         });
+        const messageRepository = dataSource.getRepository(Message);
+        const empsRepository = dataSource.getRepository(Emps);
 
-//         if (!findSpaceList || findSpaceList.space.length === 0) {
-//           return res.status(200).json({
-//             message: "사용자 정보를 찾을 수 없습니다.",
-//             resultCode: false,
-//           });
-//         }
+        const [findMessageList, totalCount] =
+          await messageRepository.findAndCount({
+            where:
+              messageType === "receivedMessage"
+                ? { recipient_uid: uid }
+                : { sender_uid: uid },
+            skip: (pageNumber - 1) * 20,
+            take: 20,
+          });
 
-//         const findSpace = await spaceRepository.find({
-//           where: {
-//             UID: In(findSpaceList.space),
-//           },
-//         });
+        const messageListWithName = await Promise.all(
+          findMessageList.map(async (message) => {
+            const findName = await empsRepository.findOne({
+              where: {
+                UID:
+                  message.sender_uid === uid
+                    ? message.recipient_uid
+                    : message.sender_uid,
+              },
+              select: ["user_name"],
+            });
+            return {
+              ...message,
+              message:
+                message.message.length <= 100
+                  ? message.message
+                  : message.message.slice(0, 100) + "...",
+              name: findName?.user_name,
+            };
+          })
+        );
 
-//         const findManagedSpaces = findSpace.filter(
-//           (space) => space.space_manager === uid
-//         );
+        const totalPages = Math.ceil(totalCount / 20);
 
-//         const notificationsRepository = dataSource.getRepository(Notifications);
+        const pageInfo = {
+          currentPage: pageNumber,
+          totalPages: totalPages,
+          totalItems: totalCount,
+          itemsPerPage: 20,
+        };
 
-//         const [findNotifications, totalCount] =
-//           await notificationsRepository.findAndCount({
-//             where: [
-//               { recipient_uid: uid },
-//               { sender_uid: uid },
-//               {
-//                 recipient_uid: In(findManagedSpaces.map((space) => space.UID)),
-//               },
-//               { sender_uid: In(findManagedSpaces.map((space) => space.UID)) },
-//             ],
-
-//             skip: (pageNumber - 1) * 10,
-//             take: 10,
-//           });
-
-//         const totalPages = Math.ceil(totalCount / 10);
-
-//         const pageInfo = {
-//           currentPage: pageNumber,
-//           totalPages: totalPages,
-//           totalItems: totalCount,
-//           itemsPerPage: 10,
-//         };
-
-//         return res.status(200).json({
-//           message: "사용자 알림 목록 조회 완료했습니다.",
-//           data: findNotifications ? findNotifications : [],
-//           pageInfo: pageInfo,
-//           resultCode: true,
-//         });
-//       } catch (error) {
-//         return res.status(500).json({
-//           message:
-//             typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
-//           error: error,
-//           resultCode: false,
-//         });
-//       }
-//     } else {
-//       return res.status(200).json({
-//         message: "사용자 정보를 찾을 수 없습니다.",
-//         resultCode: false,
-//       });
-//     }
-//   });
-// }
+        return res.status(200).json({
+          message: "메시지 목록 조회 완료했습니다.",
+          data: messageListWithName ? messageListWithName : [],
+          pageInfo: pageInfo,
+          resultCode: true,
+        });
+      } catch (error) {
+        return res.status(500).json({
+          message:
+            typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          error: error,
+          resultCode: false,
+        });
+      }
+    } else {
+      return res.status(200).json({
+        message: "사용자 정보를 찾을 수 없습니다.",
+        resultCode: false,
+      });
+    }
+  });
+}

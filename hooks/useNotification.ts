@@ -16,7 +16,8 @@ export interface NotificationData {
   recipient_uid: string;
   sender_uid: string;
   notify_type: string;
-  confirm: boolean;
+  create_date: Date;
+  name?: string;
 }
 
 export interface NotificationResponse {
@@ -183,6 +184,11 @@ export const useNotification = () => {
         ),
       }));
     }
+
+    // 스페이스 접속 상태에서 이벤트 실행했을 때 화면 업데이트
+    if (storage.getSpaceUid() === res.data.UID) {
+      queryClient.setQueryData(["selectedSpace"], res.data);
+    }
     queryClient.refetchQueries({ queryKey: ["space"] });
   };
 
@@ -210,6 +216,7 @@ export const useNotification = () => {
   return {
     useNotificationState,
     pageNo,
+    setPageNo,
     lastPage,
     fetchNotification,
     postNotification,

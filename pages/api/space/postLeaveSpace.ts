@@ -117,7 +117,7 @@ export default async function handler(
                 recipient_uid: exitUid,
                 sender_uid: senderUid,
                 notify_type: "memberOut",
-                confirm: false,
+                create_date: new Date(),
               };
 
               const newNotify = notificationsRepository.create(notify);
@@ -168,7 +168,7 @@ export default async function handler(
                 recipient_uid: exitUid,
                 sender_uid: senderUid,
                 notify_type: "memberOut",
-                confirm: false,
+                create_date: new Date(),
               };
 
               const newNotify = notificationsRepository.create(notify);

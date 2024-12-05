@@ -6,15 +6,15 @@ import {
   authenticateToken,
 } from "@/server/utils/authenticateToken";
 import { Message } from "@entities/Message.entity";
-import { Emps } from "@entities/Emps.entity";
 
 export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== "GET") {
+  if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
+  const { messageUid } = JSON.parse(req.body);
 
   authenticateToken(req, res, async () => {
     if (req.user) {
@@ -22,49 +22,31 @@ export default async function handler(
       const uid = req.user.claims.UID;
 
       try {
-        const messageUid = req.query.messageUid;
         const dataSource = await getDataSource();
-
         const messageRepository = dataSource.getRepository(Message);
-        const empsRepository = dataSource.getRepository(Emps);
 
-        if (messageUid && typeof messageUid === "string" && messageUid !== "") {
-          const findMessage = await messageRepository.findOne({
-            where: {
-              UID: messageUid,
-            },
-          });
+        const findMessage = await messageRepository.findOne({
+          where: { UID: messageUid },
+        });
 
-          if (findMessage) {
-            const findName = await empsRepository.findOne({
-              where: {
-                UID:
-                  findMessage.sender_uid === uid
-                    ? findMessage.recipient_uid
-                    : findMessage.sender_uid,
-              },
-              select: ["user_name"],
-            });
-
-            const messageListWithName = {
-              ...findMessage,
-              name: findName?.user_name,
-            };
+        if (findMessage) {
+          if (findMessage.sender_uid === uid) {
+            await messageRepository.delete(findMessage.UID);
 
             return res.status(200).json({
-              message: "메시지 조회 완료했습니다.",
-              data: messageListWithName,
+              message: "메시지가 삭제되었습니다.",
+              data: { uid: findMessage.UID },
               resultCode: true,
             });
           } else {
             return res.status(200).json({
-              message: "삭제된 메시지입니다.",
+              message: "메시지는 작성자만 삭제할 수 있습니다.",
               resultCode: false,
             });
           }
         } else {
           return res.status(200).json({
-            message: "메시지 정보가 올바르지 않습니다.",
+            message: "삭제된 메시지입니다.",
             resultCode: false,
           });
         }
