@@ -4,7 +4,7 @@ import { getDataSource } from "@database/typeorm.config";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 import { Post } from "@entities/Post.entity";
 
 export default async function handler(

@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import styles from "./page.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
-import { useNotification } from "@hooks/useNotification";
-import { useMessage } from "@hooks/useMessage";
+import { useNotification } from "@hooks/user/useNotification";
+import { useMessage } from "@hooks/user/useMessage";
 import { useInfo } from "@hooks/user/useInfo";
 import MessageViewPopup from "@components/popup/MessageViewPopup";
 import MessagePopup from "@components/popup/MessagePopup";
@@ -169,7 +169,7 @@ export default function Page() {
                         <button
                           type="button"
                           className={`button ${styles.closeButton}`}
-                          title="닫 기"
+                          title="삭 제"
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleFnAndCancelAlert({

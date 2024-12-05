@@ -4,7 +4,7 @@ import { getDataSource } from "@database/typeorm.config";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 import { Emps } from "@entities/Emps.entity";
 import { Message } from "@entities/Message.entity";
 

@@ -5,9 +5,9 @@ import { Post } from "@entities/Post.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
-import { extractImgDataSeq } from "@/server/utils/extractImgDataSeq";
-import { handleFileDelete } from "@/server/utils/fileDelete";
+} from "@server/utils/authenticateToken";
+import { extractImgDataSeq } from "@server/utils/extractImgDataSeq";
+import { handleFileDelete } from "@server/utils/fileDelete";
 import { Repository } from "typeorm";
 
 export default async function handler(

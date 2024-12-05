@@ -24,6 +24,10 @@ import { usePostFolderPopup } from "@hooks/popup/usePostFolderPopup";
 import PostFolderPopup from "@components/popup/PostFolderPopup";
 import { useMessagePopup } from "@hooks/popup/useMessagePopup";
 import MessagePopup from "@components/popup/MessagePopup";
+import { useUserViewPopup } from "@hooks/popup/useUserViewPopup";
+import UserViewPopup from "@components/popup/UserViewPopup";
+import { useUserSettingPopup } from "@hooks/popup/useUserSettingPopup";
+import UserSettingPopup from "@components/popup/UserSettingPopup";
 
 export default function Home() {
   const { useAlertState } = useAlert();
@@ -36,6 +40,8 @@ export default function Home() {
   const { useSpaceSettingState } = useSpaceSettingPopup();
   const { usePostFolderPopupState } = usePostFolderPopup();
   const { useMessagePopupState } = useMessagePopup();
+  const { useUserViewPopupState } = useUserViewPopup();
+  const { useUserSettingPopupState } = useUserSettingPopup();
   const pathname = usePathname();
   const userToken = storage.getAccessToken();
 
@@ -61,6 +67,8 @@ export default function Home() {
       {useSpaceSettingState.isActOpen && <SpaceSettingPopup />}
       {usePostFolderPopupState.isActOpen && <PostFolderPopup />}
       {useMessagePopupState.isActOpen && <MessagePopup />}
+      {useUserViewPopupState.isActOpen && <UserViewPopup />}
+      {useUserSettingPopupState.isActOpen && <UserSettingPopup />}
       {useAlertState.isActOpen && <Alert />}
       {useRouteAlertState.isActOpen && <RoutAlert />}
       {useFnAndCancelAlertState.isActOpen && <FnAndCancelAlert />}

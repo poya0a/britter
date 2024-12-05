@@ -2,11 +2,11 @@
 import { NextApiResponse, NextApiRequest } from "next";
 import { getDataSource } from "@database/typeorm.config";
 import { Space } from "@entities/Space.entity";
-import { Notifications } from "@/server/entities/Notifications.entity";
+import { Notifications } from "@entities/Notifications.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 
 export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,

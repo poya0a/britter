@@ -1,5 +1,5 @@
 "use client";
-import { useFnAndCancelAlert } from "@/hooks/popup/useFnAndCancelAlert";
+import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 

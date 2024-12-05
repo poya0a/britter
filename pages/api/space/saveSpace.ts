@@ -5,11 +5,11 @@ import { Space } from "@entities/Space.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 import { DeepPartial } from "typeorm";
 import { v4 as uuidv4 } from "uuid";
 import { SpaceList } from "@entities/SpaceList.entity";
-import { Emps } from "@/server/entities/Emps.entity";
+import { Emps } from "@entities/Emps.entity";
 
 export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,

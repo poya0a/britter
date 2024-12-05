@@ -4,9 +4,9 @@ import { getDataSource } from "@database/typeorm.config";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 import { Emps } from "@entities/Emps.entity";
-import { Notifications } from "@/server/entities/Notifications.entity";
+import { Notifications } from "@entities/Notifications.entity";
 
 export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,
@@ -38,7 +38,6 @@ export default async function handler(
             "user_name",
             "user_hp",
             "user_email",
-            "user_nick_name",
             "user_birth",
             "user_nick_name",
             "user_public",

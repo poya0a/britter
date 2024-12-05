@@ -1,5 +1,5 @@
 import { useState, ChangeEvent } from "react";
-import { useMessagePopup } from "@/hooks/popup/useMessagePopup";
+import { useMessagePopup } from "@hooks/popup/useMessagePopup";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 

@@ -5,10 +5,9 @@ import { Post } from "@entities/Post.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 import { v4 as uuidv4 } from "uuid";
 import formidable from "formidable";
-import { Repository } from "typeorm";
 import { Space } from "@entities/Space.entity";
 
 export const config = {

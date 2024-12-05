@@ -6,7 +6,7 @@ import { Private } from "@entities/Private.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 
 export default async function handler(
   req: AuthenticatedRequest,

@@ -27,6 +27,7 @@
       "@app/*": ["./app/*"],
       "@fetch/*": ["./app/fetch/*"],
       "@api/*": ["./pages/api/*"],
+      "@server/*": ["./server/*"],
       "@database/*": ["./server/database/*"],
       "@entities/*": ["./server/entities/*"],
       "@models/*": ["./server/models/*"],

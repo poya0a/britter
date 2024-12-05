@@ -4,10 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Editor } from "@tiptap/core";
 import { useEditor } from "@hooks/useEditor";
 import { SketchPicker, ColorResult } from "react-color";
-import { useMainMenuWidth } from "@/hooks/menu/useMainMenuWidth";
+import { useMainMenuWidth } from "@hooks/menu/useMainMenuWidth";
 import { useToolBarHeight } from "@hooks/useToolBarHeight";
-import { usePost } from "@hooks/usePost";
-import { useUpdateEffect } from "@/utils/useUpdateEffect";
+import { usePost } from "@hooks/user/usePost";
+import { useUpdateEffect } from "@utils/useUpdateEffect";
 import { useURLPopup } from "@hooks/popup/useURLPopup";
 
 const isTablePresent = (editor: Editor): boolean => {

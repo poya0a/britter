@@ -5,11 +5,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
 import storage from "@fetch/auth/storage";
-import { useAlert } from "./popup/useAlert";
-import { useRouteAlert } from "./popup/useRouteAlert";
-import { useToast } from "./popup/useToast";
-import { searchData } from "./useSearch";
-import { SpaceData } from "./user/useSpace";
+import { useAlert } from "../popup/useAlert";
+import { useRouteAlert } from "../popup/useRouteAlert";
+import { useToast } from "../popup/useToast";
+import { searchData } from "../useSearch";
+import { SpaceData } from "./useSpace";
 
 export interface NotificationData {
   UID: string;

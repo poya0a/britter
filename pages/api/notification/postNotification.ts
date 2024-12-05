@@ -5,13 +5,13 @@ import { Space } from "@entities/Space.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 import { DeepPartial } from "typeorm";
 import { v4 as uuidv4 } from "uuid";
-import { Notifications } from "@/server/entities/Notifications.entity";
+import { Notifications } from "@entities/Notifications.entity";
+import { Emps } from "@entities/Emps.entity";
+import { SpaceList } from "@entities/SpaceList.entity";
 import formidable from "formidable";
-import { Emps } from "@/server/entities/Emps.entity";
-import { SpaceList } from "@/server/entities/SpaceList.entity";
 
 export const config = {
   api: {

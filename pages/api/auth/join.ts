@@ -12,10 +12,10 @@ import { regexValue } from "@utils/regex";
 import { validationRules } from "@utils/errorMessage";
 import { DeepPartial } from "typeorm";
 import { EmpsInterface } from "@models/Emps.model";
-import { handleFileUpload } from "@/server/utils/fileUpload";
+import { handleFileUpload } from "@server/utils/fileUpload";
 import { Space } from "@entities/Space.entity";
 import { Terms } from "@entities/Terms.entity";
-import { SpaceList } from "@/server/entities/SpaceList.entity";
+import { SpaceList } from "@entities/SpaceList.entity";
 
 type NextApiRequestWithFormData = NextApiRequest &
   Request & {

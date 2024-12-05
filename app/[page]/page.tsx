@@ -24,15 +24,15 @@ import ToolBar from "@components/common/ToolBar";
 import { useEffect, useRef, useState } from "react";
 import styles from "./page.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
-import { useMainMenuWidth } from "@/hooks/menu/useMainMenuWidth";
+import { useMainMenuWidth } from "@hooks/menu/useMainMenuWidth";
 import { useEditor } from "@hooks/useEditor";
 import { useRouter } from "next/navigation";
 import { useToolBarHeight } from "@hooks/useToolBarHeight";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
-import { useAlert } from "@/hooks/popup/useAlert";
+import { useAlert } from "@hooks/popup/useAlert";
 import Alert from "@components/popup/Alert";
-import { PostListData, usePost } from "@hooks/usePost";
+import { PostListData, usePost } from "@hooks/user/usePost";
 import Toast from "@components/popup/Toast";
 import { useToast } from "@hooks/popup/useToast";
 import RoutAlert from "@components/popup/RouteAlert";
@@ -55,6 +55,10 @@ import { useURLPopup } from "@hooks/popup/useURLPopup";
 import URLPopup from "@components/popup/URLPopup";
 import { useMessagePopup } from "@hooks/popup/useMessagePopup";
 import MessagePopup from "@components/popup/MessagePopup";
+import { useUserViewPopup } from "@hooks/popup/useUserViewPopup";
+import UserViewPopup from "@components/popup/UserViewPopup";
+import { useUserSettingPopup } from "@hooks/popup/useUserSettingPopup";
+import UserSettingPopup from "@components/popup/UserSettingPopup";
 
 const lowlight = createLowlight(common);
 
@@ -180,6 +184,8 @@ export default function Page() {
   const { useSpaceSettingState } = useSpaceSettingPopup();
   const { useURLPopupState } = useURLPopup();
   const { useMessagePopupState } = useMessagePopup();
+  const { useUserViewPopupState } = useUserViewPopup();
+  const { useUserSettingPopupState } = useUserSettingPopup();
   const {
     usePostListState,
     usePostState,
@@ -459,6 +465,8 @@ export default function Page() {
       {useURLPopupState.isActOpen && <URLPopup />}
       {usePostFolderPopupState.isActOpen && <PostFolderPopup />}
       {useMessagePopupState.isActOpen && <MessagePopup />}
+      {useUserViewPopupState.isActOpen && <UserViewPopup />}
+      {useUserSettingPopupState.isActOpen && <UserSettingPopup />}
       {useAlertState.isActOpen && <Alert />}
       {useRouteAlertState.isActOpen && <RoutAlert />}
       {useFnAndCancelAlertState.isActOpen && <FnAndCancelAlert />}

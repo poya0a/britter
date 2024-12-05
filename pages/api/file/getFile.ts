@@ -5,7 +5,7 @@ import { File } from "@entities/File.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 
 export default async function handler(
   req: NextApiRequest & AuthenticatedRequest,

@@ -6,8 +6,8 @@ import { Emps } from "@entities/Emps.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
-import { paginate } from "@/server/utils/paginate";
+} from "@server/utils/authenticateToken";
+import { paginate } from "@server/utils/paginate";
 
 export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,

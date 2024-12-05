@@ -5,11 +5,11 @@ import { atom } from "recoil";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
-import { useAlert } from "./popup/useAlert";
-import { useRouteAlert } from "./popup/useRouteAlert";
-import { useToast } from "./popup/useToast";
+import { useAlert } from "../popup/useAlert";
+import { useRouteAlert } from "../popup/useRouteAlert";
+import { useToast } from "../popup/useToast";
 import storage from "@fetch/auth/storage";
-import { SpaceData } from "./user/useSpace";
+import { SpaceData } from "./useSpace";
 
 export interface PostListData {
   seq: string;

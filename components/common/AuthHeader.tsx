@@ -2,7 +2,7 @@
 import styles from "@styles/components/_common.module.scss";
 import Navigate from "../button/Navigate";
 import { useRouter } from "next/navigation";
-import { useRouteAndCancelAlert } from "@/hooks/popup/useRouteAndCancelAlert";
+import { useRouteAndCancelAlert } from "@hooks/popup/useRouteAndCancelAlert";
 
 interface HeaderContent {
   type: string;

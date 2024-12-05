@@ -1,5 +1,5 @@
 import { ChangeEvent, KeyboardEvent, useState } from "react";
-import { useURLPopup } from "@/hooks/popup/useURLPopup";
+import { useURLPopup } from "@hooks/popup/useURLPopup";
 import styles from "@styles/components/_popup.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";

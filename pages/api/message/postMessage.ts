@@ -4,7 +4,7 @@ import { getDataSource } from "@database/typeorm.config";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 import { DeepPartial } from "typeorm";
 import { v4 as uuidv4 } from "uuid";
 import formidable from "formidable";

@@ -3,12 +3,12 @@ import bcrypt from "bcrypt";
 import { getDataSource } from "@database/typeorm.config";
 import { Emps } from "@entities/Emps.entity";
 import { Private } from "@entities/Private.entity";
-import generateDeviceUUID from "@/server/utils/generateDeviceUUID";
+import generateDeviceUUID from "@server/utils/generateDeviceUUID";
 import {
   createAccessToken,
   createRefreshToken,
-} from "@/server/provider/jwtProvider";
-import { decryptData } from "@/server/utils/crytoService";
+} from "@server/provider/jwtProvider";
+import { decryptData } from "@server/utils/crytoService";
 
 export default async function handler(
   req: NextApiRequest,

@@ -1,7 +1,7 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getDataSource } from "@database/typeorm.config";
-import { Terms } from "@/server/entities/Terms.entity";
+import { Terms } from "@entities/Terms.entity";
 
 export default async function handler(
   req: NextApiRequest,

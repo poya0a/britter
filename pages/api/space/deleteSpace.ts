@@ -5,9 +5,9 @@ import { Space } from "@entities/Space.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 import { SpaceList } from "@entities/SpaceList.entity";
-import { Post } from "@/server/entities/Post.entity";
+import { Post } from "@entities/Post.entity";
 
 export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,

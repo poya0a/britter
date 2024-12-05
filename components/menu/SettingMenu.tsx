@@ -1,17 +1,19 @@
 import styles from "@styles/components/_menu.module.scss";
 import { useSettingMenu } from "@hooks/menu/useSettingMenu";
+import { useUserSettingPopup } from "@hooks/popup/useUserSettingPopup";
 import { SpaceData, useSpace } from "@hooks/user/useSpace";
 import { useCreatePopup } from "@hooks/popup/useCreatePopup";
 import { useInfo } from "@hooks/user/useInfo";
 import { useAlert } from "@hooks/popup/useAlert";
 import { useRouter } from "next/navigation";
-import { usePost } from "@hooks/usePost";
+import { usePost } from "@hooks/user/usePost";
 import storage from "@fetch/auth/storage";
 import Image from "next/image";
 
 export default function SettingMenu() {
   const router = useRouter();
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
+  const { toggleUserSettingPopup } = useUserSettingPopup();
   const { useInfoState } = useInfo();
   const { useSpaceState, selectedSpace } = useSpace();
   const { setPageSeq } = usePost();
@@ -74,7 +76,11 @@ export default function SettingMenu() {
           </button>
         ))}
       </div>
-      <button type="button" className="button">
+      <button
+        type="button"
+        className="button"
+        onClick={() => toggleUserSettingPopup({ isActOpen: true })}
+      >
         개인 정보 수정
       </button>
       <button type="button" className="button" onClick={handleCreateOrJoin}>

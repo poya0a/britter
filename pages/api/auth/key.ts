@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getDataSource } from "@database/typeorm.config";
 import { Private } from "@entities/Private.entity";
-import { generateKeyPair } from "@/server/utils/crytoService";
-import generateDeviceUUID from "@/server/utils/generateDeviceUUID";
+import { generateKeyPair } from "@server/utils/crytoService";
+import generateDeviceUUID from "@server/utils/generateDeviceUUID";
 
 export default async function handler(
   req: NextApiRequest,

@@ -1,4 +1,4 @@
-import { useAlert } from "@/hooks/popup/useAlert";
+import { useAlert } from "@hooks/popup/useAlert";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 

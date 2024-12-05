@@ -22,15 +22,15 @@ import {
   passwordPattern,
   phonePattern,
   regexValue,
-} from "@/utils/regex";
+} from "@utils/regex";
 import { JoinForm } from "./interface/join.interface";
-import { useAlert } from "@/hooks/popup/useAlert";
+import { useAlert } from "@hooks/popup/useAlert";
 import Alert from "@components/popup/Alert";
 import TermsModal from "./TermsModal";
-import { useVerify } from "@/hooks/auth/useVerify";
+import { useVerify } from "@hooks/auth/useVerify";
 import { getErrorMassage, getValidMassage } from "../../utils/errorMessage";
-import { TermsData, useTerms } from "@/hooks/auth/useTerms";
-import { useModal } from "@/hooks/popup/useModal";
+import { TermsData, useTerms } from "@hooks/auth/useTerms";
+import { useModal } from "@hooks/popup/useModal";
 
 export default function Join() {
   const {

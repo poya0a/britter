@@ -420,3 +420,39 @@
   }
 
 }
+
+.profile {
+  min-width: 300px;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 2px solid $main-color;
+  box-sizing: border-box;
+  h1 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-align: center;
+  }
+  .profileItem {
+    position: relative;
+    border-top: 1px solid $border-color;
+    padding: 20px 0;
+    p {
+      font-size: 14px;
+      margin: 5px 0 0 0;
+    }
+  }
+}
+
+.profileButtonWrapper {
+  width: 100%;
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  > button {
+    width: 80px;
+    height: 40px;
+  }
+}

@@ -4,7 +4,7 @@ import { usePostFolderPopup } from "@hooks/popup/usePostFolderPopup";
 import styles from "@styles/components/_popup.module.scss";
 import menuStyles from "@styles/components/_menu.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
-import { PostListData, usePost } from "@hooks/usePost";
+import { PostListData, usePost } from "@hooks/user/usePost";
 
 export default function PostFolderPopup() {
   const { usePostFolderPopupState, togglePostFolderPopup } =

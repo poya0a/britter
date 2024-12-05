@@ -195,7 +195,6 @@ export default function SpaceSettingPopup() {
                   </div>
                 </div>
                 <div className={styles.settingMenu}>
-                  <p>프로필 이미지</p>
                   <div className={inputStyles.profile}>
                     {useImageCropState.imageSource !== null &&
                     useImageCropState.imageSource !== "" ? (

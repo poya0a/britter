@@ -5,7 +5,7 @@ import {
   createAccessToken,
   createRefreshToken,
   verifyRefreshToken,
-} from "@/server/provider/jwtProvider";
+} from "@server/provider/jwtProvider";
 
 export default async function handler(
   req: NextApiRequest,

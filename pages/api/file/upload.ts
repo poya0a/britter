@@ -3,8 +3,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
-import { authenticateToken } from "@/server/utils/authenticateToken";
-import { handleFileUpload } from "@/server/utils/fileUpload";
+import { authenticateToken } from "@server/utils/authenticateToken";
+import { handleFileUpload } from "@server/utils/fileUpload";
 
 export interface NextApiRequestWithFile extends NextApiRequest {
   file: Express.Multer.File;

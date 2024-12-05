@@ -4,13 +4,13 @@ import { getDataSource } from "@database/typeorm.config";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 import { Space } from "@entities/Space.entity";
 import fs from "fs";
 import path from "path";
 import multer from "multer";
-import { handleFileUpload } from "@/server/utils/fileUpload";
-import { handleFileDelete } from "@/server/utils/fileDelete";
+import { handleFileUpload } from "@server/utils/fileUpload";
+import { handleFileDelete } from "@server/utils/fileDelete";
 
 type NextApiRequestWithFormData = NextApiRequest &
   AuthenticatedRequest &

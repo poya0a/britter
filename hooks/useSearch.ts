@@ -8,13 +8,22 @@ import { useRecoilState } from "recoil";
 import { atom } from "recoil";
 import { useAlert } from "./popup/useAlert";
 import fetchFile from "@fetch/fetchFile";
-import convertHtmlToPreviewText from "@/utils/previewText";
+import convertHtmlToPreviewText from "@utils/previewText";
 import { useInfo } from "./user/useInfo";
 import { SpaceData } from "./user/useSpace";
 
 export interface Notify {
   notifyUID: string;
   notifyType: string;
+}
+
+export interface UserData extends UserListData {
+  user_hp: string;
+  user_email: string;
+  user_birth: number;
+  create_date: Date;
+  status_emoji?: string;
+  status_message?: string;
 }
 
 export interface SpaceListData {
@@ -254,7 +263,10 @@ export const useSearch = () => {
   const useUpdateUserList = async (userList: UserListData[]) => {
     const updatedList = await Promise.all(
       userList.map(async (user: UserListData) => {
-        if (user.user_profile_seq) {
+        if (
+          user.user_profile_seq !== undefined &&
+          user.user_profile_seq !== null
+        ) {
           const user_profile_path = await fetchFile(user.user_profile_seq);
           return { ...user, user_profile_path };
         } else {
@@ -326,14 +338,17 @@ export const useSearch = () => {
     }
   };
 
-  const handleSearchUser = async (uid: string) => {
+  const handleSearchUser = async (
+    uid: string
+  ): Promise<UserData | undefined> => {
     const res = await fetchApi({
       method: "GET",
       url: `${requests.GET_USER}?searchUid=${uid}`,
     });
 
     if (res?.data) {
-      return res.data;
+      const user_profile_path = await fetchFile(res.data.user_profile_seq);
+      return { ...res.data, user_profile_path };
     } else {
       toggleAlert(res.message);
     }

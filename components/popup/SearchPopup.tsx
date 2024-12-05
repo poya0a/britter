@@ -20,12 +20,12 @@ import inputStyles from "@styles/components/_input.module.scss";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import { useSpace } from "@hooks/user/useSpace";
-import { useNotification, RequestData } from "@hooks/useNotification";
+import { useNotification, RequestData } from "@hooks/user/useNotification";
 import { useInfo } from "@hooks/user/useInfo";
-import { usePost } from "@hooks/usePost";
+import { usePost } from "@hooks/user/usePost";
 import Image from "next/image";
 import { useAlert } from "@hooks/popup/useAlert";
-import { useMessagePopup } from "@hooks/popup/useMessagePopup";
+import { useUserViewPopup } from "@hooks/popup/useUserViewPopup";
 
 export default function SearchPopup() {
   const {
@@ -53,7 +53,7 @@ export default function SearchPopup() {
   const { postNotification, postLeaveNotification } = useNotification();
   const { setType } = usePost();
   const { toggleAlert } = useAlert();
-  const { toggleMessagePopup } = useMessagePopup();
+  const { toggleUserViewPopup } = useUserViewPopup();
   const [pressEnter, setPressEnter] = useState(false);
   const [inputValue, setInputValue] = useState<string>("");
   const [prevInputValue, setPrevInputValue] = useState<string>("");
@@ -218,21 +218,12 @@ export default function SearchPopup() {
 
   // 사용자 정보 검색
   const handleViewUser = async (userUid: string) => {
-    // 본인
-    if (userUid === useInfoState.UID) {
-      return;
-    }
-
     const searchUser = await handleSearchUser(userUid);
 
     if (searchUser) {
       // 상세 정보 바인딩
-      //   toggleMessagePopup({
-      //     isActOpen: true,
-      //     recipientUid: searchUser.UID,
-      //     recipientName: searchUser.user_name,
-      //   });
-      // } else {
+      toggleUserViewPopup({ isActOpen: true, user: searchUser });
+    } else {
       toggleAlert("비공개 사용자입니다.");
     }
   };
@@ -535,7 +526,12 @@ export default function SearchPopup() {
                           >
                             {user.user_profile_path &&
                             user.user_profile_path !== "" ? (
-                              <img src={user.user_profile_path} alt="" />
+                              <Image
+                                src={user.user_profile_path}
+                                alt="profile"
+                                width={30}
+                                height={30}
+                              />
                             ) : (
                               <i className="normal">
                                 {user.user_nick_name.charAt(0)}

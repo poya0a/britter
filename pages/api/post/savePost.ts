@@ -4,14 +4,14 @@ import { getDataSource } from "@database/typeorm.config";
 import { v4 as uuidv4 } from "uuid";
 import { DeepPartial } from "typeorm";
 import { Post } from "@entities/Post.entity";
-import { Space } from "@/server/entities/Space.entity";
+import { Space } from "@entities/Space.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 import formidable from "formidable";
-import { extractImgDataSeq } from "@/server/utils/extractImgDataSeq";
-import { handleFileDelete } from "@/server/utils/fileDelete";
+import { extractImgDataSeq } from "@server/utils/extractImgDataSeq";
+import { handleFileDelete } from "@server/utils/fileDelete";
 
 export const config = {
   api: {

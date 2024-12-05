@@ -1,4 +1,4 @@
-import { useToast } from "@/hooks/popup/useToast";
+import { useToast } from "@hooks/popup/useToast";
 import styles from "@styles/components/_popup.module.scss";
 
 export default function Toast() {

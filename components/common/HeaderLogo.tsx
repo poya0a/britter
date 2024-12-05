@@ -1,4 +1,4 @@
-import { usePost } from "@/hooks/usePost";
+import { usePost } from "@hooks/user/usePost";
 import styles from "@styles/components/_common.module.scss";
 import { useRouter } from "next/navigation";
 import { useAlert } from "@hooks/popup/useAlert";
@@ -7,7 +7,7 @@ import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 import { useRouteAndCancelAlert } from "@hooks/popup/useRouteAndCancelAlert";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
 import { useCreatePopup } from "@hooks/popup/useCreatePopup";
-import { useSpaceSettingPopup } from "@/hooks/popup/useSpaceSettingPopup";
+import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
 
 export default function HeaderLogo() {
   const route = useRouter();

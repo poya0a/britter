@@ -1,6 +1,6 @@
-import { useState, ChangeEvent, useEffect } from "react";
-import { useMessage } from "@hooks/useMessage";
+import { useMessage } from "@hooks/user/useMessage";
 import { useMessagePopup } from "@hooks/popup/useMessagePopup";
+import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 
@@ -13,10 +13,19 @@ export default function MessageViewPopup({
   uid: string;
   handleClose: Function;
 }) {
-  const { message } = useMessage();
+  const { message, handleDeleteMessage } = useMessage();
   const { toggleMessagePopup } = useMessagePopup();
+  const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
 
-  const handleMessageDelete = () => {};
+  const handleMessageDelete = () => {
+    toggleFnAndCancelAlert({
+      isActOpen: true,
+      content: "삭제하시겠습니까?",
+      fn: () => {
+        handleDeleteMessage(uid);
+      },
+    });
+  };
 
   const handleMessageReceive = () => {
     if (type !== "receivedMessage") {

@@ -4,10 +4,10 @@ import { getDataSource } from "@database/typeorm.config";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 import { ILike } from "typeorm";
 import { Emps } from "@entities/Emps.entity";
-import { Notifications } from "@/server/entities/Notifications.entity";
+import { Notifications } from "@entities/Notifications.entity";
 
 export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,

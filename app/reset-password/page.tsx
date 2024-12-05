@@ -5,15 +5,15 @@ import styles from "./page.module.scss";
 import AuthHeader from "@components/common/AuthHeader";
 import PasswordInput from "@components/input/PasswordInput";
 import { useForm } from "react-hook-form";
-import { passwordPattern } from "@/utils/regex";
+import { passwordPattern } from "@utils/regex";
 import { ErrorMessage } from "@hookform/error-message";
-import { useResetPassword } from "@/hooks/auth/useResetPassword";
-import { useAlert } from "@/hooks/popup/useAlert";
+import { useResetPassword } from "@hooks/auth/useResetPassword";
+import { useAlert } from "@hooks/popup/useAlert";
 import Alert from "@components/popup/Alert";
-import { useRouteAlert } from "@/hooks/popup/useRouteAlert";
+import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 import RoutAlert from "@components/popup/RouteAlert";
 import RoutAndCancelAlert from "@components/popup/RouteAndCancelAlert";
-import { useRouteAndCancelAlert } from "@/hooks/popup/useRouteAndCancelAlert";
+import { useRouteAndCancelAlert } from "@hooks/popup/useRouteAndCancelAlert";
 
 export default function ResetPassword() {
   const {

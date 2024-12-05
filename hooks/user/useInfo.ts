@@ -1,5 +1,5 @@
-import fetchApi from "@/app/fetch/fetch";
-import requests from "@/app/fetch/requests";
+import fetchApi from "@fetch/fetch";
+import requests from "@fetch/requests";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useRecoilState } from "recoil";

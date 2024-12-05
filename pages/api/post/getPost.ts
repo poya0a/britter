@@ -5,7 +5,7 @@ import { Post } from "@entities/Post.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 
 export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,

@@ -5,7 +5,7 @@ import { In, Not } from "typeorm";
 import {
   AuthenticatedRequest,
   authenticateToken,
-} from "@/server/utils/authenticateToken";
+} from "@server/utils/authenticateToken";
 import { Notifications } from "@entities/Notifications.entity";
 import { Space } from "@entities/Space.entity";
 import { SpaceList } from "@entities/SpaceList.entity";
