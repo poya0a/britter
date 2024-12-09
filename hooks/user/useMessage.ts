@@ -62,7 +62,7 @@ export const useMessage = () => {
   const { toggleAlert } = useAlert();
   const { toggleRouteAlert } = useRouteAlert();
   const { setToast } = useToast();
-  const [type, setType] = useState<string>("receivedMessage");
+  const [type, setType] = useState<string>("");
   const [pageNo, setPageNo] = useState<number>(0);
   const [lastPage, setLastPage] = useState<boolean>(false);
 

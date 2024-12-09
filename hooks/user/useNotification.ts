@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { FetchError } from "@fetch/types";
+import fetchFile from "@fetch/fetchFile";
 import { useRecoilState, atom } from "recoil";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import fetchApi from "@fetch/fetch";
@@ -60,7 +61,7 @@ export const useNotification = () => {
     NotificationData[]
   >(notificationDataState);
 
-  const [, setUseSearchState] = useRecoilState(searchData);
+  const [useSearchState, setUseSearchState] = useRecoilState(searchData);
   const { toggleAlert } = useAlert();
   const { toggleRouteAlert } = useRouteAlert();
   const { setToast } = useToast();
@@ -177,12 +178,26 @@ export const useNotification = () => {
     });
 
     if (res?.data) {
-      setUseSearchState((prevState) => ({
-        ...prevState,
-        spaceList: prevState.spaceList?.map((space) =>
-          space.UID === res.data.UID ? res.data : space
-        ),
-      }));
+      const updateSpaceList = async () => {
+        const updatedSpaceList = await Promise.all(
+          useSearchState.spaceList?.map(async (space) => {
+            if (space.UID === res.data.UID) {
+              const space_profile_path = await fetchFile(
+                res.data.space_profile_seq
+              );
+              return { ...res.data, space_profile_path };
+            } else {
+              return space;
+            }
+          }) || []
+        );
+        setUseSearchState((prevState) => ({
+          ...prevState,
+          spaceList: updatedSpaceList,
+        }));
+      };
+
+      await updateSpaceList();
     }
 
     // 스페이스 접속 상태에서 이벤트 실행했을 때 화면 업데이트
@@ -203,12 +218,26 @@ export const useNotification = () => {
     });
 
     if (res?.data) {
-      setUseSearchState((prevState) => ({
-        ...prevState,
-        userList: prevState.userList?.map((user) =>
-          user.UID === res.data.UID ? res.data : user
-        ),
-      }));
+      const updateUserList = async () => {
+        const updatedUserList = await Promise.all(
+          useSearchState.userList?.map(async (user) => {
+            if (user.UID === res.data.UID) {
+              const user_profile_path = await fetchFile(
+                res.data.user_profile_seq
+              );
+              return { ...res.data, user_profile_path };
+            } else {
+              return user;
+            }
+          }) || []
+        );
+        setUseSearchState((prevState) => ({
+          ...prevState,
+          userList: updatedUserList,
+        }));
+      };
+
+      await updateUserList();
     }
     queryClient.refetchQueries({ queryKey: ["spaceMember"] });
   };

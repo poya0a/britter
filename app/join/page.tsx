@@ -28,7 +28,7 @@ import { useAlert } from "@hooks/popup/useAlert";
 import Alert from "@components/popup/Alert";
 import TermsModal from "./TermsModal";
 import { useVerify } from "@hooks/auth/useVerify";
-import { getErrorMassage, getValidMassage } from "../../utils/errorMessage";
+import { getErrorMassage, getValidMassage } from "@utils/errorMessage";
 import { TermsData, useTerms } from "@hooks/auth/useTerms";
 import { useModal } from "@hooks/popup/useModal";
 

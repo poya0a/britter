@@ -464,9 +464,9 @@ export default function Page() {
       {useSpaceSettingState.isActOpen && <SpaceSettingPopup />}
       {useURLPopupState.isActOpen && <URLPopup />}
       {usePostFolderPopupState.isActOpen && <PostFolderPopup />}
-      {useMessagePopupState.isActOpen && <MessagePopup />}
       {useUserViewPopupState.isActOpen && <UserViewPopup />}
       {useUserSettingPopupState.isActOpen && <UserSettingPopup />}
+      {useMessagePopupState.isActOpen && <MessagePopup />}
       {useAlertState.isActOpen && <Alert />}
       {useRouteAlertState.isActOpen && <RoutAlert />}
       {useFnAndCancelAlertState.isActOpen && <FnAndCancelAlert />}

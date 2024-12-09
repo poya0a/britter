@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./page.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import { useNotification } from "@hooks/user/useNotification";
@@ -46,6 +46,12 @@ export default function Page() {
   const { useToastState } = useToast();
   const { useMessagePopupState } = useMessagePopup();
 
+  useEffect(() => {
+    if (activeTab === "receivedMessage" || activeTab === "sentMessage") {
+      setType(activeTab);
+    }
+  }, [activeTab]);
+
   const handleMessageViewPopup = (messageUid: string, uid: string) => {
     setMessagePopupIsActOpen(true);
     fetchMessage(messageUid);
@@ -77,7 +83,6 @@ export default function Page() {
             }`}
             onClick={() => {
               setActiveTab("receivedMessage");
-              setType("receivedMessage");
             }}
           >
             받은&nbsp;메시지
@@ -89,7 +94,6 @@ export default function Page() {
             }`}
             onClick={() => {
               setActiveTab("sentMessage");
-              setType("sentMessage");
             }}
           >
             보낸&nbsp;메시지
@@ -203,7 +207,7 @@ export default function Page() {
                 })}
               {(!useMessageListState || useMessageListState.length < 1) && (
                 <p>
-                  {activeTab === "receivedMessage" ? "보낸" : "받은"} 메시지가
+                  {activeTab === "receivedMessage" ? "받은" : "보낸"} 메시지가
                   없습니다.
                 </p>
               )}

@@ -265,9 +265,6 @@ export default function SearchPopup() {
   };
 
   const handleExit = (exitUid: string, senderUid: string, exitType: string) => {
-    if (exitType === "space") {
-    } else {
-    }
     const formData = new FormData();
 
     formData.append("exitUid", exitUid);
@@ -521,7 +518,7 @@ export default function SearchPopup() {
                             type="button"
                             key={`search-user-${index}`}
                             className={`button ${styles.goToSearchResult}`}
-                            title={`${user.user_id} 님에게 메시지 보내기`}
+                            title={`${user.user_id} 님 정보`}
                             onClick={() => handleViewUser(user.UID)}
                           >
                             {user.user_profile_path &&

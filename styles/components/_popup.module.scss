@@ -422,13 +422,22 @@
 }
 
 .profile {
-  min-width: 300px;
+  max-height: calc(100vh - 200px);
+  height: auto;
+  min-width: 400px;
   width: 100%;
   height: 100%;
   padding: 10px;
   border-radius: 5px;
   border: 2px solid $main-color;
   box-sizing: border-box;
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    width: 2px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $main-color;
+  }
   h1 {
     margin-bottom: 20px;
     font-size: 20px;
@@ -442,6 +451,16 @@
       font-size: 14px;
       margin: 5px 0 0 0;
     }
+    .profileStatus {
+      width: 100%;
+      display: flex;
+      gap: 10px;
+
+    }
+  }
+  .profileWrapper {
+    position: relative;
+    padding: 20px 0;
   }
 }
 
@@ -455,4 +474,10 @@
     width: 80px;
     height: 40px;
   }
+}
+
+.emojiPickerWrapper {
+  position: absolute;
+  z-index: 6;
+  transform: translate( -5%, -108% );
 }

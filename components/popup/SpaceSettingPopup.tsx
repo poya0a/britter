@@ -3,15 +3,14 @@ import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
 import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
 import { SpaceData, SpaceMemberData, useSpace } from "@hooks/user/useSpace";
+import { useNotification } from "@hooks/user/useNotification";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useImageCrop } from "@hooks/useImageCrop";
 import { useScrollLock } from "@hooks/useScrollLock";
 import ImageCropInput from "../input/ImageCropInput";
 import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
-import FnAndCancelAlert from "./FnAndCancelAlert";
 import { useAlert } from "@hooks/popup/useAlert";
-import Alert from "./Alert";
 
 export default function SpaceSettingPopup() {
   const { useSpaceSettingState, toggleSpaceSettingPopup } =
@@ -28,6 +27,7 @@ export default function SpaceSettingPopup() {
       (space: SpaceData) => space.UID === selectedSpace?.UID
     ) || null
   );
+  const { postLeaveNotification } = useNotification();
   const { useImageCropState, setImageCustom, setImageSource } = useImageCrop();
   const imgUploadInput = useRef<HTMLInputElement | null>(null);
   const { isLocked, toggleScrollLock } = useScrollLock();
@@ -139,6 +139,16 @@ export default function SpaceSettingPopup() {
       setMemberList(serachResult);
     }
   };
+
+  const handleExit = (exitUid: string, senderUid: string, exitType: string) => {
+    const formData = new FormData();
+
+    formData.append("exitUid", exitUid);
+    formData.append("senderUid", senderUid);
+    formData.append("exitType", exitType);
+    postLeaveNotification(formData);
+  };
+
   return (
     <>
       <div className={styles.popup}>
@@ -314,7 +324,7 @@ export default function SpaceSettingPopup() {
                                 <button
                                   type="button"
                                   className={`button ${styles.goToSearchResult}`}
-                                  // title={`${space.space_name} 스페이스 이동`}
+                                  title={`${member.user_name} 님 정보`}
                                 >
                                   {member.roll === "manager" && (
                                     <strong>M</strong>
@@ -340,6 +350,15 @@ export default function SpaceSettingPopup() {
                                     type="button"
                                     style={{ width: "80px", height: "38px" }}
                                     className={buttonStyles.buttonBlue}
+                                    onClick={() => {
+                                      if (selectedSpace?.UID) {
+                                        handleExit(
+                                          member.UID,
+                                          selectedSpace.UID,
+                                          "user"
+                                        );
+                                      }
+                                    }}
                                   >
                                     내보내기
                                   </button>
@@ -362,8 +381,6 @@ export default function SpaceSettingPopup() {
         </div>
       </div>
       {isLocked && <ImageCropInput />}
-      {useAlertState.isActOpen && <Alert />}
-      {useFnAndCancelAlertState.isActOpen && <FnAndCancelAlert />}
     </>
   );
 }
