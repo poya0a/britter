@@ -6,10 +6,8 @@ import {
   authenticateToken,
 } from "@server/utils/authenticateToken";
 import formidable from "formidable";
-import bcrypt from "bcrypt";
 import { Emps } from "@entities/Emps.entity";
-import { passwordPattern, regexValue } from "@/utils/regex";
-import { Certification } from "@/server/entities/Certification.entity";
+import { Certification } from "@entities/Certification.entity";
 
 export const config = {
   api: {
@@ -85,6 +83,13 @@ export default async function handler(
             if (existinghp) {
               return res.status(200).json({
                 message: "이미 사용 중인 전화번호입니다.",
+                resultCode: false,
+              });
+            }
+
+            if (!findUser.user_certification) {
+              return res.status(200).json({
+                message: "사용자 인증 정보를 찾을 수 없습니다.",
                 resultCode: false,
               });
             }

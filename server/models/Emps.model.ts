@@ -11,7 +11,7 @@ export interface EmpsInterface {
   user_pw: string;
   user_name: string;
   user_hp: string;
-  user_certification: number;
+  user_certification?: number;
   user_email?: string;
   user_birth?: string;
   user_public: boolean;
@@ -34,7 +34,7 @@ export class EmpsModel implements EmpsInterface {
   user_pw: string;
   user_name: string;
   user_hp: string;
-  user_certification: number;
+  user_certification?: number;
   user_email?: string;
   user_birth?: string;
   user_public: boolean;

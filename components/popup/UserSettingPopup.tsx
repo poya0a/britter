@@ -69,6 +69,7 @@ export default function UserSettingPopup() {
   const [statusEmoji, setStatusEmoji] = useState<string>("");
   const [userStatus, setUserStatus] = useState<string>("");
   const [userPublic, setUserPublic] = useState<boolean>(true);
+  const [userWithdraw, setUserWithdraw] = useState<boolean>(false);
   const { toggleAlert } = useAlert();
   const { setToast } = useToast();
   const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
@@ -540,14 +541,45 @@ export default function UserSettingPopup() {
   };
 
   const handleWithdraw = () => {
-    toggleFnAndCancelAlert({
-      isActOpen: true,
-      content: "모든 정보가 삭제됩니다. 탈최하시겠습니까?",
-      fn: withdrawUserInfo,
-    });
+    const userWithdrawPw = getValues("user_withdraw_pw");
+
+    if (
+      !userWithdrawPw ||
+      userWithdrawPw === "" ||
+      userWithdrawPw === undefined
+    ) {
+      toggleAlert("회원 탈퇴를 위해 비밀번호를 입력해 주세요.");
+    } else {
+      toggleFnAndCancelAlert({
+        isActOpen: true,
+        content:
+          "매니저 권한의 스페이스와 작성한 게시글 및 모든 정보가 삭제됩니다. 탈퇴하시겠습니까?",
+        fn: withdrawUserInfo,
+      });
+    }
   };
 
-  const withdrawUserInfo = () => {};
+  const withdrawUserInfo = async () => {
+    const userWithdrawPw = getValues("user_withdraw_pw");
+    const res = await fetchApi({
+      method: "POST",
+      url: requests.POST_WITHDRAW,
+      body: JSON.stringify({ userWithdrawPw: userWithdrawPw }),
+    });
+
+    if (!res.resultCode) {
+      toggleAlert(res.message);
+      return res.message;
+    } else {
+      storage.removeToken();
+      toggleRouteAlert({
+        isActOpen: true,
+        content: res.message,
+        route: "/login",
+      });
+      queryClient.clear();
+    }
+  };
 
   const handleUpdate = () => {
     const changed = changeValueCheck();
@@ -558,6 +590,7 @@ export default function UserSettingPopup() {
       "user_pw_check",
       "user_hp",
       "verify_number",
+      "user_withdraw_pw",
     ];
 
     if (!changed) {
@@ -963,13 +996,32 @@ export default function UserSettingPopup() {
                   onClick={() => setUserPublic(!userPublic)}
                 />
               </div>
-
               <div className={styles.profileItem}>
+                {userWithdraw && (
+                  <div style={{ marginBottom: "20px" }}>
+                    <PasswordInput
+                      id="userWithdrawPw"
+                      name="비밀번호"
+                      placeholder="회원 탈퇴를 위해 비밀번호를 입력해 주세요."
+                      register={{
+                        ...register("user_withdraw_pw", {
+                          required: true,
+                        }),
+                      }}
+                    />
+                  </div>
+                )}
                 <button
                   type="button"
                   className={`button ${buttonStyles.buttonBorderRed}`}
                   title="회원 탈퇴"
-                  onClick={handleWithdraw}
+                  onClick={() => {
+                    if (!userWithdraw) {
+                      setUserWithdraw(true);
+                    } else {
+                      handleWithdraw();
+                    }
+                  }}
                 >
                   회원 탈퇴
                 </button>

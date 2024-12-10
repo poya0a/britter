@@ -5,6 +5,7 @@ const requests = {
   UPDATE_INFO: "api/user/updateInfo",
   UPDATE_PASSWORD: "api/user/updatePassword",
   UPDATE_HP: "api/user/updateHp",
+  POST_WITHDRAW: "api/user/postWithdraw",
   USER_SPACE_LIST: "api/user/spaceList",
   GET_POST_LiST: "api/post/getPostList",
   GET_POST: "api/post/getPost",
