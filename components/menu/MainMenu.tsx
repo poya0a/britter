@@ -373,12 +373,10 @@ export default function MainMenu() {
                   height={30}
                 />
               ) : (
-                <i className="normal">
-                  {useInfoState.user_nick_name.charAt(0)}
-                </i>
+                <i className="normal">{useInfoState.user_name.charAt(0)}</i>
               )}
 
-              <em className="normal">{useInfoState.user_nick_name}</em>
+              <em className="normal">{useInfoState.user_name}</em>
             </button>
             <button
               type="button"

@@ -633,20 +633,6 @@ export default function Join() {
             )}
           />
           <div className={inputStyles.inputText}>
-            <label htmlFor="userNickName">닉네임</label>
-            <input
-              type="text"
-              id="userNickName"
-              className="input"
-              placeholder="닉네임을 입력해 주세요."
-              maxLength={25}
-              {...register("user_nick_name", { required: false })}
-            />
-          </div>
-          <p className={inputStyles.guideMessage}>
-            * 닉네임을 입력하지 않는 경우 임시 닉네임이 생성됩니다.
-          </p>
-          <div className={inputStyles.inputText}>
             <label htmlFor="userBirth">생년월일</label>
             <input
               type="text"

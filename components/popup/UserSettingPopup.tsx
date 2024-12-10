@@ -1,4 +1,5 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
@@ -11,7 +12,9 @@ import { useImageCrop } from "@hooks/useImageCrop";
 import { useScrollLock } from "@hooks/useScrollLock";
 import ImageCropInput from "../input/ImageCropInput";
 import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
+import { useFnAlert } from "@hooks/popup/useFnAlert";
 import { useAlert } from "@hooks/popup/useAlert";
+import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 import PhoneNumberInput from "../input/PhoneNumberInput";
 import {
   regexValue,
@@ -22,9 +25,12 @@ import {
   passwordPattern,
 } from "@/utils/regex";
 import { getErrorMassage, getValidMassage } from "@utils/errorMessage";
-import { useVerify } from "@/hooks/auth/useVerify";
+import { useVerify } from "@hooks/auth/useVerify";
 import { ErrorMessage } from "@hookform/error-message";
 import PasswordInput from "../input/PasswordInput";
+import fetchApi from "@fetch/fetch";
+import requests from "@fetch/requests";
+import storage from "@fetch/auth/storage";
 
 export default function UserSettingPopup() {
   const {
@@ -35,12 +41,14 @@ export default function UserSettingPopup() {
     watch,
     setError,
     clearErrors,
+    reset,
     formState: { errors },
   } = useForm({ mode: "onChange" });
 
+  const queryClient = useQueryClient();
   const userProfileRef = useRef<HTMLDivElement>(null);
   const { toggleUserSettingPopup } = useUserSettingPopup();
-  const { useInfoState } = useInfo();
+  const { useInfoState, updateInfo } = useInfo();
   const { useImageCropState, setImageCustom, setImageSource } = useImageCrop();
   const imgUploadInput = useRef<HTMLInputElement | null>(null);
   const { isLocked, toggleScrollLock } = useScrollLock();
@@ -61,6 +69,8 @@ export default function UserSettingPopup() {
   const [userPublic, setUserPublic] = useState<boolean>(true);
   const { toggleAlert } = useAlert();
   const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
+  const { toggleFnAlert } = useFnAlert();
+  const { toggleRouteAlert } = useRouteAlert();
 
   useEffect(() => {
     if (useInfoState) {
@@ -327,21 +337,269 @@ export default function UserSettingPopup() {
     };
   }, [emojiPopup.isActOpen]);
 
-  const handleWarningBeforeClosing = () => {
-    // 값 변호ㅘ 체크 로직 추가
-    // if(){}
-    toggleFnAndCancelAlert({
+  const handleUpdatePassword = async () => {
+    const userOriginalPw = getValues("user_original_pw");
+    const userPw = getValues("user_pw");
+    const userPwConfirm = getValues("user_pw_check");
+    const passwordField = ["user_original_pw", "user_pw", "user_pw_check"];
+
+    if (
+      Object.keys(errors).filter((fieldName) =>
+        passwordField.includes(fieldName)
+      ).length > 0
+    ) {
+      Object.keys(errors)
+        .filter((fieldName) => passwordField.includes(fieldName))
+        .forEach((fieldName) => {
+          setError(fieldName, {
+            type: "valid",
+            message: getValidMassage(fieldName),
+          });
+        });
+    }
+    if (userPw !== userPwConfirm) {
+      setError("user_pw_check", {
+        type: "valid",
+        message: "비밀번호가 일치하지 않습니다.",
+      });
+    } else if (userOriginalPw === userPw) {
+      setError("user_pw", {
+        type: "valid",
+        message: "기존 비밀번호와 일치합니다.",
+      });
+    } else {
+      clearErrors();
+      const formData = new FormData();
+
+      formData.append("userOriginalPw", JSON.stringify(userOriginalPw));
+      formData.append("userPw", JSON.stringify(userPw));
+
+      const res = await fetchApi({
+        method: "POST",
+        url: requests.UPDATE_PASSWORD,
+        body: formData,
+      });
+
+      if (!res.resultCode) {
+        toggleAlert(res.message);
+        return res.message;
+      } else {
+        toggleFnAlert({
+          isActOpen: true,
+          content: "비밀번호가 변경되었습니다. 다시 로그인해주세요.",
+          fn: () => {
+            setUpdateUserPw(false);
+            reset();
+            toggleUserSettingPopup({ isActOpen: false });
+            logout();
+          },
+        });
+      }
+    }
+  };
+
+  const logout = async () => {
+    const res = await fetchApi({
+      method: "GET",
+      url: requests.LOGOUT,
+    });
+
+    if (!res.resultCode) {
+      toggleAlert(res.message);
+    }
+    storage.removeToken();
+    toggleRouteAlert({
       isActOpen: true,
-      content: "수정한 내용이 저장되지 않을 수 있습니다. 닫으시겠습니까?",
-      fn: () => {
-        toggleUserSettingPopup({ isActOpen: false });
+      content: res.message,
+      route: "/login",
+    });
+    queryClient.clear();
+  };
+
+  const handleUpdateHp = () => {
+    const formData = new FormData();
+
+    fetchApi({
+      method: "POST",
+      url: requests.UPDATE_HP,
+      body: formData,
+    }),
+      setUpdateUserHp(false);
+  };
+
+  const changeValueCheck = (): boolean => {
+    const data = getValues();
+    const prevData = useInfoState;
+
+    const fieldMappings = [
+      {
+        key: "userProfile",
+        newValue: useImageCropState.imageSource,
+        prevValue: prevData.user_profile_path,
+        file: useImageCropState.imageFile,
       },
+      {
+        key: "userName",
+        newValue: data.user_name,
+        prevValue: prevData.user_name,
+      },
+      {
+        key: "userEmail",
+        newValue: data.user_email,
+        prevValue: prevData.user_email,
+      },
+      {
+        key: "userBirth",
+        newValue: data.user_birth,
+        prevValue: prevData.user_birth,
+      },
+      {
+        key: "statusEmoji",
+        newValue: statusEmoji,
+        prevValue: prevData.status_emoji,
+      },
+      {
+        key: "statusMessage",
+        newValue: userStatus,
+        prevValue: prevData.status_message,
+      },
+      {
+        key: "userPublic",
+        newValue: userPublic,
+        prevValue: prevData.user_public,
+      },
+    ];
+    return fieldMappings.some(({ key, newValue, prevValue, file }) => {
+      if (key === "userProfile") {
+        return newValue !== prevValue && file;
+      }
+      return newValue !== "" && newValue !== prevValue;
     });
   };
 
-  const handleWithdraw = () => {};
+  const handleWarningBeforeClosing = () => {
+    const changed = changeValueCheck();
+    if (changed) {
+      toggleFnAndCancelAlert({
+        isActOpen: true,
+        content: "수정한 내용이 저장되지 않을 수 있습니다. 닫으시겠습니까?",
+        fn: () => {
+          toggleUserSettingPopup({ isActOpen: false });
+        },
+      });
+    } else {
+      toggleUserSettingPopup({ isActOpen: false });
+    }
+  };
 
-  const handleUpdate = () => {};
+  const handleWithdraw = () => {
+    toggleFnAndCancelAlert({
+      isActOpen: true,
+      content: "모든 정보가 삭제됩니다. 탈최하시겠습니까?",
+      fn: withdrawUserInfo,
+    });
+  };
+
+  const withdrawUserInfo = () => {};
+
+  const handleUpdate = () => {
+    const changed = changeValueCheck();
+    const emailValue = getValues("user_email");
+    const ignore = [
+      "user_original_pw",
+      "user_pw",
+      "user_pw_check",
+      "user_hp",
+      "verify_number",
+    ];
+
+    if (!changed) {
+      toggleAlert("수정된 정보가 없습니다.");
+    } // 유효성 에러
+    else if (
+      Object.keys(errors).filter((fieldName) => !ignore.includes(fieldName))
+        .length > 0
+    ) {
+      Object.keys(errors)
+        .filter((fieldName) => !ignore.includes(fieldName))
+        .forEach((fieldName) => {
+          setError(fieldName, {
+            type: "valid",
+            message: getValidMassage(fieldName),
+          });
+        });
+    } else if (
+      emailValue &&
+      emailValue !== useInfoState.user_email &&
+      !dupleCheck
+    ) {
+      setError("user_email", {
+        type: "custom",
+        message: "이메일 중복을 확인해 주세요.",
+      });
+    } else {
+      toggleFnAndCancelAlert({
+        isActOpen: true,
+        content: "저장하시겠습니까?",
+        fn: updateUserInfo,
+      });
+    }
+  };
+
+  const updateUserInfo = () => {
+    const formData = new FormData();
+    const data = getValues();
+    const prevData = useInfoState;
+
+    const fieldMappings = [
+      {
+        key: "userProfile",
+        newValue: useImageCropState.imageSource,
+        prevValue: prevData.user_profile_path,
+        file: useImageCropState.imageFile,
+      },
+      {
+        key: "userName",
+        newValue: data.user_name,
+        prevValue: prevData.user_name,
+      },
+      {
+        key: "userEmail",
+        newValue: data.user_email,
+        prevValue: prevData.user_email,
+      },
+      {
+        key: "userBirth",
+        newValue: data.user_birth,
+        prevValue: prevData.user_birth,
+      },
+      {
+        key: "statusEmoji",
+        newValue: statusEmoji,
+        prevValue: prevData.status_emoji,
+      },
+      {
+        key: "statusMessage",
+        newValue: userStatus,
+        prevValue: prevData.status_message,
+      },
+      {
+        key: "userPublic",
+        newValue: userPublic,
+        prevValue: prevData.user_public,
+      },
+    ];
+
+    fieldMappings.forEach(({ key, newValue, prevValue, file }) => {
+      if (file && key === "userProfile" && newValue !== prevValue) {
+        formData.append(key, file);
+      } else if (newValue !== "" && newValue !== prevValue) {
+        formData.append(key, JSON.stringify(newValue));
+      }
+    });
+
+    updateInfo(formData);
+  };
 
   return (
     <>
@@ -478,16 +736,16 @@ export default function UserSettingPopup() {
                 <button
                   type="button"
                   className={`button ${buttonStyles.buttonDarkBlue}`}
-                  title="비밀번호 변경"
+                  title={`비밀번호 ${updateUserPw ? "저장" : "변경"}`}
                   onClick={() => {
                     if (!updateUserPw) {
                       setUpdateUserPw(true);
                     } else {
-                      setUpdateUserPw(false);
+                      handleUpdatePassword();
                     }
                   }}
                 >
-                  비밀번호 변경
+                  비밀번호 {updateUserPw ? "저장" : "변경"}
                 </button>
               </div>
               <div className={styles.profileItem}>
@@ -497,10 +755,17 @@ export default function UserSettingPopup() {
                   </label>
                   <input
                     type="text"
-                    id="userName"
+                    id="user_name"
                     className="input"
                     maxLength={25}
                     {...register("user_name", { required: true })}
+                  />
+                  <ErrorMessage
+                    errors={errors}
+                    name="user_name"
+                    render={({ message }) => (
+                      <p className={inputStyles.errorMessage}>{message}</p>
+                    )}
                   />
                 </div>
               </div>
@@ -540,16 +805,16 @@ export default function UserSettingPopup() {
                 <button
                   type="button"
                   className={`button ${buttonStyles.buttonDarkBlue}`}
-                  title="전화번호 변경"
+                  title={`전화번호 ${updateUserHp ? "저장" : "변경"}`}
                   onClick={() => {
                     if (!updateUserHp) {
                       setUpdateUserHp(true);
                     } else {
-                      setUpdateUserHp(false);
+                      handleUpdateHp();
                     }
                   }}
                 >
-                  전화번호 변경
+                  전화번호 {updateUserHp ? "저장" : "변경"}
                 </button>
               </div>
               <div className={styles.profileItem}>
@@ -577,12 +842,39 @@ export default function UserSettingPopup() {
                       중복 확인
                     </button>
                   </div>
+                  <ErrorMessage
+                    errors={errors}
+                    name="user_email"
+                    render={({ message }) => (
+                      <p className={inputStyles.errorMessage}>{message}</p>
+                    )}
+                  />
                 </div>
               </div>
               <div className={styles.profileItem}>
                 <div className={inputStyles.inputText}>
                   <label htmlFor="user_birth">생년월일</label>
-                  <input type="text" id="user_birth" className="input" />
+                  <input
+                    type="text"
+                    id="user_birth"
+                    className="input"
+                    placeholder="YYYYMMDD"
+                    maxLength={8}
+                    {...register("user_birth", {
+                      required: false,
+                      pattern: {
+                        value: birthPattern,
+                        message: "생년월일 형식이 올바르지 않습니다.",
+                      },
+                    })}
+                  />
+                  <ErrorMessage
+                    errors={errors}
+                    name="user_birth"
+                    render={({ message }) => (
+                      <p className={inputStyles.errorMessage}>{message}</p>
+                    )}
+                  />
                 </div>
               </div>
               <div className={styles.profileItem}>

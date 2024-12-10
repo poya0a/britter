@@ -59,6 +59,8 @@ import { useUserViewPopup } from "@hooks/popup/useUserViewPopup";
 import UserViewPopup from "@components/popup/UserViewPopup";
 import { useUserSettingPopup } from "@hooks/popup/useUserSettingPopup";
 import UserSettingPopup from "@components/popup/UserSettingPopup";
+import FnAlert from "@components/popup/FnAlert";
+import { useFnAlert } from "@hooks/popup/useFnAlert";
 
 const lowlight = createLowlight(common);
 
@@ -175,6 +177,7 @@ export default function Page() {
   const { useRouteAlertState } = useRouteAlert();
   const { useFnAndCancelAlertState, toggleFnAndCancelAlert } =
     useFnAndCancelAlert();
+  const { useFnAlertState } = useFnAlert();
   const { useToastState } = useToast();
   const { useSearchState } = useSearchPopup();
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
@@ -470,6 +473,7 @@ export default function Page() {
       {useAlertState.isActOpen && <Alert />}
       {useRouteAlertState.isActOpen && <RoutAlert />}
       {useFnAndCancelAlertState.isActOpen && <FnAndCancelAlert />}
+      {useFnAlertState.isActOpen && <FnAlert />}
       {useToastState.isActOpen && <Toast />}
     </div>
   );

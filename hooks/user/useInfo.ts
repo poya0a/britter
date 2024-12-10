@@ -1,11 +1,11 @@
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { useRecoilState } from "recoil";
-import { atom } from "recoil";
-import { useAlert } from "../popup/useAlert";
+import { atom, useRecoilState } from "recoil";
 import { FetchError } from "@fetch/types";
+import { useAlert } from "../popup/useAlert";
+import { useToast } from "../popup/useToast";
 import { useRouteAlert } from "../popup/useRouteAlert";
 import storage from "@fetch/auth/storage";
 import fetchFile from "@fetch/fetchFile";
@@ -18,7 +18,6 @@ export interface InfoData {
   user_name: string;
   user_hp: string;
   user_email?: string;
-  user_nick_name: string;
   user_birth?: string;
   user_public: boolean;
   user_level: number;
@@ -37,7 +36,6 @@ export const infoState = atom<InfoData>({
     user_name: "",
     user_hp: "",
     user_email: "",
-    user_nick_name: "",
     user_birth: "",
     user_public: true,
     user_level: 1,
@@ -48,8 +46,10 @@ export const infoState = atom<InfoData>({
 });
 
 export const useInfo = () => {
+  const queryClient = useQueryClient();
   const [useInfoState, setUseInfoState] = useRecoilState<InfoData>(infoState);
   const { toggleAlert } = useAlert();
+  const { setToast } = useToast();
   const { toggleRouteAlert } = useRouteAlert();
 
   const fetchInfo = async (): Promise<InfoData> => {
@@ -104,7 +104,28 @@ export const useInfo = () => {
     }
   }, [data]);
 
+  const { mutate: updateInfo } = useMutation({
+    mutationFn: (formData: FormData) =>
+      fetchApi({
+        method: "POST",
+        url: requests.UPDATE_INFO,
+        body: formData,
+      }),
+    onSuccess: (res) => {
+      if (!res.resultCode) {
+        toggleAlert(res.message);
+      } else {
+        setToast(res.message);
+        queryClient.invalidateQueries({ queryKey: ["info"] });
+      }
+    },
+    onError: (error: FetchError) => {
+      toggleAlert(error.message);
+    },
+  });
+
   return {
     useInfoState,
+    updateInfo,
   };
 };

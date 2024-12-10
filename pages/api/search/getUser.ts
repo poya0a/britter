@@ -39,7 +39,6 @@ export default async function handler(
             "user_hp",
             "user_email",
             "user_birth",
-            "user_nick_name",
             "user_public",
             "create_date",
             "status_emoji",

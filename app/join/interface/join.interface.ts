@@ -7,7 +7,6 @@ interface JoinForm {
   user_hp: string;
   verify_number?: string;
   user_email?: string;
-  user_nick_name?: string;
   user_birth?: number;
   terms: string;
 }

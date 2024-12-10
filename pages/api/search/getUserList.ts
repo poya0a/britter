@@ -26,16 +26,12 @@ export default async function handler(
         const empsRepository = dataSource.getRepository(Emps);
         const notificationsRepository = dataSource.getRepository(Notifications);
         const [findUser, totalCount] = await empsRepository.findAndCount({
-          where: [
-            { user_id: ILike(`%${searchWord}%`) },
-            { user_nick_name: ILike(`%${searchWord}%`) },
-          ],
+          where: { user_id: ILike(`%${searchWord}%`) },
           select: [
             "UID",
             "user_profile_seq",
             "user_id",
             "user_name",
-            "user_nick_name",
             "user_public",
           ],
           skip: (pageNumber - 1) * 10,

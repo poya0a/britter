@@ -531,12 +531,12 @@ export default function SearchPopup() {
                               />
                             ) : (
                               <i className="normal">
-                                {user.user_nick_name.charAt(0)}
+                                {user.user_name.charAt(0)}
                               </i>
                             )}
                             <div>
                               <p className="normal">{user.user_id}</p>
-                              <p className="normal">{user.user_nick_name}</p>
+                              <p className="normal">{user.user_name}</p>
                             </div>
                           </button>
                           {user.UID &&

@@ -42,7 +42,6 @@ export interface UserListData {
   user_profile_path?: string;
   user_profile_seq: number;
   user_name: string;
-  user_nick_name: string;
   user_public: boolean;
   notify?: Notify;
 }

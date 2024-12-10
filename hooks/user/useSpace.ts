@@ -51,7 +51,6 @@ export interface SpaceMemberData {
   user_name: string;
   user_hp: string;
   user_email?: string;
-  user_nick_name: string;
   user_birth?: string;
   user_public: boolean;
   status_emoji?: string;

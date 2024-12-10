@@ -30,7 +30,6 @@ export default async function handler(
             "user_name",
             "user_hp",
             "user_email",
-            "user_nick_name",
             "user_birth",
             "user_public",
             "user_level",

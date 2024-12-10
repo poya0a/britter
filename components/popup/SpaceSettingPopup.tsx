@@ -33,9 +33,8 @@ export default function SpaceSettingPopup() {
   const { isLocked, toggleScrollLock } = useScrollLock();
   const [spaceName, setSpaceName] = useState<string>("");
   const [spacePublic, setSpacePublic] = useState<boolean>(true);
-  const { useAlertState, toggleAlert } = useAlert();
-  const { useFnAndCancelAlertState, toggleFnAndCancelAlert } =
-    useFnAndCancelAlert();
+  const { toggleAlert } = useAlert();
+  const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
   const [memberList, setMemberList] =
     useState<SpaceMemberData[]>(useSpaceMemeberState);
   const [inputValue, setInputValue] = useState<string>("");
@@ -134,7 +133,7 @@ export default function SpaceSettingPopup() {
     } else {
       setSearchList(true);
       const serachResult: SpaceMemberData[] = useSpaceMemeberState.filter(
-        (member) => member.user_nick_name.includes(inputValue)
+        (member) => member.user_name.includes(inputValue)
       );
       setMemberList(serachResult);
     }
@@ -337,12 +336,10 @@ export default function SpaceSettingPopup() {
                                     />
                                   ) : (
                                     <i className="normal">
-                                      {member.user_nick_name.charAt(0)}
+                                      {member.user_name.charAt(0)}
                                     </i>
                                   )}
-                                  <em className="normal">
-                                    {member.user_nick_name}
-                                  </em>
+                                  <em className="normal">{member.user_name}</em>
                                 </button>
                                 {member.UID !==
                                   selectedSpace?.space_manager && (

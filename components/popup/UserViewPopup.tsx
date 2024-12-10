@@ -37,10 +37,6 @@ export default function UserViewPopup() {
             <p>{useUserViewPopupState.user?.user_name}</p>
           </div>
           <div className={styles.profileItem}>
-            <strong>닉네임</strong>
-            <p>{useUserViewPopupState.user?.user_nick_name}</p>
-          </div>
-          <div className={styles.profileItem}>
             <strong>전화번호</strong>
             <p>{useUserViewPopupState.user?.user_hp}</p>
           </div>

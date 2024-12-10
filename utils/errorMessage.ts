@@ -11,6 +11,9 @@ const getErrorMassage = (fieldName: String) => {
     case (fieldName = "user_id"):
       return "아이디를 입력해 주세요.";
       break;
+    case (fieldName = "user_original_pw"):
+      return "비밀번호를 입력해 주세요.";
+      break;
     case (fieldName = "user_pw"):
       return "비밀번호를 입력해 주세요.";
       break;
@@ -37,6 +40,9 @@ const getValidMassage = (fieldName: String) => {
   switch (fieldName) {
     case (fieldName = "user_id"):
       return "6자리 이상 15자 이하 영문 혹은 영문과 숫자를 조합하여 입력해 주세요.";
+      break;
+    case (fieldName = "user_original_pw"):
+      return "영문, 숫자 포함 8자리 이상 50자 이하 입력해 주세요.";
       break;
     case (fieldName = "user_pw"):
       return "영문, 숫자 포함 8자리 이상 50자 이하 입력해 주세요.";
