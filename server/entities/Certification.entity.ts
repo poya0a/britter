@@ -1,19 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from "typeorm";
-import { Emps } from "./Emps.entity";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity("Certification")
 export class Certification {
   @PrimaryGeneratedColumn()
   seq: number;
-
-  @Column({ type: "varchar", nullable: true, comment: "고유번호" })
-  UID: string;
 
   @Column({ type: "varchar", nullable: false, comment: "전화번호" })
   user_hp: string;
@@ -36,8 +26,4 @@ export class Certification {
 
   @Column({ type: "datetime", nullable: true, comment: "수정일" })
   modify_date?: Date;
-
-  @ManyToOne(() => Emps, (emps) => emps.certifications)
-  @JoinColumn({ name: "UID" })
-  emps: Emps;
 }

@@ -73,14 +73,15 @@ export default function Join() {
       setImageCustom(imageURL);
       toggleScrollLock(true);
     } else {
-      alert("이미지 파일을 선택해주세요. (JPEG, PNG, GIF 형식만 지원됩니다.)");
+      alert("이미지 파일을 선택해 주세요. (JPEG, PNG, GIF 형식만 지원됩니다.)");
       e.target.value = "";
     }
   };
 
   const isValidImageType = (file: File) => {
-    const validTypes = ["image/jpeg", "image/png", "image/gif"];
-    return validTypes.includes(file.type);
+    const validTypes = ["png", "jpg", "jpeg"];
+    const extension = file.name.split(".").pop()?.toLowerCase();
+    return extension ? validTypes.includes(extension) : false;
   };
 
   const handleDupleCheck = async (type: "id" | "email") => {

@@ -31,6 +31,7 @@ import PasswordInput from "../input/PasswordInput";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
 import storage from "@fetch/auth/storage";
+import { useToast } from "@/hooks/popup/useToast";
 
 export default function UserSettingPopup() {
   const {
@@ -55,6 +56,7 @@ export default function UserSettingPopup() {
   const { useVerifyState, toggleVerify } = useVerify();
   const [updateUserPw, setUpdateUserPw] = useState<boolean>(false);
   const [updateUserHp, setUpdateUserHp] = useState<boolean>(false);
+  const [userHp, setUserHp] = useState<string>("");
   const [dupleCheck, setDupleCheck] = useState<boolean>(false);
   const emojiPickerRef = useRef<HTMLButtonElement>(null);
   const [emojiPopup, setEmojiPopup] = useState<{
@@ -68,6 +70,7 @@ export default function UserSettingPopup() {
   const [userStatus, setUserStatus] = useState<string>("");
   const [userPublic, setUserPublic] = useState<boolean>(true);
   const { toggleAlert } = useAlert();
+  const { setToast } = useToast();
   const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
   const { toggleFnAlert } = useFnAlert();
   const { toggleRouteAlert } = useRouteAlert();
@@ -75,6 +78,7 @@ export default function UserSettingPopup() {
   useEffect(() => {
     if (useInfoState) {
       setValue("user_name", useInfoState.user_name || "");
+      setUserHp(useInfoState.user_hp);
       setValue("user_email", useInfoState.user_email || "");
       setValue("user_birth", useInfoState.user_birth || "");
       setUserPublic(useInfoState.user_public);
@@ -91,8 +95,9 @@ export default function UserSettingPopup() {
   }, []);
 
   const isValidImageType = (file: File) => {
-    const validTypes = ["image/jpeg", "image/png", "image/gif"];
-    return validTypes.includes(file.type);
+    const validTypes = ["png", "jpg", "jpeg"];
+    const extension = file.name.split(".").pop()?.toLowerCase();
+    return extension ? validTypes.includes(extension) : false;
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -356,8 +361,7 @@ export default function UserSettingPopup() {
             message: getValidMassage(fieldName),
           });
         });
-    }
-    if (userPw !== userPwConfirm) {
+    } else if (userPw !== userPwConfirm) {
       setError("user_pw_check", {
         type: "valid",
         message: "비밀번호가 일치하지 않습니다.",
@@ -365,7 +369,7 @@ export default function UserSettingPopup() {
     } else if (userOriginalPw === userPw) {
       setError("user_pw", {
         type: "valid",
-        message: "기존 비밀번호와 일치합니다.",
+        message: "기존 비밀번호와 동일합니다.",
       });
     } else {
       clearErrors();
@@ -386,7 +390,7 @@ export default function UserSettingPopup() {
       } else {
         toggleFnAlert({
           isActOpen: true,
-          content: "비밀번호가 변경되었습니다. 다시 로그인해주세요.",
+          content: "비밀번호가 변경되었습니다. 다시 로그인해 주세요.",
           fn: () => {
             setUpdateUserPw(false);
             reset();
@@ -416,15 +420,58 @@ export default function UserSettingPopup() {
     queryClient.clear();
   };
 
-  const handleUpdateHp = () => {
-    const formData = new FormData();
+  const handleUpdateHp = async () => {
+    const userHp = getValues("user_hp");
+    const hpField = ["user_hp", "verify_number"];
+    console.log(errors);
+    if (
+      Object.keys(errors).filter((fieldName) => hpField.includes(fieldName))
+        .length > 0
+    ) {
+      Object.keys(errors)
+        .filter((fieldName) => hpField.includes(fieldName))
+        .forEach((fieldName) => {
+          setError(fieldName, {
+            type: "valid",
+            message: getValidMassage(fieldName),
+          });
+        });
+    } else if (useInfoState.user_hp === userHp) {
+      setError("user_hp", {
+        type: "custom",
+        message: "기존 전화번호와 동일합니다.",
+      });
+    } else if (!useVerifyState.verify || !useVerifyState.seq) {
+      setError("user_hp", {
+        type: "custom",
+        message: "전화번호를 인증해 주세요.",
+      });
+    } else {
+      clearErrors();
+      const formData = new FormData();
 
-    fetchApi({
-      method: "POST",
-      url: requests.UPDATE_HP,
-      body: formData,
-    }),
-      setUpdateUserHp(false);
+      formData.append("userHp", JSON.stringify(userHp));
+      formData.append("userCertification", JSON.stringify(useVerifyState.seq));
+
+      const res = await fetchApi({
+        method: "POST",
+        url: requests.UPDATE_HP,
+        body: formData,
+      });
+
+      if (!res.resultCode) {
+        toggleAlert(res.message);
+        return res.message;
+      } else {
+        // 전화번호 초기화
+        setUpdateUserHp(false);
+        setDupleCheck(false);
+        setValue("user_hp", "");
+        setValue("verify_number", "");
+        setUserHp(userHp);
+        setToast("전화번호가 변경되었습니다.");
+      }
+    }
   };
 
   const changeValueCheck = (): boolean => {
@@ -773,9 +820,7 @@ export default function UserSettingPopup() {
                 {!updateUserHp ? (
                   <div className={inputStyles.inputText}>
                     <label>전화번호</label>
-                    <p style={{ margin: "5px 0 20px 0" }}>
-                      {useInfoState.user_hp}
-                    </p>
+                    <p style={{ margin: "5px 0 20px 0" }}>{userHp}</p>
                   </div>
                 ) : (
                   <div style={{ margin: "5px 0 20px 0" }}>
