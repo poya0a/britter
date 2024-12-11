@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./page.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import { useNotification } from "@hooks/user/useNotification";
@@ -19,12 +19,22 @@ import { useMessagePopup } from "@hooks/popup/useMessagePopup";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState<string>("notify");
-  const { useNotificationState } = useNotification();
+  const {
+    useNotificationState,
+    lastPage: lastPageNotify,
+    setPageNo: setPageNoNotify,
+    fetchNotification,
+  } = useNotification();
   const {
     useMessageListState,
+    type,
+    lastPage: lastPageMessage,
+    pageNo,
+    setPageNo: setPageNoMessage,
     setType,
+    fetchMessageList,
     fetchMessage,
-    handleReadMessagee,
+    handleReadMessage,
     handleDeleteMessage,
   } = useMessage();
   const { useInfoState } = useInfo();
@@ -45,10 +55,15 @@ export default function Page() {
     useFnAndCancelAlert();
   const { useToastState } = useToast();
   const { useMessagePopupState } = useMessagePopup();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (activeTab === "receivedMessage" || activeTab === "sentMessage") {
       setType(activeTab);
+      setPageNoMessage(0);
+    } else {
+      setPageNoNotify(0);
     }
   }, [activeTab]);
 
@@ -61,6 +76,55 @@ export default function Page() {
       handleClose: () => setMessagePopupIsActOpen(false),
     });
   };
+
+  const fetchMoreData = useCallback(async () => {
+    if (loading) return;
+
+    if (activeTab === "notify") {
+      if (!lastPageNotify) {
+        setLoading(true);
+        fetchNotification();
+        setLoading(false);
+      }
+    } else if (activeTab === type) {
+      if (!lastPageMessage) {
+        setLoading(true);
+        setPageNoMessage(pageNo + 1);
+        fetchMessageList();
+        setLoading(false);
+      }
+    } else {
+      setLoading(true);
+      setPageNoMessage(0);
+      fetchMessageList();
+      setLoading(false);
+    }
+  }, [
+    useNotificationState,
+    useMessageListState,
+    lastPageNotify,
+    lastPageMessage,
+    loading,
+  ]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (contentRef.current) {
+        const { scrollTop, clientHeight, scrollHeight } = contentRef.current;
+
+        if (scrollHeight - scrollTop <= clientHeight) {
+          fetchMoreData();
+        }
+      }
+    };
+
+    const refCurrent = contentRef.current;
+    refCurrent?.addEventListener("scroll", handleScroll);
+
+    return () => {
+      refCurrent?.removeEventListener("scroll", handleScroll);
+    };
+  }, [fetchMoreData]);
 
   return (
     <>
@@ -99,7 +163,7 @@ export default function Page() {
             보낸&nbsp;메시지
           </button>
         </div>
-        <div className={styles.tapWrapper}>
+        <div className={styles.tapWrapper} ref={contentRef}>
           {activeTab === "notify" ? (
             <div className={styles.notifyWrapper}>
               <p>알림은 30일 경과 후 자동 삭제됩니다.</p>
@@ -165,7 +229,7 @@ export default function Page() {
                           activeTab === "receivedMessage" &&
                           !message.confirm
                         ) {
-                          handleReadMessagee(message.UID);
+                          handleReadMessage(message.UID);
                         }
                       }}
                     >

@@ -12,6 +12,12 @@ import { useRouteAndCancelAlert } from "@hooks/popup/useRouteAndCancelAlert";
 import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
 import { useSearchPopup } from "@hooks/popup/useSearchPopup";
 import { useCreatePopup } from "@hooks/popup/useCreatePopup";
+import { useSettingMenu } from "@/hooks/menu/useSettingMenu";
+import { useSpaceSettingPopup } from "@/hooks/popup/useSpaceSettingPopup";
+import { usePostFolderPopup } from "@/hooks/popup/usePostFolderPopup";
+import { useMessagePopup } from "@/hooks/popup/useMessagePopup";
+import { useUserViewPopup } from "@/hooks/popup/useUserViewPopup";
+import { useUserSettingPopup } from "@/hooks/popup/useUserSettingPopup";
 
 export default function Header() {
   const queryClient = useQueryClient();
@@ -30,8 +36,15 @@ export default function Header() {
   const { useRouteAndCancelAlertState } = useRouteAndCancelAlert();
   const { useFnAndCancelAlertState, toggleFnAndCancelAlert } =
     useFnAndCancelAlert();
-  const { useSearchState } = useSearchPopup();
-  const { useCreateState } = useCreatePopup();
+  const { useSearchState, toggleSearchPopup } = useSearchPopup();
+  const { useCreateState, toggleCreatePopup } = useCreatePopup();
+  const { toggleSettingMenu } = useSettingMenu();
+  const { toggleSpaceSettingPopup } = useSpaceSettingPopup();
+  const { usePostFolderPopupState, togglePostFolderPopup } =
+    usePostFolderPopup();
+  const { useMessagePopupState, toggleMessagePopup } = useMessagePopup();
+  const { toggleUserViewPopup } = useUserViewPopup();
+  const { toggleUserSettingPopup } = useUserSettingPopup();
 
   const handleLogout = () => {
     toggleFnAndCancelAlert({
@@ -50,6 +63,17 @@ export default function Header() {
     if (!res.resultCode) {
       toggleAlert(res.message);
     }
+
+    // 닫기
+    toggleSearchPopup(false);
+    toggleCreatePopup(false);
+    toggleSettingMenu(false);
+    toggleSpaceSettingPopup(false);
+    togglePostFolderPopup({ ...usePostFolderPopupState, isActOpen: false });
+    toggleMessagePopup({ ...useMessagePopupState, isActOpen: false });
+    toggleUserViewPopup({ isActOpen: false });
+    toggleUserSettingPopup({ isActOpen: false });
+
     storage.removeToken();
     toggleRouteAlert({
       isActOpen: true,

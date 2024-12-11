@@ -41,20 +41,22 @@ export default function SpaceSettingPopup() {
   const [searchList, setSearchList] = useState<boolean>(false);
 
   useEffect(() => {
-    const foundSpace = useSpaceState.find(
-      (space: SpaceData) => space.UID === selectedSpace?.UID
-    );
-    if (foundSpace) {
-      setSpaceInfo(foundSpace);
-      setSpaceName(foundSpace.space_name);
-      setSpacePublic(foundSpace.space_public);
-      setImageSource(foundSpace.space_profile_path);
-    } else {
-      toggleFnAndCancelAlert({
-        isActOpen: true,
-        content: "스페이스 정보를 찾을 수 없습니다.",
-        fn: () => toggleSpaceSettingPopup(false),
-      });
+    if (selectedSpace) {
+      const foundSpace = useSpaceState.find(
+        (space: SpaceData) => space.UID === selectedSpace?.UID
+      );
+      if (foundSpace) {
+        setSpaceInfo(foundSpace);
+        setSpaceName(foundSpace.space_name);
+        setSpacePublic(foundSpace.space_public);
+        setImageSource(foundSpace.space_profile_path);
+      } else {
+        toggleFnAndCancelAlert({
+          isActOpen: true,
+          content: "스페이스 정보를 찾을 수 없습니다.",
+          fn: () => toggleSpaceSettingPopup(false),
+        });
+      }
     }
   }, [selectedSpace, useSpaceState]);
 

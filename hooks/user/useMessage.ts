@@ -80,7 +80,7 @@ export const useMessage = () => {
     mutationFn: () =>
       fetchApi({
         method: "GET",
-        url: `${requests.GET_MESSAGE_LIST}?page=${pageNo + 1}`,
+        url: `${requests.GET_MESSAGE_LIST}?type=${type}&page=${pageNo + 1}`,
       }),
     onSuccess: (res: MessageListResponse) => {
       queryClient.invalidateQueries({ queryKey: ["messageList"] });
@@ -146,7 +146,7 @@ export const useMessage = () => {
     },
   });
 
-  const handleReadMessagee = async (uid: string) => {
+  const handleReadMessage = async (uid: string) => {
     const res = await fetchApi({
       method: "POST",
       url: requests.READ_MESSAGE,
@@ -190,10 +190,14 @@ export const useMessage = () => {
   return {
     useMessageListState,
     message,
+    type,
+    pageNo,
+    lastPage,
     fetchMessageList,
     fetchMessage,
     setType,
-    handleReadMessagee,
+    setPageNo,
+    handleReadMessage,
     handleDeleteMessage,
   };
 };
