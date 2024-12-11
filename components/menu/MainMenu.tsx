@@ -34,7 +34,7 @@ export default function MainMenu() {
   const { usePostListState, pageSeq, setPageSeq, setType, deletePost } =
     usePost();
   const { postNotification, postLeaveNotification } = useNotification();
-  const {} = useMessage();
+  const { unreadMessageCount } = useMessage();
   const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
   const otherMenuRef = useRef<HTMLButtonElement>(null);
   const settingMenuRef = useRef<HTMLButtonElement>(null);
@@ -411,10 +411,8 @@ export default function MainMenu() {
           >
             <img src="/images/icon/inbox.svg" alt="" />
             <em className="normal">수신함</em>
-            {useInfoState.unread_message_count && (
-              <i className={styles.messageCount}>
-                {useInfoState.unread_message_count}
-              </i>
+            {unreadMessageCount && (
+              <i className={styles.messageCount}>{unreadMessageCount}</i>
             )}
           </button>
           {selectedSpace &&

@@ -8,7 +8,6 @@ import storage from "@fetch/auth/storage";
 import { useAlert } from "../popup/useAlert";
 import { useRouteAlert } from "../popup/useRouteAlert";
 import { useToast } from "../popup/useToast";
-import { useInfo } from "./useInfo";
 
 export interface MessageData {
   UID: string;
@@ -29,6 +28,7 @@ export interface MessageListResponse {
     totalItems: number;
     itemsPerPage: number;
   };
+  unreadMessageCount?: number;
   resultCode: boolean;
 }
 
@@ -60,10 +60,12 @@ export const useMessage = () => {
   const [useMessageListState, setUseMessageListState] =
     useRecoilState<MessageData[]>(messageListState);
 
-  const { useInfoState } = useInfo();
   const { toggleAlert } = useAlert();
   const { toggleRouteAlert } = useRouteAlert();
   const { setToast } = useToast();
+  const [unreadMessageCount, setUnreadMessageCount] = useState<number | null>(
+    null
+  );
   const [type, setType] = useState<string>("");
   const [pageNo, setPageNo] = useState<number>(0);
   const [lastPage, setLastPage] = useState<boolean>(false);
@@ -117,6 +119,11 @@ export const useMessage = () => {
         messageList.pageInfo?.currentPage === messageList.pageInfo?.totalPages
       );
     }
+    setUnreadMessageCount(
+      messageList && messageList.unreadMessageCount
+        ? messageList.unreadMessageCount
+        : null
+    );
   }, [messageList]);
 
   const { data: message } = useQuery<MessageData, Error>({
@@ -157,6 +164,7 @@ export const useMessage = () => {
 
     if (res?.data) {
       // 메시지를 읽음 상태로 화면 업데이트
+      // 안 읽은 메시지 수 업데이트
       setUseMessageListState((prevList) =>
         prevList.map((message) =>
           message.UID === uid ? { ...message, confirm: true } : message
@@ -164,15 +172,6 @@ export const useMessage = () => {
       );
 
       queryClient.invalidateQueries({ queryKey: ["messageList"] });
-      // 안 읽은 메시지 수 화면 업데이트
-      if (useInfoState.unread_message_count) {
-        if (useInfoState.unread_message_count > 1) {
-          useInfoState.unread_message_count =
-            useInfoState.unread_message_count - 1;
-        } else {
-          useInfoState.unread_message_count = undefined;
-        }
-      }
     } else {
       toggleAlert(res.message);
     }
@@ -201,6 +200,7 @@ export const useMessage = () => {
   return {
     useMessageListState,
     message,
+    unreadMessageCount,
     type,
     pageNo,
     lastPage,

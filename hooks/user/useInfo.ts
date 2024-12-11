@@ -24,7 +24,6 @@ export interface InfoData {
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
-  unread_message_count?: number;
 }
 
 export const infoState = atom<InfoData>({

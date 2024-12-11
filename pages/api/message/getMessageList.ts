@@ -70,10 +70,18 @@ export default async function handler(
           itemsPerPage: 20,
         };
 
+        // 안 읽은 메시지 수
+        const [_, unreadMessageTotalCount] =
+          await messageRepository.findAndCount({
+            where: { recipient_uid: uid, confirm: false },
+          });
+
         return res.status(200).json({
           message: "메시지 목록 조회 완료했습니다.",
           data: messageListWithName ? messageListWithName : [],
           pageInfo: pageInfo,
+          unreadMessageCount:
+            unreadMessageTotalCount > 0 ? unreadMessageTotalCount : null,
           resultCode: true,
         });
       } catch (error) {
