@@ -1,5 +1,6 @@
 import { useMessage } from "@hooks/user/useMessage";
 import { useMessagePopup } from "@hooks/popup/useMessagePopup";
+import { useAlert } from "@hooks/popup/useAlert";
 import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
@@ -15,6 +16,7 @@ export default function MessageViewPopup({
 }) {
   const { message, handleDeleteMessage } = useMessage();
   const { toggleMessagePopup } = useMessagePopup();
+  const { toggleAlert } = useAlert();
   const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
 
   const handleMessageDelete = () => {
@@ -31,12 +33,19 @@ export default function MessageViewPopup({
     if (type !== "receivedMessage") {
       return handleClose();
     }
-    // 메시지 보내기
-    toggleMessagePopup({
-      isActOpen: true,
-      recipientUid: uid,
-      recipientName: message?.name || "",
-    });
+
+    if (message && message.name) {
+      // 메시지 보내기
+      toggleMessagePopup({
+        isActOpen: true,
+        recipientUid: uid,
+        recipientName: message.name,
+      });
+    } else {
+      toggleAlert(
+        "수신인이 탈퇴했거나 정보를 찾을 수 없어 답장할 수 없습니다."
+      );
+    }
   };
 
   return (
@@ -45,7 +54,10 @@ export default function MessageViewPopup({
       <div className={styles.popupWrapper}>
         <h3>
           {type === "receivedMessage" ? "보낸" : "받는"}
-          &nbsp;사람 <strong>{message?.name || ""}</strong>
+          &nbsp;사람{" "}
+          <strong>
+            {message && message.name ? message.name : "알 수 없음"}
+          </strong>
         </h3>
         <div className={styles.messageView}>
           <p>{message?.message}</p>

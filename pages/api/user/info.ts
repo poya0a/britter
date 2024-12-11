@@ -6,6 +6,7 @@ import {
   AuthenticatedRequest,
   authenticateToken,
 } from "@server/utils/authenticateToken";
+import { Message } from "@/server/entities/Message.entity";
 
 export default async function handler(
   req: AuthenticatedRequest,
@@ -40,9 +41,19 @@ export default async function handler(
         });
 
         if (findUser) {
+          const messageRepository = dataSource.getRepository(Message);
+          const [_, totalCount] = await messageRepository.findAndCount({
+            where: { recipient_uid: uid, confirm: false },
+          });
+
+          const userWithUnreadMessageCount = {
+            ...findUser,
+            unread_message_count: totalCount,
+          };
+
           return res.status(200).json({
             message: "사용자 정보 조회 완료했습니다.",
-            data: findUser,
+            data: totalCount > 0 ? userWithUnreadMessageCount : findUser,
             resultCode: true,
           });
         } else {

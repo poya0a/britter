@@ -171,7 +171,7 @@ export default function Page() {
                 useNotificationState.map((notify, index) => (
                   <div className={styles.notify} key={`notify-${index}`}>
                     <div>
-                      {notify.name}&nbsp;
+                      {notify.name ? notify.name : "알 수 없음"}&nbsp;
                       {notify.sender_uid === useInfoState.UID
                         ? notify.notify_type === "space"
                           ? "스페이스에 참여 요청하였습니다."
@@ -256,7 +256,7 @@ export default function Page() {
                         {activeTab === "receivedMessage" ? "보낸" : "받은"}
                         &nbsp;사람
                       </h5>
-                      <h5>{message.name}</h5>
+                      <h5>{message.name ? message.name : "알 수 없음"}</h5>
                       <div>
                         <p>{message.message}</p>
                       </div>

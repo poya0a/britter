@@ -13,6 +13,7 @@ import { useSearchPopup } from "@hooks/popup/useSearchPopup";
 import { useSettingMenu } from "@hooks/menu/useSettingMenu";
 import { useSpace } from "@hooks/user/useSpace";
 import { useNotification } from "@hooks/user/useNotification";
+import { useMessage } from "@hooks/user/useMessage";
 import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
 import { usePostFolderPopup } from "@hooks/popup/usePostFolderPopup";
 import Image from "next/image";
@@ -33,6 +34,7 @@ export default function MainMenu() {
   const { usePostListState, pageSeq, setPageSeq, setType, deletePost } =
     usePost();
   const { postNotification, postLeaveNotification } = useNotification();
+  const {} = useMessage();
   const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
   const otherMenuRef = useRef<HTMLButtonElement>(null);
   const settingMenuRef = useRef<HTMLButtonElement>(null);
@@ -409,6 +411,11 @@ export default function MainMenu() {
           >
             <img src="/images/icon/inbox.svg" alt="" />
             <em className="normal">수신함</em>
+            {useInfoState.unread_message_count && (
+              <i className={styles.messageCount}>
+                {useInfoState.unread_message_count}
+              </i>
+            )}
           </button>
           {selectedSpace &&
             (useSpaceState

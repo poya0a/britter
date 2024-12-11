@@ -24,6 +24,7 @@ export interface InfoData {
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
+  unread_message_count?: number;
 }
 
 export const infoState = atom<InfoData>({
@@ -31,17 +32,12 @@ export const infoState = atom<InfoData>({
   default: {
     UID: "",
     user_profile_seq: 0,
-    user_profile_path: "",
     user_id: "",
     user_name: "",
     user_hp: "",
-    user_email: "",
-    user_birth: "",
     user_public: true,
     user_level: 1,
     create_date: new Date(),
-    status_emoji: "",
-    status_message: "",
   },
 });
 

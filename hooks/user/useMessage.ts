@@ -8,6 +8,7 @@ import storage from "@fetch/auth/storage";
 import { useAlert } from "../popup/useAlert";
 import { useRouteAlert } from "../popup/useRouteAlert";
 import { useToast } from "../popup/useToast";
+import { useInfo } from "./useInfo";
 
 export interface MessageData {
   UID: string;
@@ -59,6 +60,7 @@ export const useMessage = () => {
   const [useMessageListState, setUseMessageListState] =
     useRecoilState<MessageData[]>(messageListState);
 
+  const { useInfoState } = useInfo();
   const { toggleAlert } = useAlert();
   const { toggleRouteAlert } = useRouteAlert();
   const { setToast } = useToast();
@@ -162,6 +164,15 @@ export const useMessage = () => {
       );
 
       queryClient.invalidateQueries({ queryKey: ["messageList"] });
+      // 안 읽은 메시지 수 화면 업데이트
+      if (useInfoState.unread_message_count) {
+        if (useInfoState.unread_message_count > 1) {
+          useInfoState.unread_message_count =
+            useInfoState.unread_message_count - 1;
+        } else {
+          useInfoState.unread_message_count = undefined;
+        }
+      }
     } else {
       toggleAlert(res.message);
     }
