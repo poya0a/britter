@@ -182,12 +182,11 @@ export default async function handler(
             }
           } else {
             return res.status(200).json({
-              message: "스페이스를 찾을 수 없습니다.",
+              message: "스페이스 정보를 찾을 수 없습니다. 다시 시도해 주세요.",
               resultCode: false,
             });
           }
         } catch (error) {
-          console.log(error);
           return res.status(500).json({
             message:
               typeof error === "string" ? error : "서버 에러가 발생하였습니다.",

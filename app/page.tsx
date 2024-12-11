@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import styles from "./page.module.scss";
 import MainMenu from "@components/menu/MainMenu";
+import SpaceContent from "@components/common/SpaceContent";
 import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 import RoutAlert from "@components/popup/RouteAlert";
 import FnAndCancelAlert from "@components/popup/FnAndCancelAlert";
@@ -62,7 +63,7 @@ export default function Home() {
     <>
       <div className={styles.home}>
         <MainMenu />
-        <div />
+        <SpaceContent />
       </div>
       {useSearchState.isActOpen && <SearchPopup />}
       {useSettingMenuState.isActOpen && <SettingMenu />}

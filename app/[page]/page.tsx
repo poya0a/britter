@@ -22,7 +22,7 @@ import Highlight from "@tiptap/extension-highlight";
 import ImageResize from "tiptap-extension-resize-image";
 import ToolBar from "@components/common/ToolBar";
 import { useEffect, useRef, useState } from "react";
-import styles from "./page.module.scss";
+import styles from "@styles/components/_common.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import { useMainMenuWidth } from "@hooks/menu/useMainMenuWidth";
 import { useEditor } from "@hooks/useEditor";
@@ -167,7 +167,6 @@ function findParentTitles(
 }
 
 export default function Page() {
-  const divRef = useRef(null);
   const { useMainMenuWidthState } = useMainMenuWidth();
   const { useToolBarHeightState } = useToolBarHeight();
   const { useEditorState, setHasTableTag } = useEditor();
@@ -180,7 +179,7 @@ export default function Page() {
   const { useFnAlertState } = useFnAlert();
   const { useToastState } = useToast();
   const { useSearchState } = useSearchPopup();
-  const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
+  const { useSettingMenuState } = useSettingMenu();
   const { usePostFolderPopupState } = usePostFolderPopup();
   const { selectedSpace } = useSpace();
   const { useCreateState } = useCreatePopup();
@@ -347,7 +346,6 @@ export default function Page() {
     } else {
       setHasTableTag(false);
     }
-    toggleSettingMenu(false);
   };
 
   const handleDeletePost = () => {
@@ -373,9 +371,6 @@ export default function Page() {
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
       <MainMenu />
       <div
-        ref={divRef}
-        onClick={handleClick}
-        onTouchStart={handleClick}
         className={styles.create}
         style={{
           width: `calc(100% - ${useMainMenuWidthState}px)`,
@@ -385,6 +380,8 @@ export default function Page() {
           left: `${useMainMenuWidthState}px`,
           marginTop: `${type === "create" ? useToolBarHeightState + 46 : 30}px`,
         }}
+        onClick={handleClick}
+        onTouchStart={handleClick}
       >
         <div
           className={styles.pathname}
@@ -415,7 +412,7 @@ export default function Page() {
         {type === "create" ? (
           <EditorProvider
             extensions={extensions}
-            slotBefore={<ToolBar />}
+            slotBefore={<ToolBar titile={true} />}
             onUpdate={({ editor }) => {
               setEditorContent(editor.getHTML());
             }}
@@ -438,7 +435,6 @@ export default function Page() {
           width: `calc(100% - ${useMainMenuWidthState}px)`,
           left: `${useMainMenuWidthState}px`,
         }}
-        onClick={() => toggleSettingMenu(false)}
       >
         <div className={styles.createButtonWrapper}>
           <button

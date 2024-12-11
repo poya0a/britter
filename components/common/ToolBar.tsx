@@ -26,7 +26,13 @@ const isTablePresent = (editor: Editor): boolean => {
   return found;
 };
 
-export default function ToolBar() {
+export default function ToolBar({
+  titile,
+  content,
+}: {
+  titile: boolean;
+  content?: string;
+}) {
   const toolbarRef = useRef<HTMLDivElement>(null);
   const { handleToolBarHeight } = useToolBarHeight();
   const { useMainMenuWidthState } = useMainMenuWidth();
@@ -119,15 +125,18 @@ export default function ToolBar() {
 
   // 게시글 수정
   useEffect(() => {
+    if (content) {
+      editor.chain().setContent(content).run();
+    } else {
+      setTitle("");
+      editor.chain().setContent("").run();
+    }
     if (pageType === "create" && pageSeq.seq !== "") {
       if (!autoSaved) {
         setTitle(usePostState.title);
         editor.chain().setContent(usePostState.content).run();
         setAutoSaved(true);
       }
-    } else {
-      setTitle("");
-      editor.chain().setContent("").run();
     }
     setFontSize("14");
   }, [pageType, pageSeq.seq, usePostState]);
@@ -676,15 +685,17 @@ export default function ToolBar() {
           </div>
         )}
       </div>
-      <input
-        type="text"
-        className={`input ${styles.title}`}
-        placeholder="제목 없음"
-        maxLength={50}
-        onKeyUp={handleEnter}
-        onChange={(e) => setTitle(e.target.value)}
-        value={useEditorState.title}
-      />
+      {titile && (
+        <input
+          type="text"
+          className={`input ${styles.title}`}
+          placeholder="제목 없음"
+          maxLength={50}
+          onKeyUp={handleEnter}
+          onChange={(e) => setTitle(e.target.value)}
+          value={useEditorState.title}
+        />
+      )}
     </>
   );
 }

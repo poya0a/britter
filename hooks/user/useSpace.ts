@@ -30,6 +30,7 @@ export interface SpaceData {
   space_manager: string;
   space_public: boolean;
   space_users: string[];
+  space_content?: string;
   notify?: {
     notifyUID: string;
     notifyType: string;
@@ -244,6 +245,41 @@ export const useSpace = () => {
     },
   });
 
+  const saveSpaceContent = async (formData: FormData): Promise<boolean> => {
+    const res = await fetchApi({
+      method: "POST",
+      url: requests.POST_SPACE_CONTENT,
+      body: formData,
+    });
+
+    if (!res.resultCode) {
+      toggleAlert(res.message);
+      return false;
+    } else if (res.resultCode && res.data) {
+      setToast(res.message);
+      handleSearchSpace(res.data.uid);
+      return true;
+    }
+    return false;
+  };
+
+  const deleteSpaceContent = async (uid: string) => {
+    const res = await fetchApi({
+      method: "POST",
+      url: requests.DELETE_SPACE_CONTENT,
+      body: JSON.stringify({ spaceUid: uid }),
+    });
+
+    if (!res.resultCode) {
+      toggleAlert(res.message);
+      return false;
+    } else if (res.resultCode && res.data) {
+      setToast(res.message);
+      handleSearchSpace(res.data.uid);
+      return true;
+    }
+  };
+
   useUpdateEffect(() => {
     const updateSpace = async () => {
       if (space) {
@@ -326,5 +362,7 @@ export const useSpace = () => {
     createSpace,
     updateSpace,
     deleteSpace,
+    saveSpaceContent,
+    deleteSpaceContent,
   };
 };

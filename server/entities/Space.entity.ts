@@ -31,6 +31,9 @@ export class Space {
   })
   space_users!: string[];
 
+  @Column({ type: "text", nullable: true })
+  space_content: string | null;
+
   @Column({
     type: "datetime",
     nullable: false,

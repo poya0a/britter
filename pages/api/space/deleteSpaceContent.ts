@@ -2,7 +2,6 @@
 import { NextApiResponse, NextApiRequest } from "next";
 import { getDataSource } from "@database/typeorm.config";
 import { Space } from "@entities/Space.entity";
-import { SpaceList } from "@entities/SpaceList.entity";
 import {
   AuthenticatedRequest,
   authenticateToken,
@@ -12,9 +11,10 @@ export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== "GET") {
+  if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
+  const { spaceUid } = JSON.parse(req.body);
 
   authenticateToken(req, res, async () => {
     if (req.user) {
@@ -23,44 +23,44 @@ export default async function handler(
 
       try {
         const dataSource = await getDataSource();
-        const spaceListRepository = dataSource.getRepository(SpaceList);
 
-        const findSpaceList = await spaceListRepository.findOne({
-          where: { UID: uid },
+        if (!spaceUid) {
+          return res.status(200).json({
+            message: "스페이스 정보를 찾을 수 없습니다. 다시 시도해 주세요.",
+            resultCode: false,
+          });
+        }
+
+        // 저장하는 스페이스에 권한이 있는지 체크
+        const spaceRepository = dataSource.getRepository(Space);
+
+        const findSpace = await spaceRepository.findOne({
+          where: { UID: spaceUid },
         });
 
-        if (findSpaceList) {
-          const spaceRepository = dataSource.getRepository(Space);
+        if (findSpace) {
+          if (
+            findSpace.space_manager === uid ||
+            findSpace.space_users.includes(uid)
+          ) {
+            findSpace.space_content = null;
 
-          const foundSpaces = await Promise.all(
-            findSpaceList.space.map(async (spaceUID: string) => {
-              const space = await spaceRepository.findOne({
-                where: { UID: spaceUID },
-                select: [
-                  "UID",
-                  "space_profile_seq",
-                  "space_name",
-                  "space_manager",
-                  "space_public",
-                  "space_users",
-                  "space_content",
-                ],
-              });
+            await spaceRepository.save(findSpace);
 
-              return space;
-            })
-          );
-
-          const validSpaces = foundSpaces.filter((space) => space !== null);
-
-          return res.status(200).json({
-            message: "사용자 스페이스 목록 조회 완료했습니다.",
-            data: validSpaces,
-            resultCode: true,
-          });
+            return res.status(200).json({
+              message: "콘텐츠가 삭제되었습니다.",
+              data: { uid: findSpace.UID },
+              resultCode: true,
+            });
+          } else {
+            return res.status(200).json({
+              message: "콘텐츠 삭제 권한이 없습니다.",
+              resultCode: false,
+            });
+          }
         } else {
           return res.status(200).json({
-            message: "사용자 스페이스 목록을 찾을 수 없습니다.",
+            message: "스페이스 정보를 찾을 수 없습니다. 다시 시도해 주세요.",
             resultCode: false,
           });
         }

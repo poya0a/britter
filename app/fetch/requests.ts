@@ -23,6 +23,8 @@ const requests = {
   UPDATE_SPACE: "api/space/updateSpace",
   DELETE_SPACE: "api/space/deleteSpace",
   LEAVE_SPACE: "api/space/postLeaveSpace",
+  POST_SPACE_CONTENT: "api/space/postSpaceContent",
+  DELETE_SPACE_CONTENT: "api/space/deleteSpaceContent",
   GET_SPACE_MEMBER_LIST: "api/space/getSpaceMemberList",
   GET_NOTIFICATION_LIST: "api/notification/getNotificationList",
   POST_NOTIFICATION: "api/notification/postNotification",
