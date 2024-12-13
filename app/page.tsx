@@ -21,6 +21,8 @@ import CreatePopup from "@components/popup/CreatePopup";
 import { useCreatePopup } from "@hooks/popup/useCreatePopup";
 import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
 import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
+import { useURLPopup } from "@hooks/popup/useURLPopup";
+import URLPopup from "@components/popup/URLPopup";
 import { usePostFolderPopup } from "@hooks/popup/usePostFolderPopup";
 import PostFolderPopup from "@components/popup/PostFolderPopup";
 import { useMessagePopup } from "@hooks/popup/useMessagePopup";
@@ -42,6 +44,7 @@ export default function Home() {
   const { useSettingMenuState } = useSettingMenu();
   const { useCreateState } = useCreatePopup();
   const { useSpaceSettingState } = useSpaceSettingPopup();
+  const { useURLPopupState } = useURLPopup();
   const { usePostFolderPopupState } = usePostFolderPopup();
   const { useMessagePopupState } = useMessagePopup();
   const { useUserViewPopupState } = useUserViewPopup();
@@ -69,6 +72,7 @@ export default function Home() {
       {useSettingMenuState.isActOpen && <SettingMenu />}
       {useCreateState.isActOpen && <CreatePopup />}
       {useSpaceSettingState.isActOpen && <SpaceSettingPopup />}
+      {useURLPopupState.isActOpen && <URLPopup />}
       {usePostFolderPopupState.isActOpen && <PostFolderPopup />}
       {useUserViewPopupState.isActOpen && <UserViewPopup />}
       {useUserSettingPopupState.isActOpen && <UserSettingPopup />}

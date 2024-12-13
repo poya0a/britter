@@ -175,15 +175,15 @@ export default function ToolBar({
 
   // }, [editor]);
 
-  // 보류
   useUpdateEffect(() => {
-    if (!useURLPopupState.isActOpen && useURLPopupState.url !== "") {
-      editor
-        .chain()
-        .focus()
-        .extendMarkRange("link")
-        .setLink({ href: useURLPopupState.url })
-        .run();
+    if (!useURLPopupState.isActOpen && useURLPopupState.value.URL !== null) {
+      editor.commands.setContent(
+        `<a href="${useURLPopupState.value.URL}" target="_blank">${
+          useURLPopupState.value.label === null
+            ? useURLPopupState.value.URL
+            : useURLPopupState.value.label
+        }</a>`
+      );
     }
   }, [useURLPopupState.isActOpen]);
 

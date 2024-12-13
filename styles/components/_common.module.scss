@@ -430,6 +430,12 @@
   color: inherit;
 }
 
+.create a {
+  color: $text;
+  text-decoration: none;
+  cursor: pointer;
+}
+
 .noContent {
   position: absolute;
   top: 50%;
