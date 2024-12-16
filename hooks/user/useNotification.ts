@@ -70,20 +70,16 @@ export const useNotification = () => {
 
   const { data } = useQuery<NotificationResponse, Error>({
     queryKey: ["notification"],
-    queryFn: () =>
-      fetchApi({
-        method: "GET",
-        url: `${requests.GET_NOTIFICATION_LIST}?page=1`,
-      }),
     staleTime: 5 * 60 * 1000,
   });
 
   const { mutate: fetchNotification } = useMutation({
-    mutationFn: () =>
-      fetchApi({
+    mutationFn: (page: number) => {
+      return fetchApi({
         method: "GET",
-        url: `${requests.GET_NOTIFICATION_LIST}?page=${pageNo + 1}`,
-      }),
+        url: `${requests.GET_NOTIFICATION_LIST}?page=${page + 1}`,
+      });
+    },
     onSuccess: (res: NotificationResponse) => {
       queryClient.invalidateQueries({ queryKey: ["notification"] });
       if (!res.resultCode) {
@@ -245,7 +241,6 @@ export const useNotification = () => {
   return {
     useNotificationState,
     pageNo,
-    setPageNo,
     lastPage,
     fetchNotification,
     postNotification,

@@ -1,5 +1,6 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
+import { Like } from "typeorm";
 import { getDataSource } from "@database/typeorm.config";
 import {
   AuthenticatedRequest,
@@ -24,17 +25,27 @@ export default async function handler(
       try {
         const messageType = req.query.type;
         const pageNumber = parseInt(req.query.page as string);
+        const searchWord = req.query.searchWord;
         const dataSource = await getDataSource();
 
         const messageRepository = dataSource.getRepository(Message);
         const empsRepository = dataSource.getRepository(Emps);
 
+        let whereCondition: object =
+          messageType === "receivedMessage"
+            ? { recipient_uid: uid }
+            : { sender_uid: uid };
+
+        if (searchWord) {
+          whereCondition = {
+            ...whereCondition,
+            message: Like(`%${searchWord}%`),
+          };
+        }
+
         const [findMessageList, totalCount] =
           await messageRepository.findAndCount({
-            where:
-              messageType === "receivedMessage"
-                ? { recipient_uid: uid }
-                : { sender_uid: uid },
+            where: whereCondition,
             skip: (pageNumber - 1) * 20,
             take: 20,
           });

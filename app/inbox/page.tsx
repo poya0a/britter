@@ -15,29 +15,22 @@ import { useMessage } from "@hooks/user/useMessage";
 import { useInfo } from "@hooks/user/useInfo";
 import MessageViewPopup from "@components/popup/MessageViewPopup";
 import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
-import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 
 export default function Page() {
-  const {
-    setError,
-    clearErrors,
-    formState: { errors },
-  } = useForm({ mode: "onChange" });
   const [activeTab, setActiveTab] = useState<string>("notify");
   const {
     useNotificationState,
-    lastPage: lastPageNotify,
-    setPageNo: setPageNoNotify,
+    pageNo: notifyPage,
+    lastPage: notifyLastPage,
     fetchNotification,
   } = useNotification();
   const {
     useMessageListState,
     type,
-    lastPage: lastPageMessage,
-    pageNo,
-    setPageNo: setPageNoMessage,
-    setType,
+    pageNo: messagePage,
+    lastPage: messageLastPage,
+    searchWord: messageSearchWord,
     fetchMessageList,
     fetchMessage,
     handleReadMessage,
@@ -61,17 +54,26 @@ export default function Page() {
   const [pressEnter, setPressEnter] = useState(false);
   const [inputValue, setInputValue] = useState<string>("");
   const [prevInputValue, setPrevInputValue] = useState<string>("");
-  const [searchLength, setSearchLength] = useState<number>(0);
-  const [noSearchResults, setNoSearchResults] = useState<boolean>(false);
 
   useEffect(() => {
-    if (activeTab === "receivedMessage" || activeTab === "sentMessage") {
-      setType(activeTab);
-      setPageNoMessage(0);
+    fetchNotification(0);
+  }, []);
+
+  const handleSelectTab = (tabName: string) => {
+    if (activeTab === tabName) return;
+    if (tabName === "receivedMessage" || tabName === "sentMessage") {
+      fetchMessageList({
+        typeName: tabName,
+        page: 0,
+        searchWord: "",
+      });
     } else {
-      setPageNoNotify(0);
+      fetchNotification(0);
     }
-  }, [activeTab]);
+    setInputValue("");
+    setPrevInputValue("");
+    setActiveTab(tabName);
+  };
 
   const handleMessageViewPopup = (messageUid: string, uid: string) => {
     setMessagePopupIsActOpen(true);
@@ -87,29 +89,27 @@ export default function Page() {
     if (loading) return;
 
     if (activeTab === "notify") {
-      if (!lastPageNotify) {
+      if (!notifyLastPage) {
         setLoading(true);
-        fetchNotification();
+        fetchNotification(notifyPage);
         setLoading(false);
       }
     } else if (activeTab === type) {
-      if (!lastPageMessage) {
+      if (!messageLastPage) {
         setLoading(true);
-        setPageNoMessage(pageNo + 1);
-        fetchMessageList();
+        fetchMessageList({
+          typeName: activeTab,
+          page: messagePage,
+          searchWord: messageSearchWord,
+        });
         setLoading(false);
       }
-    } else {
-      setLoading(true);
-      setPageNoMessage(0);
-      fetchMessageList();
-      setLoading(false);
     }
   }, [
     useNotificationState,
     useMessageListState,
-    lastPageNotify,
-    lastPageMessage,
+    notifyLastPage,
+    messageLastPage,
     loading,
   ]);
 
@@ -132,14 +132,6 @@ export default function Page() {
     };
   }, [fetchMoreData]);
 
-  const handleValue = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInputValue(value);
-    if (value) {
-      clearErrors();
-    }
-  };
-
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (pressEnter && inputValue === prevInputValue) {
       return;
@@ -150,16 +142,13 @@ export default function Page() {
   };
 
   const handleSearch = async () => {
-    if (inputValue === "") {
-      setNoSearchResults(false);
-      setPrevInputValue(inputValue);
-      return setError("value", {
-        message: "검색어를 입력해 주세요.",
-      });
-    }
+    fetchMessageList({
+      typeName: activeTab,
+      page: 0,
+      searchWord: inputValue,
+    });
     setPressEnter(true);
     setPrevInputValue(inputValue);
-    // callSearch(popup.mode);
   };
 
   return (
@@ -171,7 +160,7 @@ export default function Page() {
             className={`button ${buttonStyles.tapButton} ${
               activeTab === "notify" ? buttonStyles.active : ""
             }`}
-            onClick={() => setActiveTab("notify")}
+            onClick={() => handleSelectTab("notify")}
           >
             알&nbsp;림
           </button>
@@ -182,7 +171,7 @@ export default function Page() {
               activeTab === "receivedMessage" ? buttonStyles.active : ""
             }`}
             onClick={() => {
-              setActiveTab("receivedMessage");
+              handleSelectTab("receivedMessage");
             }}
           >
             받은&nbsp;메시지
@@ -193,7 +182,7 @@ export default function Page() {
               activeTab === "sentMessage" ? buttonStyles.active : ""
             }`}
             onClick={() => {
-              setActiveTab("sentMessage");
+              handleSelectTab("sentMessage");
             }}
           >
             보낸&nbsp;메시지
@@ -202,38 +191,12 @@ export default function Page() {
         <div className={styles.tapWrapper}>
           {activeTab === "notify" ? (
             <div className={styles.notifyWrapper}>
-              <div className={styles.fixedTop}>
-                <p className={styles.notifyInfo}>
-                  알림은 30일 경과 후 자동 삭제됩니다.
-                </p>
-                <div className={inputStyles.inputText}>
-                  <div className={inputStyles.inputCheckWrapper}>
-                    <input
-                      type="text"
-                      className="input"
-                      maxLength={50}
-                      value={inputValue}
-                      onKeyDown={handleKeyDown}
-                      onChange={handleValue}
-                      placeholder="알림을 검색하세요."
-                    />
-                    <button
-                      type="submit"
-                      className="button"
-                      onClick={handleSearch}
-                    >
-                      검&nbsp;색
-                    </button>
-                  </div>
-                </div>
-                <ErrorMessage
-                  errors={errors}
-                  name="value"
-                  render={({ message }) => (
-                    <p className={inputStyles.errorMessage}>{message}</p>
-                  )}
-                />
-              </div>
+              <p className={styles.notifyInfo}>
+                알림은 30일 경과 후 자동 삭제됩니다.
+              </p>
+              <p className={styles.notifyLength}>
+                총 {useNotificationState.length} 건
+              </p>
               <div className={styles.scrollWrapper} ref={contentRef}>
                 {useNotificationState &&
                   useNotificationState.map((notify, index) => (
@@ -275,6 +238,9 @@ export default function Page() {
                     </div>
                   ))}
               </div>
+              {(!useNotificationState || useNotificationState.length < 1) && (
+                <p className={styles.noResults}>알림이 없습니다.</p>
+              )}
             </div>
           ) : (
             <div className={styles.messageWrapper}>
@@ -287,8 +253,13 @@ export default function Page() {
                       maxLength={50}
                       value={inputValue}
                       onKeyDown={handleKeyDown}
-                      onChange={handleValue}
-                      placeholder="메시지를 검색하세요."
+                      onChange={(e) => {
+                        {
+                          setInputValue(e.target.value);
+                          setPressEnter(false);
+                        }
+                      }}
+                      placeholder="메시지 내용을 검색하세요."
                     />
                     <button
                       type="submit"
@@ -299,13 +270,7 @@ export default function Page() {
                     </button>
                   </div>
                 </div>
-                <ErrorMessage
-                  errors={errors}
-                  name="value"
-                  render={({ message }) => (
-                    <p className={inputStyles.errorMessage}>{message}</p>
-                  )}
-                />
+                <p>총 {useMessageListState.length} 건</p>
               </div>
               <div className={styles.scrollWrapper} ref={contentRef}>
                 {useMessageListState &&
@@ -370,9 +335,12 @@ export default function Page() {
                   })}
               </div>
               {(!useMessageListState || useMessageListState.length < 1) && (
-                <p>
-                  {activeTab === "receivedMessage" ? "받은" : "보낸"} 메시지가
-                  없습니다.
+                <p className={styles.noResults}>
+                  {pressEnter
+                    ? "검색 결과가 없습니다."
+                    : activeTab === "receivedMessage"
+                    ? "받은 메시지가 없습니다."
+                    : "보낸 메시지가 없습니다."}
                 </p>
               )}
             </div>

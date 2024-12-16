@@ -69,25 +69,34 @@ export const useMessage = () => {
   const [type, setType] = useState<string>("");
   const [pageNo, setPageNo] = useState<number>(0);
   const [lastPage, setLastPage] = useState<boolean>(false);
+  const [searchWord, setSearchWord] = useState<string>("");
 
   const { data: messageList } = useQuery<MessageListResponse, Error>({
     queryKey: ["messageList"],
-    queryFn: () =>
-      fetchApi({
-        method: "GET",
-        url: `${requests.GET_MESSAGE_LIST}?type=${type}&page=1`,
-      }),
     staleTime: 5 * 60 * 1000,
   });
 
   const { mutate: fetchMessageList } = useMutation({
-    mutationFn: () =>
-      fetchApi({
+    mutationFn: ({
+      typeName,
+      page,
+      searchWord = "",
+    }: {
+      typeName: string;
+      page: number;
+      searchWord?: string;
+    }) => {
+      setType(typeName);
+      setPageNo(page);
+      setSearchWord(searchWord);
+      return fetchApi({
         method: "GET",
-        url: `${requests.GET_MESSAGE_LIST}?type=${type}&page=${pageNo + 1}`,
-      }),
+        url: `${requests.GET_MESSAGE_LIST}?type=${typeName}&page=${page + 1}${
+          searchWord ? `&searchWord=${searchWord}` : ""
+        }`,
+      });
+    },
     onSuccess: (res: MessageListResponse) => {
-      queryClient.invalidateQueries({ queryKey: ["messageList"] });
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode && res.data) {
@@ -106,18 +115,21 @@ export const useMessage = () => {
 
   useEffect(() => {
     if (messageList && pageNo !== messageList.pageInfo?.currentPage) {
-      if (pageNo === 0 && useMessageListState.length > 0 && messageList.data) {
-        setUseMessageListState(messageList.data);
-      } else {
-        setUseMessageListState((prevState) => [
-          ...(prevState ?? []),
-          ...(messageList.data || []),
-        ]);
+      if (messageList.data) {
+        if (pageNo === 0) {
+          setUseMessageListState(messageList.data);
+        } else {
+          setUseMessageListState((prevState) => [
+            ...(prevState ?? []),
+            ...(messageList.data || []),
+          ]);
+        }
+
+        setPageNo(messageList.pageInfo?.currentPage || 0);
+        setLastPage(
+          messageList.pageInfo?.currentPage === messageList.pageInfo?.totalPages
+        );
       }
-      setPageNo(messageList.pageInfo?.currentPage || 0);
-      setLastPage(
-        messageList.pageInfo?.currentPage === messageList.pageInfo?.totalPages
-      );
     }
     setUnreadMessageCount(
       messageList && messageList.unreadMessageCount
@@ -204,10 +216,9 @@ export const useMessage = () => {
     type,
     pageNo,
     lastPage,
+    searchWord,
     fetchMessageList,
     fetchMessage,
-    setType,
-    setPageNo,
     handleReadMessage,
     handleDeleteMessage,
   };
