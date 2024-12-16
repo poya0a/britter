@@ -25,7 +25,6 @@ import {
 } from "@utils/regex";
 import { JoinForm } from "./interface/join.interface";
 import { useAlert } from "@hooks/popup/useAlert";
-import Alert from "@components/popup/Alert";
 import TermsModal from "./TermsModal";
 import { useVerify } from "@hooks/auth/useVerify";
 import { getErrorMassage, getValidMassage } from "@utils/errorMessage";
@@ -48,7 +47,7 @@ export default function Join() {
   const router = useRouter();
   const { useImageCropState, setImageCustom } = useImageCrop();
   const { isLocked, toggleScrollLock } = useScrollLock();
-  const { useAlertState, toggleAlert } = useAlert();
+  const { toggleAlert } = useAlert();
   const { useModalState, toggleModal } = useModal();
   const { useTermsState, toggleCheckAll } = useTerms();
   const termsChecked = useTermsState
@@ -687,7 +686,6 @@ export default function Join() {
         </div>
       </form>
       {useModalState && <TermsModal />}
-      {useAlertState.isActOpen && <Alert />}
     </div>
   );
 }

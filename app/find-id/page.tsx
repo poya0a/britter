@@ -10,9 +10,7 @@ import { useForm } from "react-hook-form";
 import { getErrorMassage, getValidMassage } from "@utils/errorMessage";
 import { onlyNumPattern, phonePattern, regexValue } from "@utils/regex";
 import { useAlert } from "@hooks/popup/useAlert";
-import Alert from "@components/popup/Alert";
 import { ErrorMessage } from "@hookform/error-message";
-import RoutAlert from "@components/popup/RouteAlert";
 import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 
 export default function FindId() {
@@ -26,8 +24,8 @@ export default function FindId() {
     trigger,
     formState: { errors },
   } = useForm({ mode: "onChange" });
-  const { useAlertState, toggleAlert } = useAlert();
-  const { useRouteAlertState, toggleRouteAlert } = useRouteAlert();
+  const { toggleAlert } = useAlert();
+  const { toggleRouteAlert } = useRouteAlert();
   const { useVerifyState, toggleVerify } = useVerify();
 
   const getCertificationNumber = async () => {
@@ -271,8 +269,6 @@ export default function FindId() {
           </button>
         </div>
       </form>
-      {useAlertState.isActOpen && <Alert />}
-      {useRouteAlertState.isActOpen && <RoutAlert />}
     </div>
   );
 }

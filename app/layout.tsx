@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "@styles/globals.scss";
 import Providers from "@provider/providers";
 import Header from "@components/common/Header";
+import Popup from "@components/popup/Popup";
 import styles from "./page.module.scss";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -35,6 +36,7 @@ export default function RootLayout({
           <main className={styles.main}>
             <div className={styles.mainView}>{children}</div>
           </main>
+          <Popup />
         </Providers>
       </body>
     </html>

@@ -31,36 +31,10 @@ import { useToolBarHeight } from "@hooks/useToolBarHeight";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
 import { useAlert } from "@hooks/popup/useAlert";
-import Alert from "@components/popup/Alert";
 import { PostListData, usePost } from "@hooks/user/usePost";
-import Toast from "@components/popup/Toast";
-import { useToast } from "@hooks/popup/useToast";
-import RoutAlert from "@components/popup/RouteAlert";
-import FnAndCancelAlert from "@components/popup/FnAndCancelAlert";
-import { useRouteAlert } from "@hooks/popup/useRouteAlert";
 import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
 import { useUpdateEffect } from "@utils/useUpdateEffect";
-import SettingMenu from "@components/menu/SettingMenu";
-import { useSettingMenu } from "@hooks/menu/useSettingMenu";
-import CreatePopup from "@components/popup/CreatePopup";
-import { useCreatePopup } from "@hooks/popup/useCreatePopup";
 import { useSpace } from "@hooks/user/useSpace";
-import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
-import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
-import { usePostFolderPopup } from "@hooks/popup/usePostFolderPopup";
-import PostFolderPopup from "@components/popup/PostFolderPopup";
-import { useSearchPopup } from "@hooks/popup/useSearchPopup";
-import SearchPopup from "@components/popup/SearchPopup";
-import { useURLPopup } from "@hooks/popup/useURLPopup";
-import URLPopup from "@components/popup/URLPopup";
-import { useMessagePopup } from "@hooks/popup/useMessagePopup";
-import MessagePopup from "@components/popup/MessagePopup";
-import { useUserViewPopup } from "@hooks/popup/useUserViewPopup";
-import UserViewPopup from "@components/popup/UserViewPopup";
-import { useUserSettingPopup } from "@hooks/popup/useUserSettingPopup";
-import UserSettingPopup from "@components/popup/UserSettingPopup";
-import FnAlert from "@components/popup/FnAlert";
-import { useFnAlert } from "@hooks/popup/useFnAlert";
 
 const lowlight = createLowlight(common);
 
@@ -172,22 +146,9 @@ export default function Page() {
   const { useEditorState, setHasTableTag } = useEditor();
   const router = useRouter();
   const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
-  const { useAlertState, toggleAlert } = useAlert();
-  const { useRouteAlertState } = useRouteAlert();
-  const { useFnAndCancelAlertState, toggleFnAndCancelAlert } =
-    useFnAndCancelAlert();
-  const { useFnAlertState } = useFnAlert();
-  const { useToastState } = useToast();
-  const { useSearchState } = useSearchPopup();
-  const { useSettingMenuState } = useSettingMenu();
-  const { usePostFolderPopupState } = usePostFolderPopup();
+  const { toggleAlert } = useAlert();
+  const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
   const { selectedSpace } = useSpace();
-  const { useCreateState } = useCreatePopup();
-  const { useSpaceSettingState } = useSpaceSettingPopup();
-  const { useURLPopupState } = useURLPopup();
-  const { useMessagePopupState } = useMessagePopup();
-  const { useUserViewPopupState } = useUserViewPopup();
-  const { useUserSettingPopupState } = useUserSettingPopup();
   const {
     usePostListState,
     usePostState,
@@ -457,20 +418,6 @@ export default function Page() {
           </button>
         </div>
       </div>
-      {useSearchState.isActOpen && <SearchPopup />}
-      {useSettingMenuState.isActOpen && <SettingMenu />}
-      {useCreateState.isActOpen && <CreatePopup />}
-      {useSpaceSettingState.isActOpen && <SpaceSettingPopup />}
-      {useURLPopupState.isActOpen && <URLPopup />}
-      {usePostFolderPopupState.isActOpen && <PostFolderPopup />}
-      {useUserViewPopupState.isActOpen && <UserViewPopup />}
-      {useUserSettingPopupState.isActOpen && <UserSettingPopup />}
-      {useMessagePopupState.isActOpen && <MessagePopup />}
-      {useAlertState.isActOpen && <Alert />}
-      {useRouteAlertState.isActOpen && <RoutAlert />}
-      {useFnAndCancelAlertState.isActOpen && <FnAndCancelAlert />}
-      {useFnAlertState.isActOpen && <FnAlert />}
-      {useToastState.isActOpen && <Toast />}
     </div>
   );
 }

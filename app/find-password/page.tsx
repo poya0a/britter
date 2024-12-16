@@ -10,12 +10,9 @@ import { useForm } from "react-hook-form";
 import { getErrorMassage, getValidMassage } from "@utils/errorMessage";
 import { onlyNumPattern, phonePattern, regexValue } from "@utils/regex";
 import { useAlert } from "@hooks/popup/useAlert";
-import Alert from "@components/popup/Alert";
 import { ErrorMessage } from "@hookform/error-message";
-import { useRouter } from "next/navigation";
 import { UserData, useResetPassword } from "@hooks/auth/useResetPassword";
 import { useRouteAlert } from "@hooks/popup/useRouteAlert";
-import RoutAlert from "@components/popup/RouteAlert";
 
 export default function FindPassword() {
   const {
@@ -28,9 +25,8 @@ export default function FindPassword() {
     trigger,
     formState: { errors },
   } = useForm({ mode: "onChange" });
-  const router = useRouter();
-  const { useAlertState, toggleAlert } = useAlert();
-  const { useRouteAlertState, toggleRouteAlert } = useRouteAlert();
+  const { toggleAlert } = useAlert();
+  const { toggleRouteAlert } = useRouteAlert();
   const { useVerifyState, toggleVerify } = useVerify();
   const { saveUserState } = useResetPassword();
 
@@ -305,8 +301,6 @@ export default function FindPassword() {
           </button>
         </div>
       </form>
-      {useRouteAlertState.isActOpen && <RoutAlert />}
-      {useAlertState.isActOpen && <Alert />}
     </div>
   );
 }

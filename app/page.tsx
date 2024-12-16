@@ -1,54 +1,14 @@
 "use client";
 import { useEffect } from "react";
-import styles from "./page.module.scss";
+import storage from "@fetch/auth/storage";
 import MainMenu from "@components/menu/MainMenu";
+import { usePathname } from "next/navigation";
 import SpaceContent from "@components/common/SpaceContent";
 import { useRouteAlert } from "@hooks/popup/useRouteAlert";
-import RoutAlert from "@components/popup/RouteAlert";
-import FnAndCancelAlert from "@components/popup/FnAndCancelAlert";
-import Toast from "@components/popup/Toast";
-import { useToast } from "@hooks/popup/useToast";
-import Alert from "@components/popup/Alert";
-import { useAlert } from "@hooks/popup/useAlert";
-import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
-import { usePathname } from "next/navigation";
-import storage from "@fetch/auth/storage";
-import { useSearchPopup } from "@hooks/popup/useSearchPopup";
-import { useSettingMenu } from "@hooks/menu/useSettingMenu";
-import SearchPopup from "@components/popup/SearchPopup";
-import SettingMenu from "@components/menu/SettingMenu";
-import CreatePopup from "@components/popup/CreatePopup";
-import { useCreatePopup } from "@hooks/popup/useCreatePopup";
-import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
-import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
-import { useURLPopup } from "@hooks/popup/useURLPopup";
-import URLPopup from "@components/popup/URLPopup";
-import { usePostFolderPopup } from "@hooks/popup/usePostFolderPopup";
-import PostFolderPopup from "@components/popup/PostFolderPopup";
-import { useMessagePopup } from "@hooks/popup/useMessagePopup";
-import MessagePopup from "@components/popup/MessagePopup";
-import { useUserViewPopup } from "@hooks/popup/useUserViewPopup";
-import UserViewPopup from "@components/popup/UserViewPopup";
-import { useUserSettingPopup } from "@hooks/popup/useUserSettingPopup";
-import UserSettingPopup from "@components/popup/UserSettingPopup";
-import { useFnAlert } from "@hooks/popup/useFnAlert";
-import FnAlert from "@components/popup/FnAlert";
+import styles from "./page.module.scss";
 
 export default function Home() {
-  const { useAlertState } = useAlert();
-  const { useRouteAlertState, toggleRouteAlert } = useRouteAlert();
-  const { useFnAndCancelAlertState } = useFnAndCancelAlert();
-  const { useFnAlertState } = useFnAlert();
-  const { useToastState } = useToast();
-  const { useSearchState } = useSearchPopup();
-  const { useSettingMenuState } = useSettingMenu();
-  const { useCreateState } = useCreatePopup();
-  const { useSpaceSettingState } = useSpaceSettingPopup();
-  const { useURLPopupState } = useURLPopup();
-  const { usePostFolderPopupState } = usePostFolderPopup();
-  const { useMessagePopupState } = useMessagePopup();
-  const { useUserViewPopupState } = useUserViewPopup();
-  const { useUserSettingPopupState } = useUserSettingPopup();
+  const { toggleRouteAlert } = useRouteAlert();
   const pathname = usePathname();
   const userToken = storage.getAccessToken();
 
@@ -68,20 +28,6 @@ export default function Home() {
         <MainMenu />
         <SpaceContent />
       </div>
-      {useSearchState.isActOpen && <SearchPopup />}
-      {useSettingMenuState.isActOpen && <SettingMenu />}
-      {useCreateState.isActOpen && <CreatePopup />}
-      {useSpaceSettingState.isActOpen && <SpaceSettingPopup />}
-      {useURLPopupState.isActOpen && <URLPopup />}
-      {usePostFolderPopupState.isActOpen && <PostFolderPopup />}
-      {useUserViewPopupState.isActOpen && <UserViewPopup />}
-      {useUserSettingPopupState.isActOpen && <UserSettingPopup />}
-      {useMessagePopupState.isActOpen && <MessagePopup />}
-      {useAlertState.isActOpen && <Alert />}
-      {useRouteAlertState.isActOpen && <RoutAlert />}
-      {useFnAndCancelAlertState.isActOpen && <FnAndCancelAlert />}
-      {useFnAlertState.isActOpen && <FnAlert />}
-      {useToastState.isActOpen && <Toast />}
     </>
   );
 }

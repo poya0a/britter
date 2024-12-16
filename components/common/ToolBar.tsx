@@ -168,12 +168,9 @@ export default function ToolBar({
     }
   };
 
-  const setMention = () => {};
+  // const setMention = () => {
 
-  // const setLink = useCallback(() => {
-  //   toggleLinkPopup(true);
-
-  // }, [editor]);
+  // };
 
   useUpdateEffect(() => {
     if (!useURLPopupState.isActOpen && useURLPopupState.value.URL !== null) {
@@ -521,9 +518,10 @@ export default function ToolBar({
           <button type="button" onClick={createTable} title="표 생성">
             <img src="/images/icon/grid.svg" alt="create grid" />
           </button>
+          {/* 멘션 기능 보류
           <button type="button" onClick={setMention} title="언급">
             <img src="/images/icon/at.svg" alt="mention" />
-          </button>
+          </button> */}
           <button
             type="button"
             onClick={() => toggleURLPopup(true)}

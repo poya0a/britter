@@ -31,7 +31,7 @@ export class Space {
   })
   space_users!: string[];
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", nullable: false })
   space_content: string | null;
 
   @Column({

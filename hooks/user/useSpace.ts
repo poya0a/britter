@@ -201,7 +201,7 @@ export const useSpace = () => {
       fetchApi({
         method: "POST",
         url: requests.DELETE_SPACE,
-        body: JSON.stringify({ spaceUid: selectedSpace }),
+        body: JSON.stringify({ spaceUid: selectedSpace?.UID }),
       }),
     onSuccess: (res: SpaceListResponse) => {
       if (!res.resultCode) {

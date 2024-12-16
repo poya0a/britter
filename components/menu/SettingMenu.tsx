@@ -20,7 +20,7 @@ export default function SettingMenu() {
   const { toggleAlert } = useAlert();
   const { toggleCreatePopup } = useCreatePopup();
 
-  const handleCreateOrJoin = () => {
+  const handleCreate = () => {
     if (useInfoState.user_level === 1 && useSpaceState.length >= 3) {
       return toggleAlert("생성 및 참여할 수 있는 최대 갯수는 3개입니다.");
     }
@@ -83,8 +83,8 @@ export default function SettingMenu() {
       >
         개인 정보 수정
       </button>
-      <button type="button" className="button" onClick={handleCreateOrJoin}>
-        스페이스 생성 및 참여
+      <button type="button" className="button" onClick={handleCreate}>
+        스페이스 생성
       </button>
       <div className={styles.border} />
       <button type="button" className="button">

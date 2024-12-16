@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import PasswordInput from "@components/input/PasswordInput";
 import { ErrorMessage } from "@hookform/error-message";
 import { useForm } from "react-hook-form";
-import Alert from "@components/popup/Alert";
 import { useAlert } from "@hooks/popup/useAlert";
 import encryptRSA from "@utils/encryptRSA";
 import storage from "@fetch/auth/storage";
@@ -22,7 +21,7 @@ export default function Login() {
     reset,
     formState: { errors },
   } = useForm({ mode: "onChange" });
-  const { useAlertState, toggleAlert } = useAlert();
+  const { toggleAlert } = useAlert();
 
   const login = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -198,7 +197,6 @@ export default function Login() {
           비밀번호 찾기
         </Link>
       </div>
-      {useAlertState.isActOpen && <Alert />}
     </div>
   );
 }

@@ -9,11 +9,7 @@ import { passwordPattern } from "@utils/regex";
 import { ErrorMessage } from "@hookform/error-message";
 import { useResetPassword } from "@hooks/auth/useResetPassword";
 import { useAlert } from "@hooks/popup/useAlert";
-import Alert from "@components/popup/Alert";
 import { useRouteAlert } from "@hooks/popup/useRouteAlert";
-import RoutAlert from "@components/popup/RouteAlert";
-import RoutAndCancelAlert from "@components/popup/RouteAndCancelAlert";
-import { useRouteAndCancelAlert } from "@hooks/popup/useRouteAndCancelAlert";
 
 export default function ResetPassword() {
   const {
@@ -23,9 +19,8 @@ export default function ResetPassword() {
     clearErrors,
     formState: { errors },
   } = useForm({ mode: "onChange" });
-  const { useAlertState, toggleAlert } = useAlert();
-  const { useRouteAlertState, toggleRouteAlert } = useRouteAlert();
-  const { useRouteAndCancelAlertState } = useRouteAndCancelAlert();
+  const { toggleAlert } = useAlert();
+  const { toggleRouteAlert } = useRouteAlert();
   const { useUserState } = useResetPassword();
 
   const handlePwCheck = () => {
@@ -174,9 +169,6 @@ export default function ResetPassword() {
           </button>
         </div>
       </form>
-      {useAlertState.isActOpen && <Alert />}
-      {useRouteAlertState.isActOpen && <RoutAlert />}
-      {useRouteAndCancelAlertState.isActOpen && <RoutAndCancelAlert />}
     </div>
   );
 }

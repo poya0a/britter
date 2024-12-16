@@ -60,7 +60,7 @@ export default async function handler(
         }
 
         // 해당 스페이스를 가진 사람의 스페이스 리스트에서 삭제
-        const spaceUsers = findSpace.space_users;
+        const spaceUsers = findSpace.space_users || [];
         for (const userUid of spaceUsers) {
           const userSpaceList = await spaceListRepository.findOne({
             where: { UID: userUid },
