@@ -25,11 +25,11 @@ function ModalTerms() {
     <div className={popupStyles.modal}>
       <div className={popupStyles.modalWrapper}>
         <div className={styles.termsWrapper}>
-          <h1>이용약관 동의</h1>
+          <h1>이용 약관 동의</h1>
           <h3>
             서비스 이용을 위해
             <br />
-            <em className="normal">이용약관 동의</em>가 필요합니다.
+            <em className="normal">이용 약관 동의</em>가 필요합니다.
           </h3>
           <div className={styles.terms}>
             <div className={inputStyles.inputCheckAll}>

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import styles from "@styles/components/_input.module.scss";
 import { ErrorMessage } from "@hookform/error-message";
 import { useVerifyStore } from "@stores/auth/useVerifyStore";
@@ -17,7 +18,12 @@ export default function PhoneNumberInput({
   getCertificationNumber,
   postCertificationNumber,
 }: InputProps) {
-  const { formatTime, useVerifyState } = useVerifyStore();
+  const { useVerifyState, formatTime, startCountdown } = useVerifyStore();
+
+  useEffect(() => {
+    // 카운트다운
+    startCountdown();
+  }, [startCountdown]);
 
   return (
     <>
