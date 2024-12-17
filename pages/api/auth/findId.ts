@@ -45,8 +45,9 @@ export default async function handler(
     });
 
     if (existingUser) {
+      const id = maskId(existingUser.user_id);
       return res.status(200).json({
-        message: `아이디는 ${existingUser.user_id} 입니다.`,
+        message: `아이디는 ${id} 입니다.`,
         resultCode: true,
       });
     } else {
@@ -62,3 +63,25 @@ export default async function handler(
     });
   }
 }
+
+const maskId = (id: string): string => {
+  if (!id) return "";
+
+  const length = id.length;
+
+  if (length <= 2) {
+    return id[0] + "*".repeat(length - 1);
+  }
+
+  const maskLength = Math.ceil(length / 2);
+
+  const frontLength = Math.floor((length - maskLength) / 2);
+  const backLength = length - frontLength - maskLength;
+
+  const maskedId =
+    id.slice(0, frontLength) +
+    "*".repeat(maskLength) +
+    id.slice(length - backLength);
+
+  return maskedId;
+};

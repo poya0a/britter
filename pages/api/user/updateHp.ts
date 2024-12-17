@@ -71,7 +71,7 @@ export default async function handler(
           if (findUser) {
             if (userHp === findUser.user_hp) {
               return res.status(200).json({
-                message: "기존 비밀번호와 동일한 비밀번호입니다.",
+                message: "기존 비밀번호와 동일한 전화번호입니다.",
                 resultCode: false,
               });
             }

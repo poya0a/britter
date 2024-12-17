@@ -47,7 +47,7 @@ export default function UserSettingPopup() {
 
   const userProfileRef = useRef<HTMLDivElement>(null);
   const { toggleUserSettingPopup } = useUserSettingPopupStore();
-  const { useInfoState, updateInfo } = useInfoStore();
+  const { useInfoState, updateInfo, fetchInfo } = useInfoStore();
   const {
     useImageCropState,
     setImageCustom,
@@ -426,7 +426,7 @@ export default function UserSettingPopup() {
   const handleUpdateHp = async () => {
     const userHp = getValues("user_hp");
     const hpField = ["user_hp", "verify_number"];
-    console.log(errors);
+
     if (
       Object.keys(errors).filter((fieldName) => hpField.includes(fieldName))
         .length > 0
@@ -472,6 +472,7 @@ export default function UserSettingPopup() {
         setValue("user_hp", "");
         setValue("verify_number", "");
         setUserHp(userHp);
+        fetchInfo();
         setToast("전화번호가 변경되었습니다.");
       }
     }
