@@ -9,6 +9,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import formidable from "formidable";
 import { Space } from "@entities/Space.entity";
+import { Repository } from "typeorm";
 
 export const config = {
   api: {
@@ -118,22 +119,12 @@ export default async function handler(
                     resultCode: true,
                   });
                 } else {
-                  const copiedPost = { ...currentPost };
-                  const uuid = uuidv4();
-
-                  copiedPost.seq = uuid;
-                  copiedPost.p_seq = pSeq;
-
-                  const parentPosts = await postRepository.find({
-                    where: { p_seq: pSeq },
-                  });
-                  copiedPost.order_number =
-                    Math.max(
-                      ...parentPosts.map((post) => post.order_number),
-                      0
-                    ) + 1;
-
-                  await postRepository.save(copiedPost);
+                  const copiedPost = await copyPostAndChildren(
+                    currentPost,
+                    postRepository,
+                    pSeq,
+                    spaceUid
+                  );
 
                   return res.status(200).json({
                     message: "게시글이 복사되었습니다.",
@@ -178,56 +169,52 @@ export default async function handler(
   });
 }
 
-// const handleCopy = async (
-//   currentPost: Post,
-//   pSeq: string,
-//   postRepository: Repository<Post>
-// ) => {
-//   const uuid = uuidv4();
+// 게시글과 자식 게시글을 재귀적으로 복사하는 함수
+async function copyPostAndChildren(
+  parentPost: Post,
+  postRepository: Repository<Post>,
+  newPSeq: string, // 새로운 부모 시퀀스
+  spaceUid: string
+): Promise<Post> {
+  // 새 게시글 생성 및 저장
+  const copiedPost = { ...parentPost };
+  const newSeq = uuidv4(); // 새 시퀀스 생성
 
-//   // 새로운 게시글을 생성
-//   const newPost = postRepository.create({
-//     ...currentPost,
-//     p_seq: pSeq, // 새로운 부모 시퀀스
-//     seq: uuid, // 새로 생성된 고유 시퀀스
-//     order_number: null, // 순서가 아직 정해지지 않음
-//   });
+  copiedPost.seq = newSeq; // 새 시퀀스
+  copiedPost.p_seq = newPSeq; // 부모 시퀀스 업데이트
+  copiedPost.space_uid = spaceUid; // 동일한 스페이스 UID
+  copiedPost.order_number = await getNextOrderNumber(postRepository, newPSeq); // 새 순서
 
-//   await postRepository.save(newPost);
+  // delete copiedPost.id; // ID 제거 (TypeORM에서 새 엔티티로 인식되도록)
 
-//   // 동일한 pSeq를 가진 게시글들 가져오기
-//   const postsWithSamePSeq = await postRepository.find({
-//     where: { p_seq: pSeq, UID: currentPost.UID },
-//   });
+  await postRepository.save(copiedPost);
 
-//   // order_number가 정의된 게시글들만 필터링하여 정렬
-//   const postsToSort = postsWithSamePSeq.filter(
-//     (post) => post.order_number !== undefined
-//   );
+  // 자식 게시글 가져오기
+  const childPosts = await postRepository.find({
+    where: { p_seq: parentPost.seq, space_uid: spaceUid },
+  });
 
-//   // 만약 게시글이 있다면, 가장 큰 order_number를 구하고 그 다음 번호를 새 게시글의 order_number로 설정
-//   let newOrderNumber = 1; // 기본적으로 첫 번째 순서
+  // 자식 게시글들을 재귀적으로 복사
+  for (const childPost of childPosts) {
+    await copyPostAndChildren(childPost, postRepository, newSeq, spaceUid);
+  }
 
-//   if (postsToSort.length > 0) {
-//     const maxOrderNumber = Math.max(
-//       ...postsToSort.map((post) => post.order_number)
-//     );
-//     newOrderNumber = maxOrderNumber + 1;
-//   }
+  return copiedPost;
+}
 
-//   // 새 게시글의 순서를 설정
-//   newPost.order_number = newOrderNumber;
-//   await postRepository.save(newPost);
+// 새로운 부모 시퀀스에서 다음 순서를 가져오는 함수
+async function getNextOrderNumber(
+  postRepository: Repository<Post>,
+  pSeq: string
+): Promise<number> {
+  const posts = await postRepository.find({
+    where: { p_seq: pSeq },
+  });
 
-//   // 순서를 재정렬
-//   postsToSort.push(newPost); // 새로운 게시글을 포함하여 순서를 재조정
-//   postsToSort.sort((a, b) => a.order_number - b.order_number);
+  const maxOrderNumber = Math.max(
+    ...posts.map((post) => post.order_number || 0),
+    0
+  );
 
-//   // 정렬된 게시글들의 order_number 업데이트
-//   for (let i = 0; i < postsToSort.length; i++) {
-//     postsToSort[i].order_number = i + 1; // 순서를 1부터 차례대로 재설정
-//     await postRepository.save(postsToSort[i]);
-//   }
-
-//   return uuid; // 새 게시글의 seq를 반환
-// };
+  return maxOrderNumber + 1;
+}
