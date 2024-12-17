@@ -381,13 +381,17 @@ export default function MainMenu() {
 
               <em className="normal">{useInfoState.user_name}</em>
             </button>
-            <button
-              type="button"
-              className={`button ${styles.pageAddButton}`}
-              onClick={() => handleCreate()}
-            >
-              <img src="/images/icon/write.svg" alt="" />
-            </button>
+            {useSpaceState.find(
+              (space) => space.UID === useSelectedSpaceState.UID
+            ) && (
+              <button
+                type="button"
+                className={`button ${styles.pageAddButton}`}
+                onClick={() => handleCreate()}
+              >
+                <img src="/images/icon/write.svg" alt="" />
+              </button>
+            )}
           </div>
           <button
             type="button"

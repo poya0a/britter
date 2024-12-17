@@ -15,7 +15,8 @@ export default function SettingMenu() {
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenuStore();
   const { toggleUserSettingPopup } = useUserSettingPopupStore();
   const { useInfoState } = useInfoStore();
-  const { useSpaceState, useSelectedSpaceState } = useSpaceStore();
+  const { useSpaceState, useSelectedSpaceState, setUseSelectedSpaceState } =
+    useSpaceStore();
   const { setPageSeq } = usePostStore();
   const { toggleAlert } = useAlertStore();
   const { toggleCreatePopup } = useCreatePopupStore();
@@ -27,8 +28,9 @@ export default function SettingMenu() {
     toggleCreatePopup({ isActOpen: true, mode: "create" });
   };
 
-  const handleSetSpace = (uid: string) => {
-    storage.setSpaceUid(uid);
+  const handleSetSpace = (space: SpaceData) => {
+    storage.setSpaceUid(space.UID);
+    setUseSelectedSpaceState(space);
     router.push("/");
     toggleSettingMenu(false);
     setPageSeq({ seq: "", pSeq: "" });
@@ -51,7 +53,7 @@ export default function SettingMenu() {
               space.UID === useSelectedSpaceState.UID && styles.active
             }`}
             key={`space-${idx}`}
-            onClick={() => handleSetSpace(space.UID)}
+            onClick={() => handleSetSpace(space)}
           >
             <div className={styles.spaceProfile}>
               {space.space_profile_path ? (

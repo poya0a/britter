@@ -6,6 +6,7 @@ import fetchFile from "@fetch/fetchFile";
 import { useAlertStore } from "./popup/useAlertStore";
 import convertHtmlToPreviewText from "@utils/previewText";
 import { useInfoStore } from "./user/useInfoStore";
+import { useSpaceStore } from "./user/useSpaceStore";
 
 interface Notify {
   notifyUID: string;
@@ -236,6 +237,7 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
 
       if (res?.data) {
         const { useInfoState } = useInfoStore.getState();
+        const { setUseSelectedSpaceState } = useSpaceStore.getState();
         const includeSpace =
           res.data.space_manager === useInfoState.UID ||
           res.data.space_users?.includes(useInfoState.UID);
@@ -244,6 +246,7 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
           return false;
         } else {
           storage.setSpaceUid(res.data.UID);
+          setUseSelectedSpaceState(res.data);
           return true;
         }
       } else {

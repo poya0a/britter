@@ -91,13 +91,16 @@ export const useSpaceStore = create<SpaceStore>((set) => ({
     totalItems: 1,
   },
   setUseSpaceState: (spaces) => set({ useSpaceState: spaces }),
-  setUseSelectedSpaceState: (space) => set({ useSelectedSpaceState: space }),
+  setUseSelectedSpaceState: (space) => {
+    const { fetchPostList } = usePostStore.getState();
+    set({ useSelectedSpaceState: space });
+    fetchPostList(space.UID);
+  },
   setSpacePageInfo: (pageInfo) => set({ spacePageInfo: pageInfo }),
   setUseSpaceMemeberState: (members) => set({ useSpaceMemeberState: members }),
   setSpaceMemeberPageInfo: (pageInfo) =>
     set({ spaceMemeberPageInfo: pageInfo }),
 
-  // API 호출 함수들
   fetchSpace: async () => {
     const { toggleRouteAlert } = useRouteAlertStore.getState();
     const { handleSearchSpace } = useSearchStore.getState();
