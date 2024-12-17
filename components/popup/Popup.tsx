@@ -1,59 +1,59 @@
 "use client";
 import Alert from "@components/popup/Alert";
-import { useAlert } from "@hooks/popup/useAlert";
+import { useAlertStore } from "@stores/popup/useAlertStore";
 import RoutAlert from "@components/popup/RouteAlert";
-import { useRouteAlert } from "@hooks/popup/useRouteAlert";
-import FnAndCancelAlert from "@components/popup/FnAndCancelAlert";
-import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
+import { useRouteAlertStore } from "@stores/popup/useRouteAlertStore";
 import FnAlert from "@components/popup/FnAlert";
-import { useFnAlert } from "@hooks/popup/useFnAlert";
+import { useFnAlertStore } from "@stores/popup/useFnAlertStore";
+import FnAndCancelAlert from "@components/popup/FnAndCancelAlert";
+import { useFnAndCancelAlertStore } from "@stores/popup/useFnAndCancelAlertStore";
 import Toast from "@components/popup/Toast";
-import { useToast } from "@hooks/popup/useToast";
+import { useToastStore } from "@stores/popup/useToastStore";
 import SearchPopup from "@components/popup/SearchPopup";
-import { useSearchPopup } from "@hooks/popup/useSearchPopup";
+import { useSearchPopupStore } from "@stores/popup/useSearchPopupStore";
 import SettingMenu from "@components/menu/SettingMenu";
-import { useSettingMenu } from "@hooks/menu/useSettingMenu";
+import { useSettingMenuStore } from "@stores/menu/useSettingMenuStore";
 import CreatePopup from "@components/popup/CreatePopup";
-import { useCreatePopup } from "@hooks/popup/useCreatePopup";
+import { useCreatePopupStore } from "@stores/popup/useCreatePopupStore";
 import SpaceSettingPopup from "@components/popup/SpaceSettingPopup";
-import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
+import { useSpaceSettingPopupStore } from "@stores/popup/useSpaceSettingPopupStore";
 import URLPopup from "@components/popup/URLPopup";
-import { useURLPopup } from "@hooks/popup/useURLPopup";
+import { useURLPopupStore } from "@stores/popup/useURLPopupStore";
 import PostFolderPopup from "@components/popup/PostFolderPopup";
-import { usePostFolderPopup } from "@hooks/popup/usePostFolderPopup";
+import { usePostFolderPopupStore } from "@stores/popup/usePostFolderPopupStore";
 import MessagePopup from "@components/popup/MessagePopup";
-import { useMessagePopup } from "@hooks/popup/useMessagePopup";
+import { useMessagePopupStore } from "@stores/popup/useMessagePopupStore";
 import UserViewPopup from "@components/popup/UserViewPopup";
-import { useUserViewPopup } from "@hooks/popup/useUserViewPopup";
+import { useUserViewPopupStore } from "@stores/popup/useUserViewPopupStore";
 import UserSettingPopup from "@components/popup/UserSettingPopup";
-import { useUserSettingPopup } from "@hooks/popup/useUserSettingPopup";
+import { useUserSettingPopupStore } from "@stores/popup/useUserSettingPopupStore";
 
 export default function Popup() {
-  const { useAlertState } = useAlert();
-  const { useRouteAlertState } = useRouteAlert();
-  const { useFnAndCancelAlertState } = useFnAndCancelAlert();
-  const { useFnAlertState } = useFnAlert();
-  const { useToastState } = useToast();
-  const { useSearchState } = useSearchPopup();
-  const { useSettingMenuState } = useSettingMenu();
-  const { useCreateState } = useCreatePopup();
-  const { useSpaceSettingState } = useSpaceSettingPopup();
-  const { useURLPopupState } = useURLPopup();
-  const { usePostFolderPopupState } = usePostFolderPopup();
-  const { useMessagePopupState } = useMessagePopup();
-  const { useUserViewPopupState } = useUserViewPopup();
-  const { useUserSettingPopupState } = useUserSettingPopup();
+  const { useAlertState } = useAlertStore();
+  const { useRouteAlertState } = useRouteAlertStore();
+  const { useFnAlertState } = useFnAlertStore();
+  const { useFnAndCancelAlertState } = useFnAndCancelAlertStore();
+  const { useToastState } = useToastStore();
+  const { useSearchState } = useSearchPopupStore();
+  const { useSettingMenuState } = useSettingMenuStore();
+  const { useCreatePopupState } = useCreatePopupStore();
+  const { useSpaceSettingState } = useSpaceSettingPopupStore();
+  const { useURLPopupState } = useURLPopupStore();
+  const { usePostFolderPopupState } = usePostFolderPopupStore();
+  const { useMessagePopupState } = useMessagePopupStore();
+  const { useUserViewPopupState } = useUserViewPopupStore();
+  const { useUserSettingPopupState } = useUserSettingPopupStore();
 
   return (
     <div>
       {useSearchState.isActOpen && <SearchPopup />}
       {useSettingMenuState.isActOpen && <SettingMenu />}
-      {useCreateState.isActOpen && <CreatePopup />}
+      {useCreatePopupState.isActOpen && <CreatePopup />}
       {useSpaceSettingState.isActOpen && <SpaceSettingPopup />}
       {useURLPopupState.isActOpen && <URLPopup />}
       {usePostFolderPopupState.isActOpen && <PostFolderPopup />}
       {useUserViewPopupState.isActOpen && <UserViewPopup />}
-      {useUserSettingPopupState.isActOpen && <UserSettingPopup />}
+      {useUserSettingPopupState && <UserSettingPopup />}
       {useMessagePopupState.isActOpen && <MessagePopup />}
       {useAlertState.isActOpen && <Alert />}
       {useRouteAlertState.isActOpen && <RoutAlert />}

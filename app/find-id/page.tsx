@@ -5,13 +5,13 @@ import buttonStyles from "@styles/components/_button.module.scss";
 import styles from "./page.module.scss";
 import AuthHeader from "@components/common/AuthHeader";
 import PhoneNumberInput from "@components/input/PhoneNumberInput";
-import { useVerify } from "@hooks/auth/useVerify";
+import { useVerifyStore } from "@stores/auth/useVerifyStore";
 import { useForm } from "react-hook-form";
 import { getErrorMassage, getValidMassage } from "@utils/errorMessage";
 import { onlyNumPattern, phonePattern, regexValue } from "@utils/regex";
-import { useAlert } from "@hooks/popup/useAlert";
+import { useAlertStore } from "@stores/popup/useAlertStore";
 import { ErrorMessage } from "@hookform/error-message";
-import { useRouteAlert } from "@hooks/popup/useRouteAlert";
+import { useRouteAlertStore } from "@stores/popup/useRouteAlertStore";
 
 export default function FindId() {
   const {
@@ -24,9 +24,9 @@ export default function FindId() {
     trigger,
     formState: { errors },
   } = useForm({ mode: "onChange" });
-  const { toggleAlert } = useAlert();
-  const { toggleRouteAlert } = useRouteAlert();
-  const { useVerifyState, toggleVerify } = useVerify();
+  const { toggleAlert } = useAlertStore();
+  const { toggleRouteAlert } = useRouteAlertStore();
+  const { useVerifyState, toggleVerify } = useVerifyStore();
 
   const getCertificationNumber = async () => {
     const value = getValues("user_hp");

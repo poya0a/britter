@@ -1,24 +1,24 @@
 import styles from "@styles/components/_menu.module.scss";
-import { useSettingMenu } from "@hooks/menu/useSettingMenu";
-import { useUserSettingPopup } from "@hooks/popup/useUserSettingPopup";
-import { SpaceData, useSpace } from "@hooks/user/useSpace";
-import { useCreatePopup } from "@hooks/popup/useCreatePopup";
-import { useInfo } from "@hooks/user/useInfo";
-import { useAlert } from "@hooks/popup/useAlert";
+import { useSettingMenuStore } from "@stores/menu/useSettingMenuStore";
+import { useUserSettingPopupStore } from "@stores/popup/useUserSettingPopupStore";
+import { SpaceData, useSpaceStore } from "@stores/user/useSpaceStore";
+import { useCreatePopupStore } from "@stores/popup/useCreatePopupStore";
+import { useInfoStore } from "@stores/user/useInfoStore";
+import { useAlertStore } from "@stores/popup/useAlertStore";
 import { useRouter } from "next/navigation";
-import { usePost } from "@hooks/user/usePost";
+import { usePostStore } from "@stores/user/usePostStore";
 import storage from "@fetch/auth/storage";
 import Image from "next/image";
 
 export default function SettingMenu() {
   const router = useRouter();
-  const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
-  const { toggleUserSettingPopup } = useUserSettingPopup();
-  const { useInfoState } = useInfo();
-  const { useSpaceState, selectedSpace } = useSpace();
-  const { setPageSeq } = usePost();
-  const { toggleAlert } = useAlert();
-  const { toggleCreatePopup } = useCreatePopup();
+  const { useSettingMenuState, toggleSettingMenu } = useSettingMenuStore();
+  const { toggleUserSettingPopup } = useUserSettingPopupStore();
+  const { useInfoState } = useInfoStore();
+  const { useSpaceState, useSelectedSpaceState } = useSpaceStore();
+  const { setPageSeq } = usePostStore();
+  const { toggleAlert } = useAlertStore();
+  const { toggleCreatePopup } = useCreatePopupStore();
 
   const handleCreate = () => {
     if (useInfoState.user_level === 1 && useSpaceState.length >= 3) {
@@ -48,7 +48,7 @@ export default function SettingMenu() {
           <button
             type="button"
             className={`button ${styles.space} ${
-              space.UID === selectedSpace?.UID && styles.active
+              space.UID === useSelectedSpaceState.UID && styles.active
             }`}
             key={`space-${idx}`}
             onClick={() => handleSetSpace(space.UID)}
@@ -69,7 +69,7 @@ export default function SettingMenu() {
             <div className={styles.spaceInfo}>
               {space.space_name}
               <i className="normal">{space.space_users.length + 1} 명의 멤버</i>
-              {space.UID === selectedSpace?.UID && (
+              {space.UID === useSelectedSpaceState.UID && (
                 <img src="/images/check.svg" alt="connect space" />
               )}
             </div>
@@ -79,7 +79,7 @@ export default function SettingMenu() {
       <button
         type="button"
         className="button"
-        onClick={() => toggleUserSettingPopup({ isActOpen: true })}
+        onClick={() => toggleUserSettingPopup(true)}
       >
         개인 정보 수정
       </button>

@@ -1,16 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import { RecoilRoot } from "recoil";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { onScrollLock, onScrollUnlock } from "@utils/scroll";
-import { useScrollLock } from "@hooks/useScrollLock";
+import { useScrollLockStore } from "@stores/useScrollLockStore";
 import Loading from "@components/common/loading";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import storage from "@fetch/auth/storage";
 import { usePathname } from "next/navigation";
 
 const ScrollLockHandler = () => {
-  const { isLocked } = useScrollLock();
+  const { isLocked } = useScrollLockStore();
 
   useEffect(() => {
     if (isLocked) {
@@ -40,26 +37,12 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
     }
   }, [pathname]);
 
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000,
-          },
-        },
-      })
-  );
-
   return (
-    <RecoilRoot>
-      <QueryClientProvider client={queryClient}>
-        {children}
-        <Loading />
-        <ScrollLockHandler />
-        <ReactQueryDevtools />
-      </QueryClientProvider>
-    </RecoilRoot>
+    <>
+      {children}
+      <Loading />
+      <ScrollLockHandler />
+    </>
   );
 };
 

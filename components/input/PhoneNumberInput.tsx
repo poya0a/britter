@@ -1,6 +1,6 @@
 import styles from "@styles/components/_input.module.scss";
 import { ErrorMessage } from "@hookform/error-message";
-import { useVerify } from "@hooks/auth/useVerify";
+import { useVerifyStore } from "@stores/auth/useVerifyStore";
 
 interface InputProps {
   hpRegister: any;
@@ -17,7 +17,7 @@ export default function PhoneNumberInput({
   getCertificationNumber,
   postCertificationNumber,
 }: InputProps) {
-  const { formatTime, useVerifyState } = useVerify();
+  const { formatTime, useVerifyState } = useVerifyStore();
 
   return (
     <>

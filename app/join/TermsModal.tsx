@@ -1,5 +1,5 @@
-import { useModal } from "@hooks/popup/useModal";
-import { TermsData, useTerms } from "@hooks/auth/useTerms";
+import { useTermsPopupStore } from "./store/useTermsPopupStore";
+import { TermsData, useTermsStore } from "./store/useTermsStore";
 import popupStyles from "@styles/components/_popup.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
 import styles from "./page.module.scss";
@@ -11,13 +11,13 @@ function ModalTerms() {
     selectTerms,
     toggleCheck,
     toggleCheckAll,
-  } = useTerms();
+  } = useTermsStore();
 
-  const { toggleModal } = useModal();
+  const { toggleTermsPopup } = useTermsPopupStore();
   const checked = useTermsState.every((term: TermsData) => term.checked);
 
   const handleCheckedAll = () => {
-    toggleModal(false);
+    toggleTermsPopup(false);
     toggleCheckAll(true);
   };
 
@@ -87,7 +87,7 @@ function ModalTerms() {
           <button
             type="button"
             className={`button ${popupStyles.buttonTerms}`}
-            onClick={() => toggleModal(false)}
+            onClick={() => toggleTermsPopup(false)}
           >
             닫 기
           </button>
@@ -100,7 +100,10 @@ function ModalTerms() {
           </button>
         </div>
       </div>
-      <div className={popupStyles.dim} onClick={() => toggleModal(false)} />
+      <div
+        className={popupStyles.dim}
+        onClick={() => toggleTermsPopup(false)}
+      />
     </div>
   );
 }

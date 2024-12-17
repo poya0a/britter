@@ -1,12 +1,12 @@
 "use client";
-import { useRouteAlert } from "@hooks/popup/useRouteAlert";
+import { useRouteAlertStore } from "@stores/popup/useRouteAlertStore";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import { useRouter } from "next/navigation";
 
 export default function RoutAlert() {
   const router = useRouter();
-  const { useRouteAlertState, toggleRouteAlert } = useRouteAlert();
+  const { useRouteAlertState, toggleRouteAlert } = useRouteAlertStore();
 
   const handleRoute = () => {
     router.push(useRouteAlertState.route);

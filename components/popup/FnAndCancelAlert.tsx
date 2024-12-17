@@ -1,11 +1,11 @@
 "use client";
-import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
+import { useFnAndCancelAlertStore } from "@stores/popup/useFnAndCancelAlertStore";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 
 export default function FnAndCancelAlert() {
   const { useFnAndCancelAlertState, toggleFnAndCancelAlert } =
-    useFnAndCancelAlert();
+    useFnAndCancelAlertStore();
 
   const handleFn = () => {
     useFnAndCancelAlertState.fn();

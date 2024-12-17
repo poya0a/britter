@@ -1,10 +1,10 @@
 "use client";
-import { useFnAlert } from "@hooks/popup/useFnAlert";
+import { useFnAlertStore } from "@stores/popup/useFnAlertStore";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 
 export default function FnAlert() {
-  const { useFnAlertState, toggleFnAlert } = useFnAlert();
+  const { useFnAlertState, toggleFnAlert } = useFnAlertStore();
 
   const handleFn = () => {
     useFnAlertState.fn();

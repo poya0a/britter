@@ -1,7 +1,7 @@
-import { useMessage } from "@hooks/user/useMessage";
-import { useMessagePopup } from "@hooks/popup/useMessagePopup";
-import { useAlert } from "@hooks/popup/useAlert";
-import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
+import { useMessageStore } from "@stores/user/useMessageStore";
+import { useMessagePopupStore } from "@stores/popup/useMessagePopupStore";
+import { useAlertStore } from "@stores/popup/useAlertStore";
+import { useFnAndCancelAlertStore } from "@stores/popup/useFnAndCancelAlertStore";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 
@@ -14,10 +14,10 @@ export default function MessageViewPopup({
   uid: string;
   handleClose: Function;
 }) {
-  const { message, handleDeleteMessage } = useMessage();
-  const { toggleMessagePopup } = useMessagePopup();
-  const { toggleAlert } = useAlert();
-  const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
+  const { useMessageState, handleDeleteMessage } = useMessageStore();
+  const { toggleMessagePopup } = useMessagePopupStore();
+  const { toggleAlert } = useAlertStore();
+  const { toggleFnAndCancelAlert } = useFnAndCancelAlertStore();
 
   const handleMessageDelete = () => {
     toggleFnAndCancelAlert({
@@ -34,12 +34,12 @@ export default function MessageViewPopup({
       return handleClose();
     }
 
-    if (message && message.name) {
+    if (useMessageState && useMessageState.name) {
       // 메시지 보내기
       toggleMessagePopup({
         isActOpen: true,
         recipientUid: uid,
-        recipientName: message.name,
+        recipientName: useMessageState.name,
       });
     } else {
       toggleAlert(
@@ -56,11 +56,13 @@ export default function MessageViewPopup({
           {type === "receivedMessage" ? "보낸" : "받는"}
           &nbsp;사람{" "}
           <strong>
-            {message && message.name ? message.name : "알 수 없음"}
+            {useMessageState && useMessageState.name
+              ? useMessageState.name
+              : "알 수 없음"}
           </strong>
         </h3>
         <div className={styles.messageView}>
-          <p>{message?.message}</p>
+          <p>{useMessageState.message}</p>
         </div>
         <div className={buttonStyles.flexableButtonWrapper}>
           <button

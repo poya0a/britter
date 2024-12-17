@@ -1,17 +1,18 @@
-import { useUserViewPopup } from "@hooks/popup/useUserViewPopup";
-import { useInfo } from "@hooks/user/useInfo";
-import { useMessagePopup } from "@hooks/popup/useMessagePopup";
-import { useUserSettingPopup } from "@hooks/popup/useUserSettingPopup";
+import { useUserViewPopupStore } from "@stores/popup/useUserViewPopupStore";
+import { useInfoStore } from "@stores/user/useInfoStore";
+import { useMessagePopupStore } from "@stores/popup/useMessagePopupStore";
+import { useUserSettingPopupStore } from "@stores/popup/useUserSettingPopupStore";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
 import Image from "next/image";
 
 export default function UserViewPopup() {
-  const { useUserViewPopupState, toggleUserViewPopup } = useUserViewPopup();
-  const { toggleUserSettingPopup } = useUserSettingPopup();
-  const { useInfoState } = useInfo();
-  const { toggleMessagePopup } = useMessagePopup();
+  const { useUserViewPopupState, toggleUserViewPopup } =
+    useUserViewPopupStore();
+  const { toggleUserSettingPopup } = useUserSettingPopupStore();
+  const { useInfoState } = useInfoStore();
+  const { toggleMessagePopup } = useMessagePopupStore();
 
   return (
     <div className={styles.popup}>
@@ -85,7 +86,7 @@ export default function UserViewPopup() {
               className={`button ${buttonStyles.buttonBlue}`}
               onClick={() => {
                 toggleUserViewPopup({ isActOpen: false });
-                toggleUserSettingPopup({ isActOpen: true });
+                toggleUserSettingPopup(true);
               }}
             >
               정보 수정

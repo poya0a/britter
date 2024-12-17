@@ -8,7 +8,7 @@ import {
 import formidable from "formidable";
 import bcrypt from "bcrypt";
 import { Emps } from "@entities/Emps.entity";
-import { passwordPattern, regexValue } from "@/utils/regex";
+import { passwordPattern, regexValue } from "@utils/regex";
 
 export const config = {
   api: {

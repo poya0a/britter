@@ -7,9 +7,9 @@ import AuthHeader from "@components/common/AuthHeader";
 import ImageCropInput from "@components/input/ImageCropInput";
 import PasswordInput from "@components/input/PasswordInput";
 import PhoneNumberInput from "@components/input/PhoneNumberInput";
-import { useImageCrop } from "@hooks/useImageCrop";
+import { useImageCropStore } from "@stores/useImageCropStore";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { useScrollLock } from "@hooks/useScrollLock";
+import { useScrollLockStore } from "@stores/useScrollLockStore";
 import Image from "next/image";
 import profile from "/public/images/profile.svg";
 import { ErrorMessage } from "@hookform/error-message";
@@ -24,12 +24,12 @@ import {
   regexValue,
 } from "@utils/regex";
 import { JoinForm } from "./interface/join.interface";
-import { useAlert } from "@hooks/popup/useAlert";
+import { useAlertStore } from "@stores/popup/useAlertStore";
 import TermsModal from "./TermsModal";
-import { useVerify } from "@hooks/auth/useVerify";
+import { useVerifyStore } from "@stores/auth/useVerifyStore";
 import { getErrorMassage, getValidMassage } from "@utils/errorMessage";
-import { TermsData, useTerms } from "@hooks/auth/useTerms";
-import { useModal } from "@hooks/popup/useModal";
+import { TermsData, useTermsStore } from "./store/useTermsStore";
+import { useTermsPopupStore } from "./store/useTermsPopupStore";
 
 export default function Join() {
   const {
@@ -45,11 +45,15 @@ export default function Join() {
   } = useForm<JoinForm>({ mode: "onChange" });
 
   const router = useRouter();
-  const { useImageCropState, setImageCustom } = useImageCrop();
-  const { isLocked, toggleScrollLock } = useScrollLock();
-  const { toggleAlert } = useAlert();
-  const { useModalState, toggleModal } = useModal();
-  const { useTermsState, toggleCheckAll } = useTerms();
+  const {
+    useImageCropState,
+    setImageCustom,
+    reset: imageReset,
+  } = useImageCropStore();
+  const { isLocked, toggleScrollLock } = useScrollLockStore();
+  const { toggleAlert } = useAlertStore();
+  const { useTermsPopupState, toggleTermsPopup } = useTermsPopupStore();
+  const { useTermsState, fetchTermsList, toggleCheckAll } = useTermsStore();
   const termsChecked = useTermsState
     ? useTermsState
         .filter((term: TermsData) => term.required)
@@ -63,7 +67,11 @@ export default function Join() {
     userId: false,
     userEmail: false,
   });
-  const { useVerifyState, toggleVerify } = useVerify();
+  const { useVerifyState, toggleVerify } = useVerifyStore();
+
+  useEffect(() => {
+    fetchTermsList();
+  }, []);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target?.files?.[0];
@@ -423,6 +431,20 @@ export default function Join() {
     }
   };
 
+  // 이미지 정보 초기화
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      imageReset();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      imageReset();
+    };
+  }, [imageReset]);
+
   return (
     <div className={styles.join}>
       {isLocked && <ImageCropInput />}
@@ -669,7 +691,7 @@ export default function Join() {
             <button
               type="button"
               className={`button ${inputStyles.inputCheckButton}`}
-              onClick={() => toggleModal(true)}
+              onClick={() => toggleTermsPopup(true)}
             >
               이용 약관 동의
             </button>
@@ -685,7 +707,7 @@ export default function Join() {
           </button>
         </div>
       </form>
-      {useModalState && <TermsModal />}
+      {useTermsPopupState && <TermsModal />}
     </div>
   );
 }

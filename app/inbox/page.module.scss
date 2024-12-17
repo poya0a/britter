@@ -57,6 +57,13 @@
   }
 }
 
+.noResults {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .notifyWrapper {
   position: relative;
   width: 100%;
@@ -170,11 +177,5 @@
         background-color: rgba(0,0,0, .1);
       }
     }
-  }
-  .noResults {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
   }
 }

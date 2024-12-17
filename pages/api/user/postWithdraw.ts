@@ -6,13 +6,13 @@ import {
   authenticateToken,
 } from "@server/utils/authenticateToken";
 import bcrypt from "bcrypt";
-import { DataSource, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { Emps } from "@entities/Emps.entity";
 import { Certification } from "@entities/Certification.entity";
 import { Private } from "@entities/Private.entity";
 import { Space } from "@entities/Space.entity";
 import { SpaceList } from "@entities/SpaceList.entity";
-import { handleFileDelete } from "@/server/utils/fileDelete";
+import { handleFileDelete } from "@server/utils/fileDelete";
 
 // 비밀번호 일치 여부 확인
 async function checkPassword(

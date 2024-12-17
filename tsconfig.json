@@ -33,7 +33,7 @@
       "@models/*": ["./server/models/*"],
       "@provider/*": ["./provider/*"],
       "@utils/*": ["./utils/*"],
-      "@hooks/*": ["./hooks/*"],
+      "@stores/*": ["./stores/*"],
       "@styles/*": ["./styles/*"],
       "@components/*": ["./components/*"]
     }

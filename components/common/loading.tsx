@@ -1,8 +1,8 @@
-import { useLoading } from "@hooks/useLoading";
+import { useLoadingStore } from "@stores/useLoadingStore";
 import { BeatLoader } from "react-spinners";
 
 export default function Loading() {
-  const { useLoadingState } = useLoading();
+  const { isLoading } = useLoadingStore();
 
   return (
     <div
@@ -16,7 +16,7 @@ export default function Loading() {
         opacity: 1,
         transition: "all 0.5s ease-in-out",
         zIndex: 99999,
-        display: useLoadingState ? "block" : "none",
+        display: isLoading ? "block" : "none",
       }}
     >
       <div
@@ -28,12 +28,7 @@ export default function Loading() {
           transform: "translate(-50%, -50%)",
         }}
       >
-        <BeatLoader
-          size={12}
-          color="#89A8FF"
-          margin={5}
-          loading={useLoadingState}
-        />
+        <BeatLoader size={12} color="#89A8FF" margin={5} loading={isLoading} />
       </div>
     </div>
   );

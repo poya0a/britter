@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import PasswordInput from "@components/input/PasswordInput";
 import { ErrorMessage } from "@hookform/error-message";
 import { useForm } from "react-hook-form";
-import { useAlert } from "@hooks/popup/useAlert";
+import { useAlertStore } from "@stores/popup/useAlertStore";
 import encryptRSA from "@utils/encryptRSA";
 import storage from "@fetch/auth/storage";
 
@@ -21,7 +21,7 @@ export default function Login() {
     reset,
     formState: { errors },
   } = useForm({ mode: "onChange" });
-  const { toggleAlert } = useAlert();
+  const { toggleAlert } = useAlertStore();
 
   const login = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();

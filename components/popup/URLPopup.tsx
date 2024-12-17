@@ -1,11 +1,11 @@
 import { KeyboardEvent, useState } from "react";
-import { useURLPopup } from "@hooks/popup/useURLPopup";
+import { useURLPopupStore } from "@stores/popup/useURLPopupStore";
 import styles from "@styles/components/_popup.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 
 export default function URLPopup() {
-  const { toggleURLPopup } = useURLPopup();
+  const { toggleURLPopup } = useURLPopupStore();
   const [URLValue, setURLValue] = useState<string>("");
   const [labelValue, setLabelValue] = useState<string>("");
   const [notURL, setNotURL] = useState<boolean>(false);

@@ -4,18 +4,16 @@ import React, {
   useEffect,
   useRef,
   useState,
-  ChangeEvent,
   KeyboardEvent,
 } from "react";
 import styles from "./page.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
-import { useNotification } from "@hooks/user/useNotification";
-import { useMessage } from "@hooks/user/useMessage";
-import { useInfo } from "@hooks/user/useInfo";
+import { useNotificationStore } from "@stores/user/useNotificationStore";
+import { useMessageStore } from "@stores/user/useMessageStore";
+import { useInfoStore } from "@stores/user/useInfoStore";
 import MessageViewPopup from "@components/popup/MessageViewPopup";
-import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
-import { ErrorMessage } from "@hookform/error-message";
+import { useFnAndCancelAlertStore } from "@stores/popup/useFnAndCancelAlertStore";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState<string>("notify");
@@ -24,7 +22,7 @@ export default function Page() {
     pageNo: notifyPage,
     lastPage: notifyLastPage,
     fetchNotification,
-  } = useNotification();
+  } = useNotificationStore();
   const {
     useMessageListState,
     type,
@@ -35,8 +33,8 @@ export default function Page() {
     fetchMessage,
     handleReadMessage,
     handleDeleteMessage,
-  } = useMessage();
-  const { useInfoState } = useInfo();
+  } = useMessageStore();
+  const { useInfoState } = useInfoStore();
   const [messagePopupIsActOpen, setMessagePopupIsActOpen] =
     useState<boolean>(false);
   const [messagePopup, setMessagePopup] = useState<{
@@ -48,7 +46,7 @@ export default function Page() {
     uid: "",
     handleClose: () => {},
   });
-  const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
+  const { toggleFnAndCancelAlert } = useFnAndCancelAlertStore();
   const contentRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
   const [pressEnter, setPressEnter] = useState(false);

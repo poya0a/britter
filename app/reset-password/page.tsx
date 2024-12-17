@@ -7,9 +7,9 @@ import PasswordInput from "@components/input/PasswordInput";
 import { useForm } from "react-hook-form";
 import { passwordPattern } from "@utils/regex";
 import { ErrorMessage } from "@hookform/error-message";
-import { useResetPassword } from "@hooks/auth/useResetPassword";
-import { useAlert } from "@hooks/popup/useAlert";
-import { useRouteAlert } from "@hooks/popup/useRouteAlert";
+import { useResetPasswordStore } from "@stores/auth/useResetPasswordStore";
+import { useAlertStore } from "@stores/popup/useAlertStore";
+import { useRouteAlertStore } from "@stores/popup/useRouteAlertStore";
 
 export default function ResetPassword() {
   const {
@@ -19,9 +19,9 @@ export default function ResetPassword() {
     clearErrors,
     formState: { errors },
   } = useForm({ mode: "onChange" });
-  const { toggleAlert } = useAlert();
-  const { toggleRouteAlert } = useRouteAlert();
-  const { useUserState } = useResetPassword();
+  const { toggleAlert } = useAlertStore();
+  const { toggleRouteAlert } = useRouteAlertStore();
+  const { useUserState } = useResetPasswordStore();
 
   const handlePwCheck = () => {
     const pw = getValues("user_pw");

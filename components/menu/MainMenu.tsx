@@ -1,40 +1,41 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
 import styles from "@styles/components/_menu.module.scss";
-import { useMainMenuWidth } from "@hooks/menu/useMainMenuWidth";
+import { useMainMenuWidthStore } from "@stores/menu/useMainMenuWidthStore";
 import { useRouter } from "next/navigation";
 import storage from "@fetch/auth/storage";
-import { useRouteAlert } from "@hooks/popup/useRouteAlert";
-import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
-import { PostListData, usePost } from "@hooks/user/usePost";
-import { useInfo } from "@hooks/user/useInfo";
-import { useAlert } from "@hooks/popup/useAlert";
-import { useSearchPopup } from "@hooks/popup/useSearchPopup";
-import { useSettingMenu } from "@hooks/menu/useSettingMenu";
-import { useSpace } from "@hooks/user/useSpace";
-import { useNotification } from "@hooks/user/useNotification";
-import { useMessage } from "@hooks/user/useMessage";
-import { useSpaceSettingPopup } from "@hooks/popup/useSpaceSettingPopup";
-import { usePostFolderPopup } from "@hooks/popup/usePostFolderPopup";
+import { useRouteAlertStore } from "@stores/popup/useRouteAlertStore";
+import { useFnAndCancelAlertStore } from "@stores/popup/useFnAndCancelAlertStore";
+import { PostListData, usePostStore } from "@stores/user/usePostStore";
+import { useInfoStore } from "@stores/user/useInfoStore";
+import { useAlertStore } from "@stores/popup/useAlertStore";
+import { useSearchPopupStore } from "@stores/popup/useSearchPopupStore";
+import { useSettingMenuStore } from "@stores/menu/useSettingMenuStore";
+import { useSpaceStore } from "@stores/user/useSpaceStore";
+import { useNotificationStore } from "@stores/user/useNotificationStore";
+import { useMessageStore } from "@stores/user/useMessageStore";
+import { useSpaceSettingPopupStore } from "@stores/popup/useSpaceSettingPopupStore";
+import { usePostFolderPopupStore } from "@stores/popup/usePostFolderPopupStore";
 import Image from "next/image";
 
 export default function MainMenu() {
-  const { useMainMenuWidthState, handleMainMenuWidth } = useMainMenuWidth();
+  const { useMainMenuWidthState, handleMainMenuWidth } =
+    useMainMenuWidthStore();
   const nodeRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const router = useRouter();
-  const { toggleAlert } = useAlert();
-  const { toggleRouteAlert } = useRouteAlert();
-  const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
-  const { toggleSearchPopup } = useSearchPopup();
+  const { toggleAlert } = useAlertStore();
+  const { toggleRouteAlert } = useRouteAlertStore();
+  const { toggleFnAndCancelAlert } = useFnAndCancelAlertStore();
+  const { toggleSearchPopup } = useSearchPopupStore();
   const { usePostFolderPopupState, togglePostFolderPopup } =
-    usePostFolderPopup();
-  const { useInfoState } = useInfo();
-  const { useSpaceState, selectedSpace } = useSpace();
+    usePostFolderPopupStore();
+  const { useInfoState } = useInfoStore();
+  const { useSpaceState, useSelectedSpaceState } = useSpaceStore();
   const { usePostListState, pageSeq, setPageSeq, setType, deletePost } =
-    usePost();
-  const { postNotification, postLeaveNotification } = useNotification();
-  const { unreadMessageCount } = useMessage();
+    usePostStore();
+  const { postNotification, postLeaveNotification } = useNotificationStore();
+  const { unreadMessageCount } = useMessageStore();
   const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
   const otherMenuRef = useRef<HTMLButtonElement>(null);
   const settingMenuRef = useRef<HTMLButtonElement>(null);
@@ -47,8 +48,8 @@ export default function MainMenu() {
     left: 0,
     seq: null,
   });
-  const { useSettingMenuState, toggleSettingMenu } = useSettingMenu();
-  const { toggleSpaceSettingPopup } = useSpaceSettingPopup();
+  const { useSettingMenuState, toggleSettingMenu } = useSettingMenuStore();
+  const { toggleSpaceSettingPopup } = useSpaceSettingPopupStore();
   let startX: number, startWidth: number;
 
   const handleMouseDown = (
@@ -271,7 +272,7 @@ export default function MainMenu() {
   const handleMoveAndCopyPost = (type: string) => {
     togglePostFolderPopup({
       isActOpen: true,
-      spaceUid: selectedSpace?.UID || "",
+      spaceUid: useSelectedSpaceState.UID || "",
       type: type,
       seq: otherMenuPopup.seq || "",
     });
@@ -415,11 +416,11 @@ export default function MainMenu() {
               <i className={styles.messageCount}>{unreadMessageCount}</i>
             )}
           </button>
-          {selectedSpace &&
+          {useSelectedSpaceState &&
             (useSpaceState
               .map((space) => space.UID)
-              .includes(selectedSpace.UID) ? (
-              selectedSpace.space_manager === useInfoState.UID ? (
+              .includes(useSelectedSpaceState.UID) ? (
+              useSelectedSpaceState.space_manager === useInfoState.UID ? (
                 <button
                   type="button"
                   className={`button ${styles.mainMenuDefault}`}
@@ -441,22 +442,22 @@ export default function MainMenu() {
                   <img src="/images/icon/exit.svg" alt="" />
                   <em
                     className="normal"
-                    onClick={() => handleExit(selectedSpace.UID)}
+                    onClick={() => handleExit(useSelectedSpaceState.UID)}
                   >
                     스페이스 나가기
                   </em>
                 </button>
               )
-            ) : selectedSpace.notify &&
-              selectedSpace.notify.notifyType === "participation" ? (
+            ) : useSelectedSpaceState.notify &&
+              useSelectedSpaceState.notify.notifyType === "participation" ? (
               <button
                 type="button"
                 className={`button ${styles.mainMenuDefault}`}
                 style={{ lineHeight: "20px" }}
                 onClick={() =>
                   handleRequest(
-                    selectedSpace.UID,
-                    selectedSpace.notify?.notifyUID,
+                    useSelectedSpaceState.UID,
+                    useSelectedSpaceState.notify?.notifyUID,
                     false
                   )
                 }
@@ -464,8 +465,8 @@ export default function MainMenu() {
                 <img src="/images/icon/emoji_sad.svg" alt="" />
                 <em className="normal">스페이스 참여 취소</em>
               </button>
-            ) : selectedSpace.notify &&
-              selectedSpace.notify.notifyType === "invite" ? (
+            ) : useSelectedSpaceState.notify &&
+              useSelectedSpaceState.notify.notifyType === "invite" ? (
               <>
                 <button
                   type="button"
@@ -473,8 +474,8 @@ export default function MainMenu() {
                   style={{ lineHeight: "20px" }}
                   onClick={() =>
                     handleRequest(
-                      selectedSpace.UID,
-                      selectedSpace.notify?.notifyUID,
+                      useSelectedSpaceState.UID,
+                      useSelectedSpaceState.notify?.notifyUID,
                       true
                     )
                   }
@@ -488,8 +489,8 @@ export default function MainMenu() {
                   style={{ lineHeight: "20px" }}
                   onClick={() =>
                     handleRequest(
-                      selectedSpace.UID,
-                      selectedSpace.notify?.notifyUID,
+                      useSelectedSpaceState.UID,
+                      useSelectedSpaceState.notify?.notifyUID,
                       false
                     )
                   }
@@ -503,7 +504,7 @@ export default function MainMenu() {
                 type="button"
                 className={`button ${styles.mainMenuDefault}`}
                 style={{ lineHeight: "20px" }}
-                onClick={() => handleRequest(selectedSpace.UID)}
+                onClick={() => handleRequest(useSelectedSpaceState.UID)}
               >
                 <img src="/images/icon/emoji_smile.svg" alt="" />
                 <em className="normal">스페이스 참여</em>
@@ -512,7 +513,7 @@ export default function MainMenu() {
         </div>
         <div className={styles.pageMenu}>
           <h6 className={styles.pageMenuName}>
-            {selectedSpace?.space_name}
+            {useSelectedSpaceState.space_name}
             &nbsp;스페이스
           </h6>
           <ul className={`list ${styles.pageList} ${styles.pageListWrap}`}>

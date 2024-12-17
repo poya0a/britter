@@ -2,12 +2,12 @@
 import { useEffect, useState } from "react";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
-import { useSpace } from "@hooks/user/useSpace";
+import { useSpaceStore } from "@stores/user/useSpaceStore";
 import styles from "@styles/components/_common.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
-import { useMainMenuWidth } from "@hooks/menu/useMainMenuWidth";
-import { useToolBarHeight } from "@hooks/useToolBarHeight";
-import { useEditor } from "@hooks/useEditor";
+import { useMainMenuWidthStore } from "@stores/menu/useMainMenuWidthStore";
+import { useToolBarHeightStore } from "@stores/useToolBarHeightStore";
+import { useEditorStore } from "@stores/useEditorStore";
 import ToolBar from "./ToolBar";
 import { EditorProvider } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -29,8 +29,8 @@ import { common, createLowlight } from "lowlight";
 import Image from "@tiptap/extension-image";
 import Highlight from "@tiptap/extension-highlight";
 import ImageResize from "tiptap-extension-resize-image";
-import { useAlert } from "@/hooks/popup/useAlert";
-import { useFnAndCancelAlert } from "@/hooks/popup/useFnAndCancelAlert";
+import { useAlertStore } from "@stores/popup/useAlertStore";
+import { useFnAndCancelAlertStore } from "@stores/popup/useFnAndCancelAlertStore";
 
 const lowlight = createLowlight(common);
 
@@ -115,31 +115,37 @@ const focusTableTag = (element: HTMLElement): boolean => {
 };
 
 export default function SpaceContent() {
-  const { useSpaceState, selectedSpace, saveSpaceContent, deleteSpaceContent } =
-    useSpace();
+  const {
+    useSpaceState,
+    useSelectedSpaceState,
+    saveSpaceContent,
+    deleteSpaceContent,
+  } = useSpaceStore();
   const [type, setType] = useState<string>("");
-  const { useMainMenuWidthState } = useMainMenuWidth();
-  const { useToolBarHeightState } = useToolBarHeight();
+  const { useMainMenuWidthState } = useMainMenuWidthStore();
+  const { useToolBarHeightState } = useToolBarHeightStore();
   const [createHeight, setCreateHeight] = useState<string>("");
   const [createTop, setCreateTop] = useState<string>("");
-  const { setHasTableTag } = useEditor();
+  const { setHasTableTag } = useEditorStore();
   const [editorContent, setEditorContent] = useState<string>("");
-  const { toggleAlert } = useAlert();
-  const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
+  const { toggleAlert } = useAlertStore();
+  const { toggleFnAndCancelAlert } = useFnAndCancelAlertStore();
 
   useEffect(() => {
-    if (selectedSpace) {
-      if (selectedSpace.space_content) {
+    if (useSelectedSpaceState) {
+      if (useSelectedSpaceState.space_content) {
         setType("view");
       } else {
         setType("");
       }
     }
-  }, [selectedSpace]);
+  }, [useSelectedSpaceState]);
 
   useEffect(() => {
-    if (selectedSpace) {
-      if (useSpaceState.find((space) => space.UID === selectedSpace.UID)) {
+    if (useSelectedSpaceState) {
+      if (
+        useSpaceState.find((space) => space.UID === useSelectedSpaceState.UID)
+      ) {
         if (type === "create") {
           setCreateHeight(`calc(100vh - ${useToolBarHeightState + 146}px)`);
           setCreateTop(`${useToolBarHeightState + 86}px`);
@@ -155,7 +161,7 @@ export default function SpaceContent() {
         setCreateTop("40px");
       }
     }
-  }, [selectedSpace, type]);
+  }, [useSelectedSpaceState, type]);
 
   const handleSavePost = async () => {
     try {
@@ -193,7 +199,7 @@ export default function SpaceContent() {
       }
       setEditorContent($.html());
 
-      if (!selectedSpace) {
+      if (!useSelectedSpaceState) {
         return toggleAlert(
           "스페이스 정보를 찾을 수 없습니다. 다시 시도해 주세요."
         );
@@ -201,7 +207,7 @@ export default function SpaceContent() {
 
       const formData = new FormData();
 
-      formData.append("space", selectedSpace.UID);
+      formData.append("space", useSelectedSpaceState.UID);
       formData.append("content", $.html());
 
       const saveContent = await saveSpaceContent(formData);
@@ -267,8 +273,8 @@ export default function SpaceContent() {
       isActOpen: true,
       content: "삭제하시겠습니까?",
       fn: () => {
-        if (selectedSpace) {
-          deleteSpaceContent(selectedSpace.UID);
+        if (useSelectedSpaceState) {
+          deleteSpaceContent(useSelectedSpaceState.UID);
         } else {
           toggleAlert("스페이스 정보를 찾을 수 없습니다. 다시 시도해 주세요.");
         }
@@ -297,7 +303,7 @@ export default function SpaceContent() {
                 slotBefore={
                   <ToolBar
                     titile={false}
-                    content={selectedSpace?.space_content}
+                    content={useSelectedSpaceState.space_content}
                   />
                 }
                 onUpdate={({ editor }) => {
@@ -310,7 +316,7 @@ export default function SpaceContent() {
               <div
                 style={{ padding: "0 15px" }}
                 dangerouslySetInnerHTML={{
-                  __html: selectedSpace?.space_content as string,
+                  __html: useSelectedSpaceState.space_content as string,
                 }}
               />
             )}
@@ -323,7 +329,7 @@ export default function SpaceContent() {
             }}
           >
             <div className={styles.createButtonWrapper}>
-              {selectedSpace?.space_content && (
+              {useSelectedSpaceState.space_content && (
                 <button
                   type="button"
                   className={`button ${buttonStyles.buttonBorderBlue}`}
@@ -352,8 +358,10 @@ export default function SpaceContent() {
         <div className={styles.noContent}>
           <p>스페이스 콘텐츠가 없습니다.</p>
           {useSpaceState &&
-            selectedSpace &&
-            useSpaceState.find((space) => space.UID === selectedSpace.UID) && (
+            useSelectedSpaceState &&
+            useSpaceState.find(
+              (space) => space.UID === useSelectedSpaceState.UID
+            ) && (
               <>
                 <p>생성하시겠습니까?</p>
                 <button

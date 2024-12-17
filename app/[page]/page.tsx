@@ -24,17 +24,17 @@ import ToolBar from "@components/common/ToolBar";
 import { useEffect, useRef, useState } from "react";
 import styles from "@styles/components/_common.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
-import { useMainMenuWidth } from "@hooks/menu/useMainMenuWidth";
-import { useEditor } from "@hooks/useEditor";
+import { useMainMenuWidthStore } from "@stores/menu/useMainMenuWidthStore";
+import { useEditorStore } from "@stores/useEditorStore";
 import { useRouter } from "next/navigation";
-import { useToolBarHeight } from "@hooks/useToolBarHeight";
+import { useToolBarHeightStore } from "@stores/useToolBarHeightStore";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
-import { useAlert } from "@hooks/popup/useAlert";
-import { PostListData, usePost } from "@hooks/user/usePost";
-import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
+import { useAlertStore } from "@stores/popup/useAlertStore";
+import { PostListData, usePostStore } from "@stores/user/usePostStore";
+import { useFnAndCancelAlertStore } from "@stores/popup/useFnAndCancelAlertStore";
 import { useUpdateEffect } from "@utils/useUpdateEffect";
-import { useSpace } from "@hooks/user/useSpace";
+import { useSpaceStore } from "@stores/user/useSpaceStore";
 
 const lowlight = createLowlight(common);
 
@@ -141,14 +141,14 @@ function findParentTitles(
 }
 
 export default function Page() {
-  const { useMainMenuWidthState } = useMainMenuWidth();
-  const { useToolBarHeightState } = useToolBarHeight();
-  const { useEditorState, setHasTableTag } = useEditor();
+  const { useMainMenuWidthState } = useMainMenuWidthStore();
+  const { useToolBarHeightState } = useToolBarHeightStore();
+  const { useEditorState, setHasTableTag } = useEditorStore();
   const router = useRouter();
   const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
-  const { toggleAlert } = useAlert();
-  const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
-  const { selectedSpace } = useSpace();
+  const { toggleAlert } = useAlertStore();
+  const { toggleFnAndCancelAlert } = useFnAndCancelAlertStore();
+  const { useSelectedSpaceState } = useSpaceStore();
   const {
     usePostListState,
     usePostState,
@@ -164,7 +164,7 @@ export default function Page() {
     setType,
     setPageSeq,
     setPathname,
-  } = usePost();
+  } = usePostStore();
   const [viewPost, setViewPost] = useState<PostListData>();
 
   useEffect(() => {
@@ -229,7 +229,7 @@ export default function Page() {
 
       if (pageSeq.pSeq !== "") formData.append("p_seq", pageSeq.pSeq);
       if (pageSeq.seq !== "") formData.append("seq", pageSeq.seq);
-      formData.append("space", selectedSpace?.UID || "");
+      formData.append("space", useSelectedSpaceState.UID || "");
       formData.append(
         "title",
         useEditorState.title === "" ? "제목 없음" : useEditorState.title

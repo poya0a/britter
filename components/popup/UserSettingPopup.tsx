@@ -1,20 +1,19 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
 import { useForm } from "react-hook-form";
 import EmojiPicker from "emoji-picker-react";
-import { useInfo } from "@hooks/user/useInfo";
-import { useUserSettingPopup } from "@hooks/popup/useUserSettingPopup";
+import { useInfoStore } from "@stores/user/useInfoStore";
+import { useUserSettingPopupStore } from "@stores/popup/useUserSettingPopupStore";
 import Image from "next/image";
-import { useImageCrop } from "@hooks/useImageCrop";
-import { useScrollLock } from "@hooks/useScrollLock";
+import { useImageCropStore } from "@stores/useImageCropStore";
+import { useScrollLockStore } from "@stores/useScrollLockStore";
 import ImageCropInput from "../input/ImageCropInput";
-import { useFnAndCancelAlert } from "@hooks/popup/useFnAndCancelAlert";
-import { useFnAlert } from "@hooks/popup/useFnAlert";
-import { useAlert } from "@hooks/popup/useAlert";
-import { useRouteAlert } from "@hooks/popup/useRouteAlert";
+import { useFnAndCancelAlertStore } from "@stores/popup/useFnAndCancelAlertStore";
+import { useFnAlertStore } from "@stores/popup/useFnAlertStore";
+import { useAlertStore } from "@stores/popup/useAlertStore";
+import { useRouteAlertStore } from "@stores/popup/useRouteAlertStore";
 import PhoneNumberInput from "../input/PhoneNumberInput";
 import {
   regexValue,
@@ -23,15 +22,15 @@ import {
   phonePattern,
   emailPattern,
   passwordPattern,
-} from "@/utils/regex";
+} from "@utils/regex";
 import { getErrorMassage, getValidMassage } from "@utils/errorMessage";
-import { useVerify } from "@hooks/auth/useVerify";
+import { useVerifyStore } from "@stores/auth/useVerifyStore";
 import { ErrorMessage } from "@hookform/error-message";
 import PasswordInput from "../input/PasswordInput";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
 import storage from "@fetch/auth/storage";
-import { useToast } from "@/hooks/popup/useToast";
+import { useToastStore } from "@stores/popup/useToastStore";
 
 export default function UserSettingPopup() {
   const {
@@ -46,14 +45,18 @@ export default function UserSettingPopup() {
     formState: { errors },
   } = useForm({ mode: "onChange" });
 
-  const queryClient = useQueryClient();
   const userProfileRef = useRef<HTMLDivElement>(null);
-  const { toggleUserSettingPopup } = useUserSettingPopup();
-  const { useInfoState, updateInfo } = useInfo();
-  const { useImageCropState, setImageCustom, setImageSource } = useImageCrop();
+  const { toggleUserSettingPopup } = useUserSettingPopupStore();
+  const { useInfoState, updateInfo } = useInfoStore();
+  const {
+    useImageCropState,
+    setImageCustom,
+    setImageSource,
+    reset: imageReset,
+  } = useImageCropStore();
   const imgUploadInput = useRef<HTMLInputElement | null>(null);
-  const { isLocked, toggleScrollLock } = useScrollLock();
-  const { useVerifyState, toggleVerify } = useVerify();
+  const { isLocked, toggleScrollLock } = useScrollLockStore();
+  const { useVerifyState, toggleVerify } = useVerifyStore();
   const [updateUserPw, setUpdateUserPw] = useState<boolean>(false);
   const [updateUserHp, setUpdateUserHp] = useState<boolean>(false);
   const [userHp, setUserHp] = useState<string>("");
@@ -70,11 +73,11 @@ export default function UserSettingPopup() {
   const [userStatus, setUserStatus] = useState<string>("");
   const [userPublic, setUserPublic] = useState<boolean>(true);
   const [userWithdraw, setUserWithdraw] = useState<boolean>(false);
-  const { toggleAlert } = useAlert();
-  const { setToast } = useToast();
-  const { toggleFnAndCancelAlert } = useFnAndCancelAlert();
-  const { toggleFnAlert } = useFnAlert();
-  const { toggleRouteAlert } = useRouteAlert();
+  const { toggleAlert } = useAlertStore();
+  const { setToast } = useToastStore();
+  const { toggleFnAndCancelAlert } = useFnAndCancelAlertStore();
+  const { toggleFnAlert } = useFnAlertStore();
+  const { toggleRouteAlert } = useRouteAlertStore();
 
   useEffect(() => {
     if (useInfoState) {
@@ -395,7 +398,7 @@ export default function UserSettingPopup() {
           fn: () => {
             setUpdateUserPw(false);
             reset();
-            toggleUserSettingPopup({ isActOpen: false });
+            toggleUserSettingPopup(false);
             logout();
           },
         });
@@ -418,7 +421,6 @@ export default function UserSettingPopup() {
       content: res.message,
       route: "/login",
     });
-    queryClient.clear();
   };
 
   const handleUpdateHp = async () => {
@@ -532,11 +534,11 @@ export default function UserSettingPopup() {
         isActOpen: true,
         content: "수정한 내용이 저장되지 않을 수 있습니다. 닫으시겠습니까?",
         fn: () => {
-          toggleUserSettingPopup({ isActOpen: false });
+          toggleUserSettingPopup(false);
         },
       });
     } else {
-      toggleUserSettingPopup({ isActOpen: false });
+      toggleUserSettingPopup(false);
     }
   };
 
@@ -577,7 +579,6 @@ export default function UserSettingPopup() {
         content: res.message,
         route: "/login",
       });
-      queryClient.clear();
     }
   };
 
@@ -680,6 +681,20 @@ export default function UserSettingPopup() {
 
     updateInfo(formData);
   };
+
+  // 이미지 정보 초기화
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      imageReset();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      imageReset();
+    };
+  }, [imageReset]);
 
   return (
     <>

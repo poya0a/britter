@@ -1,14 +1,14 @@
 import { useState, KeyboardEvent } from "react";
-import { useCreatePopup } from "@hooks/popup/useCreatePopup";
+import { useCreatePopupStore } from "@stores/popup/useCreatePopupStore";
 import styles from "@styles/components/_popup.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
 import { ErrorMessage } from "@hookform/error-message";
 import { useForm } from "react-hook-form";
-import { useSpace } from "@hooks/user/useSpace";
+import { useSpaceStore } from "@stores/user/useSpaceStore";
 
 export default function CreatePopup() {
-  const { toggleCreatePopup } = useCreatePopup();
-  const { createSpace } = useSpace();
+  const { toggleCreatePopup } = useCreatePopupStore();
+  const { createSpace } = useSpaceStore();
   const [pressEnter, setPressEnter] = useState(false);
   const [inputValue, setInputValue] = useState<string>("");
   const [prevInputValue, setPrevInputValue] = useState<string>("");

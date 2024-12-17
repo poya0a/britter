@@ -2,13 +2,13 @@ import { useCurrentEditor } from "@tiptap/react";
 import styles from "@styles/components/_common.module.scss";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Editor } from "@tiptap/core";
-import { useEditor } from "@hooks/useEditor";
+import { useEditorStore } from "@stores/useEditorStore";
 import { SketchPicker, ColorResult } from "react-color";
-import { useMainMenuWidth } from "@hooks/menu/useMainMenuWidth";
-import { useToolBarHeight } from "@hooks/useToolBarHeight";
-import { usePost } from "@hooks/user/usePost";
+import { useMainMenuWidthStore } from "@stores/menu/useMainMenuWidthStore";
+import { useToolBarHeightStore } from "@stores/useToolBarHeightStore";
+import { usePostStore } from "@stores/user/usePostStore";
 import { useUpdateEffect } from "@utils/useUpdateEffect";
-import { useURLPopup } from "@hooks/popup/useURLPopup";
+import { useURLPopupStore } from "@stores/popup/useURLPopupStore";
 
 const isTablePresent = (editor: Editor): boolean => {
   const { selection } = editor.state;
@@ -34,8 +34,8 @@ export default function ToolBar({
   content?: string;
 }) {
   const toolbarRef = useRef<HTMLDivElement>(null);
-  const { handleToolBarHeight } = useToolBarHeight();
-  const { useMainMenuWidthState } = useMainMenuWidth();
+  const { handleToolBarHeight } = useToolBarHeightStore();
+  const { useMainMenuWidthState } = useMainMenuWidthStore();
   const { editor } = useCurrentEditor();
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
   const [currentTextColor, setCurrentTextColor] = useState<string>("#1F1F1F");
@@ -51,8 +51,8 @@ export default function ToolBar({
     setFontSize,
     plusFontSize,
     minusFontSize,
-  } = useEditor();
-  const { useURLPopupState, toggleURLPopup } = useURLPopup();
+  } = useEditorStore();
+  const { useURLPopupState, toggleURLPopup } = useURLPopupStore();
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const {
     auto,
@@ -60,7 +60,7 @@ export default function ToolBar({
     usePostState,
     type: pageType,
     pageSeq,
-  } = usePost();
+  } = usePostStore();
 
   if (editor === null) return;
 

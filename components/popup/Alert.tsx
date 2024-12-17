@@ -1,9 +1,9 @@
-import { useAlert } from "@hooks/popup/useAlert";
+import { useAlertStore } from "@stores/popup/useAlertStore";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 
 export default function Alert() {
-  const { useAlertState, toggleAlert } = useAlert();
+  const { useAlertState, toggleAlert } = useAlertStore();
   return (
     <div className={styles.alert}>
       <div className={styles.dim} />

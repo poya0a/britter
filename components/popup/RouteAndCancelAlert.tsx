@@ -1,5 +1,5 @@
 "use client";
-import { useRouteAndCancelAlert } from "@hooks/popup/useRouteAndCancelAlert";
+import { useRouteAndCancelAlertStore } from "@stores/popup/useRouteAndCancelAlertStore";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import { useRouter } from "next/navigation";
@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 export default function RoutAndCancelAlert() {
   const router = useRouter();
   const { useRouteAndCancelAlertState, toggleRouteAndCancelAlert } =
-    useRouteAndCancelAlert();
+    useRouteAndCancelAlertStore();
 
   const handleRoute = () => {
     router.push(useRouteAndCancelAlertState.route);

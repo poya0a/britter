@@ -1,15 +1,15 @@
 const getStorage = (key: string) => {
   if (typeof window !== "undefined") {
-    return localStorage.getItem(key);
+    return sessionStorage.getItem(key);
   }
 };
 
 const setStorage = (key: string, value: string) => {
-  localStorage.setItem(key, value);
+  sessionStorage.setItem(key, value);
 };
 
 const removeStorage = (key: string) => {
-  localStorage.removeItem(key);
+  sessionStorage.removeItem(key);
 };
 
 const getAccessToken = () => {

@@ -1,16 +1,16 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ReactCrop, { type Crop, PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { useImageCrop } from "@hooks/useImageCrop";
-import { useScrollLock } from "@hooks/useScrollLock";
+import { useImageCropStore } from "@stores/useImageCropStore";
+import { useScrollLockStore } from "@stores/useScrollLockStore";
 import styles from "@styles/components/_input.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 
 export default function ImageCropInput() {
   const { useImageCropState, setImageCustom, setImageSource, updateImageFile } =
-    useImageCrop();
-  const { toggleScrollLock } = useScrollLock();
+    useImageCropStore();
+  const { toggleScrollLock } = useScrollLockStore();
 
   const imgRef = useRef<HTMLImageElement>(null);
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();

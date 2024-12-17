@@ -7,25 +7,33 @@ import {
   useCallback,
 } from "react";
 import { useRouter } from "next/navigation";
-import { useSearchPopup } from "@hooks/popup/useSearchPopup";
+import { useSearchPopupStore } from "@stores/popup/useSearchPopupStore";
 import {
   PostListData,
   SpaceListData,
   UserListData,
-  useSearch,
-} from "@hooks/useSearch";
+  useSearchStore,
+} from "@stores/useSearchStore";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
-import { useSpace } from "@hooks/user/useSpace";
-import { useNotification, RequestData } from "@hooks/user/useNotification";
-import { useInfo } from "@hooks/user/useInfo";
-import { usePost } from "@hooks/user/usePost";
+import { useSpaceStore } from "@stores/user/useSpaceStore";
+import { useNotificationStore } from "@stores/user/useNotificationStore";
+import { useInfoStore } from "@stores/user/useInfoStore";
+import { usePostStore } from "@stores/user/usePostStore";
 import Image from "next/image";
-import { useAlert } from "@hooks/popup/useAlert";
-import { useUserViewPopup } from "@hooks/popup/useUserViewPopup";
+import { useAlertStore } from "@stores/popup/useAlertStore";
+import { useUserViewPopupStore } from "@stores/popup/useUserViewPopupStore";
+
+type RequestData = {
+  uid?: string;
+  recipient: string;
+  sender: string;
+  type: string;
+  response?: boolean;
+};
 
 export default function SearchPopup() {
   const {
@@ -35,7 +43,7 @@ export default function SearchPopup() {
     formState: { errors },
   } = useForm({ mode: "onChange" });
   const router = useRouter();
-  const { useSearchState: popup, toggleSearchPopup } = useSearchPopup();
+  const { useSearchState: popup, toggleSearchPopup } = useSearchPopupStore();
   const {
     useSearchState,
     setUseSearchState,
@@ -46,14 +54,14 @@ export default function SearchPopup() {
     lastPage,
     handleSearchSpace,
     handleSearchUser,
-  } = useSearch();
-  const { useInfoState } = useInfo();
-  const { useSpaceState, selectedSpace, spaceMember } = useSpace();
-  const { setPageSeq } = usePost();
-  const { postNotification, postLeaveNotification } = useNotification();
-  const { setType } = usePost();
-  const { toggleAlert } = useAlert();
-  const { toggleUserViewPopup } = useUserViewPopup();
+  } = useSearchStore();
+  const { useInfoState } = useInfoStore();
+  const { useSpaceState, useSelectedSpaceState, useSpaceMemeberState } =
+    useSpaceStore();
+  const { setPageSeq, setType } = usePostStore();
+  const { postNotification, postLeaveNotification } = useNotificationStore();
+  const { toggleAlert } = useAlertStore();
+  const { toggleUserViewPopup } = useUserViewPopupStore();
   const [pressEnter, setPressEnter] = useState(false);
   const [inputValue, setInputValue] = useState<string>("");
   const [prevInputValue, setPrevInputValue] = useState<string>("");
@@ -123,22 +131,13 @@ export default function SearchPopup() {
     if (inputValue !== "") {
       setNoSearchResults(true);
       if (mode === "space") {
-        setSearchPageNo((prevState) => ({
-          ...prevState,
-          space: 0,
-        }));
+        setSearchPageNo({ space: 0 });
         searchSpaceList(inputValue);
       } else if (mode === "user") {
-        setSearchPageNo((prevState) => ({
-          ...prevState,
-          user: 0,
-        }));
+        setSearchPageNo({ user: 0 });
         searchUserList(inputValue);
       } else if (mode === "post") {
-        setSearchPageNo((prevState) => ({
-          ...prevState,
-          post: 0,
-        }));
+        setSearchPageNo({ post: 0 });
         searchPostList(inputValue);
       }
     }
@@ -201,7 +200,7 @@ export default function SearchPopup() {
   // 속한 스페이스거나 공개인 경우 페이지 이동
   const handleGoToSpace = async (spaceUid: string) => {
     // 현재 접속한 스페이스와 동일
-    if (selectedSpace?.UID === spaceUid) {
+    if (useSelectedSpaceState.UID === spaceUid) {
       handleClose();
       router.push("/");
       return;
@@ -231,7 +230,7 @@ export default function SearchPopup() {
   // 게시글의 스페이스에 속해있거나 공개인 경우 페이지 이동
   const handleGoToPost = async (spaceUid: string, postSeq: string) => {
     // 현재 접속한 스페이스와 동일
-    if (selectedSpace?.UID === spaceUid) {
+    if (useSelectedSpaceState.UID === spaceUid) {
       handleClose();
       setType("view");
       setPageSeq({ seq: postSeq, pSeq: "" });
@@ -485,7 +484,7 @@ export default function SearchPopup() {
                   useSearchState.userList &&
                   useSearchState.userList.map(
                     (user: UserListData, index: number) => {
-                      const isSpaceMember = spaceMember?.find(
+                      const isSpaceMember = useSpaceMemeberState.find(
                         (mem) => mem.UID === user.UID
                       );
 
@@ -502,7 +501,7 @@ export default function SearchPopup() {
                         const data: RequestData = {
                           uid: uid,
                           recipient: user.UID,
-                          sender: selectedSpace?.UID || "",
+                          sender: useSelectedSpaceState.UID || "",
                           type: "user",
                           response: response,
                         };
@@ -541,7 +540,8 @@ export default function SearchPopup() {
                           </button>
                           {user.UID &&
                             user.UID !== useInfoState.UID &&
-                            useInfoState.UID === selectedSpace?.space_manager &&
+                            useInfoState.UID ===
+                              useSelectedSpaceState.space_manager &&
                             (isSpaceMember ? (
                               <button
                                 type="button"
@@ -550,7 +550,7 @@ export default function SearchPopup() {
                                 onClick={() =>
                                   handleExit(
                                     user.UID,
-                                    selectedSpace.UID,
+                                    useSelectedSpaceState.UID,
                                     "user"
                                   )
                                 }

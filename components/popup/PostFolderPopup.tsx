@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import storage from "@fetch/auth/storage";
-import { usePostFolderPopup } from "@hooks/popup/usePostFolderPopup";
+import { usePostFolderPopupStore } from "@stores/popup/usePostFolderPopupStore";
 import styles from "@styles/components/_popup.module.scss";
 import menuStyles from "@styles/components/_menu.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
-import { PostListData, usePost } from "@hooks/user/usePost";
+import { PostListData, usePostStore } from "@stores/user/usePostStore";
 
 export default function PostFolderPopup() {
   const { usePostFolderPopupState, togglePostFolderPopup } =
-    usePostFolderPopup();
-  const { usePostListState } = usePost();
+    usePostFolderPopupStore();
+  const { usePostListState } = usePostStore();
   const [selectFolder, setSelectFolder] = useState<string>("");
   const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
 

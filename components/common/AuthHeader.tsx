@@ -2,7 +2,7 @@
 import styles from "@styles/components/_common.module.scss";
 import Navigate from "../button/Navigate";
 import { useRouter } from "next/navigation";
-import { useRouteAndCancelAlert } from "@hooks/popup/useRouteAndCancelAlert";
+import { useRouteAndCancelAlertStore } from "@stores/popup/useRouteAndCancelAlertStore";
 
 interface HeaderContent {
   type: string;
@@ -12,7 +12,7 @@ interface HeaderContent {
 
 export default function AuthHeader({ type }: { type: string }) {
   const router = useRouter();
-  const { toggleRouteAndCancelAlert } = useRouteAndCancelAlert();
+  const { toggleRouteAndCancelAlert } = useRouteAndCancelAlertStore();
 
   const handleNavigate = () => {
     if (type === "reset") {
