@@ -88,9 +88,9 @@ export default async function handler(
           if (spaceName) {
             // 스페이스 이름 중복 X
             const checkSameName = await spaceRepository.find({
-              where: { space_name: spaceName },
+              where: { space_name: JSON.parse(spaceName) },
             });
-
+            console.log(checkSameName);
             if (checkSameName.length > 0) {
               return res.status(200).json({
                 message:
