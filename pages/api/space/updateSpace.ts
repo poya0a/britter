@@ -86,6 +86,18 @@ export default async function handler(
 
         if (findSpace) {
           if (spaceName) {
+            // 스페이스 이름 중복 X
+            const checkSameName = await spaceRepository.find({
+              where: { space_name: spaceName },
+            });
+
+            if (checkSameName.length > 0) {
+              return res.status(200).json({
+                message:
+                  "이미 존재하는 스페이스 이름입니다. 다시 입력해 주세요.",
+                resultCode: false,
+              });
+            }
             findSpace.space_name = JSON.parse(spaceName);
           }
 
