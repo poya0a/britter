@@ -12,7 +12,10 @@ import { Certification } from "@entities/Certification.entity";
 import { Private } from "@entities/Private.entity";
 import { Space } from "@entities/Space.entity";
 import { SpaceList } from "@entities/SpaceList.entity";
+import { Post } from "@entities/Post.entity";
+import { Message } from "@entities/Message.entity";
 import { handleFileDelete } from "@server/utils/fileDelete";
+import { extractImgDataSeq } from "@/server/utils/extractImgDataSeq";
 
 // 비밀번호 일치 여부 확인
 async function checkPassword(
@@ -36,15 +39,39 @@ async function removeUserFromSpace(
   }
 }
 
-// 매니저일 경우 스페이스 삭제
+// 매니저일 경우 스페이스 및 게시글 삭제
 async function deleteSpaceAndUsers(
   space: Space,
   uid: string,
   spaceRepository: Repository<Space>,
-  spaceListRepository: Repository<SpaceList>
+  spaceListRepository: Repository<SpaceList>,
+  postRepository: Repository<Post>
 ) {
   // 매니저인 경우 스페이스 삭제
   if (space.space_manager === uid) {
+    // 스페이스 프로필 있는 경우 데이터 및 물리 파일 삭제
+    if (space.space_profile_seq) {
+      await handleFileDelete(space.space_profile_seq);
+    }
+    // 스페이스의 게시글 목록 삭제
+    const findPostList = await postRepository.find({
+      where: { space_uid: space.UID },
+    });
+
+    if (findPostList.length > 0) {
+      for (const post of findPostList) {
+        const extractedSeqList = extractImgDataSeq(post.content);
+        // 게시글에 이미지 파일이 있는 경우 반복문으로 데이터 및 물리 파일 삭제
+        if (extractedSeqList.length > 0) {
+          for (const seq of extractedSeqList) {
+            await handleFileDelete(seq);
+          }
+        }
+        // 게시글 삭제
+        await postRepository.delete({ UID: post.UID });
+      }
+    }
+
     // 사용자 목록 업데이트
     for (const user of space.space_users) {
       const userSpaceList = await spaceListRepository.findOne({
@@ -71,7 +98,9 @@ async function deleteEntities(
   certificationRepository: Repository<Certification>,
   privateRepository: Repository<Private>,
   spaceRepository: Repository<Space>,
-  spaceListRepository: Repository<SpaceList>
+  spaceListRepository: Repository<SpaceList>,
+  postRepository: Repository<Post>,
+  messageRepository: Repository<Message>
 ) {
   // 프로필 이미지 삭제
   if (findUser.user_profile_seq !== 0) {
@@ -85,6 +114,9 @@ async function deleteEntities(
     await empsRepository.save(findUser);
     await certificationRepository.delete({ seq: certificationSeq });
   }
+
+  // 수신한 메시지 목록 삭제
+  await messageRepository.delete({ recipient_uid: uid });
 
   // 프라이빗 키 정보 삭제
   if (findUser.private_seq) {
@@ -110,7 +142,8 @@ async function deleteEntities(
           findSpace,
           uid,
           spaceRepository,
-          spaceListRepository
+          spaceListRepository,
+          postRepository
         );
       }
     }
@@ -179,6 +212,8 @@ export default async function handler(
         const privateRepository = dataSource.getRepository(Private);
         const spaceRepository = dataSource.getRepository(Space);
         const spaceListRepository = dataSource.getRepository(SpaceList);
+        const postRepository = dataSource.getRepository(Post);
+        const messageRepository = dataSource.getRepository(Message);
 
         await deleteEntities(
           uid,
@@ -187,7 +222,9 @@ export default async function handler(
           certificationRepository,
           privateRepository,
           spaceRepository,
-          spaceListRepository
+          spaceListRepository,
+          postRepository,
+          messageRepository
         );
 
         // 최종적으로 사용자 정보 삭제
