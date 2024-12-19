@@ -7,6 +7,7 @@ import { useAlertStore } from "../popup/useAlertStore";
 import { useRouteAlertStore } from "../popup/useRouteAlertStore";
 import { useToastStore } from "../popup/useToastStore";
 import { useSearchStore } from "../useSearchStore";
+import { useSpaceStore } from "./useSpaceStore";
 
 export interface NotificationData {
   UID: string;
@@ -158,6 +159,7 @@ const updateSpace = async (uid: string) => {
 
 const updateUser = async (uid: string) => {
   const { setUseSearchState, useSearchState } = useSearchStore.getState();
+  const { setUseSpaceMemeberState } = useSpaceStore.getState();
   const spaceUid = storage.getSpaceUid();
 
   try {
@@ -167,6 +169,7 @@ const updateUser = async (uid: string) => {
     });
 
     if (res?.data) {
+      // 검색 팝업에서 화면 업데이트
       const updatedUserList = await Promise.all(
         useSearchState.userList?.map(async (user) => {
           if (user.UID === res.data.UID) {
@@ -180,6 +183,11 @@ const updateUser = async (uid: string) => {
         }) || []
       );
       setUseSearchState({ userList: updatedUserList });
+
+      // 스페이스 설정 팝업에서 멤버 정보 업데이트
+      if (spaceUid) {
+        setUseSpaceMemeberState(spaceUid, 0);
+      }
     }
   } catch (error: any) {
     console.error(error.message);

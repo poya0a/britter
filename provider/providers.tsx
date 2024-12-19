@@ -1,8 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { onScrollLock, onScrollUnlock } from "@utils/scroll";
 import { useScrollLockStore } from "@stores/useScrollLockStore";
-import Loading from "@components/common/loading";
+import Loading from "@components/common/Loading";
 import storage from "@fetch/auth/storage";
 import { usePathname } from "next/navigation";
 

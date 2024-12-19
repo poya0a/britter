@@ -64,7 +64,11 @@ interface SpaceStore {
   setUseSpaceState: (spaces: SpaceData[]) => void;
   setUseSelectedSpaceState: (space: SpaceData) => void;
   setSpacePageInfo: (pageInfo: PageInfo) => void;
-  setUseSpaceMemeberState: (members: SpaceMemberData[]) => void;
+  setUseSpaceMemeberState: (
+    spaceUid: string,
+    page: number,
+    searchWord?: string
+  ) => Promise<void>;
   setSpaceMemeberPageInfo: (pageInfo: PageInfo) => void;
 }
 
@@ -80,24 +84,24 @@ export const useSpaceStore = create<SpaceStore>((set) => ({
     space_users: [],
   },
   spacePageInfo: {
-    currentPage: 1,
-    totalPages: 1,
-    totalItems: 1,
+    currentPage: 0,
+    totalPages: 0,
+    totalItems: 0,
   },
   useSpaceMemeberState: [],
   spaceMemeberPageInfo: {
-    currentPage: 1,
-    totalPages: 1,
-    totalItems: 1,
+    currentPage: 0,
+    totalPages: 0,
+    totalItems: 0,
   },
   setUseSpaceState: (spaces) => set({ useSpaceState: spaces }),
   setUseSelectedSpaceState: (space) => {
     const { fetchPostList } = usePostStore.getState();
     set({ useSelectedSpaceState: space });
     fetchPostList(space.UID);
+    useSpaceStore.getState().setUseSpaceMemeberState(space.UID, 0);
   },
   setSpacePageInfo: (pageInfo) => set({ spacePageInfo: pageInfo }),
-  setUseSpaceMemeberState: (members) => set({ useSpaceMemeberState: members }),
   setSpaceMemeberPageInfo: (pageInfo) =>
     set({ spaceMemeberPageInfo: pageInfo }),
 
@@ -139,6 +143,7 @@ export const useSpaceStore = create<SpaceStore>((set) => ({
 
         set({ useSelectedSpaceState: findSpace });
         fetchPostList(res.data[0].UID);
+        useSpaceStore.getState().setUseSpaceMemeberState(res.data[0].UID, 0);
       } else {
         const findSpace = updatedList.find(
           (item) => item.UID === selectedSpaceUid
@@ -160,6 +165,45 @@ export const useSpaceStore = create<SpaceStore>((set) => ({
         storage.removeToken();
       }
       throw error;
+    }
+  },
+
+  setUseSpaceMemeberState: async (spaceUid, page, searchWord) => {
+    const { toggleAlert } = useAlertStore.getState();
+    try {
+      const res = await fetchApi({
+        method: "POST",
+        url: requests.POST_SPACE_MEMBER_LIST,
+        body: JSON.stringify({ spaceUid, page: page + 1, searchWord }),
+      });
+
+      if (!res.resultCode) {
+        throw new Error(res.message);
+      }
+
+      if (res.pageInfo) {
+        set({ spaceMemeberPageInfo: res.pageInfo });
+      }
+
+      const updatedList = await Promise.all(
+        res.data.map(async (mem: SpaceMemberData) => {
+          const user_profile_path =
+            (!mem.user_profile_path || mem.user_profile_path !== "") &&
+            mem.user_profile_seq
+              ? await fetchFile(mem.user_profile_seq)
+              : mem.user_profile_path;
+          return { ...mem, user_profile_path };
+        })
+      );
+
+      if (page !== 0) {
+        const memberList = useSpaceStore.getState().useSpaceMemeberState;
+        set({ useSpaceMemeberState: [...memberList, ...updatedList] });
+      } else {
+        set({ useSpaceMemeberState: updatedList });
+      }
+    } catch (error: any) {
+      toggleAlert(error.message);
     }
   },
 

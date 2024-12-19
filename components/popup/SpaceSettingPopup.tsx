@@ -1,4 +1,11 @@
-import { ChangeEvent, useEffect, useRef, useState, KeyboardEvent } from "react";
+import {
+  ChangeEvent,
+  useEffect,
+  useRef,
+  useState,
+  KeyboardEvent,
+  useCallback,
+} from "react";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
@@ -8,6 +15,7 @@ import {
   SpaceMemberData,
   useSpaceStore,
 } from "@stores/user/useSpaceStore";
+import { useSearchStore } from "@stores/useSearchStore";
 import { useNotificationStore } from "@stores/user/useNotificationStore";
 import Image from "next/image";
 import { useImageCropStore } from "@stores/useImageCropStore";
@@ -15,6 +23,7 @@ import { useScrollLockStore } from "@stores/useScrollLockStore";
 import ImageCropInput from "../input/ImageCropInput";
 import { useFnAndCancelAlertStore } from "@stores/popup/useFnAndCancelAlertStore";
 import { useAlertStore } from "@stores/popup/useAlertStore";
+import { useUserViewPopupStore } from "@stores/popup/useUserViewPopupStore";
 
 export default function SpaceSettingPopup() {
   const { useSpaceSettingState, toggleSpaceSettingPopup } =
@@ -25,7 +34,10 @@ export default function SpaceSettingPopup() {
     useSelectedSpaceState,
     updateSpace,
     deleteSpace,
+    setUseSpaceMemeberState,
+    spaceMemeberPageInfo,
   } = useSpaceStore();
+  const { handleSearchUser } = useSearchStore();
   const { postLeaveNotification } = useNotificationStore();
   const { useImageCropState, setImageCustom, setImageSource, reset } =
     useImageCropStore();
@@ -35,11 +47,12 @@ export default function SpaceSettingPopup() {
   const [spacePublic, setSpacePublic] = useState<boolean>(true);
   const { toggleAlert } = useAlertStore();
   const { toggleFnAndCancelAlert } = useFnAndCancelAlertStore();
-  const [memberList, setMemberList] =
-    useState<SpaceMemberData[]>(useSpaceMemeberState);
+  const { toggleUserViewPopup } = useUserViewPopupStore();
+  const contentRef = useRef<HTMLDivElement | null>(null);
   const [inputValue, setInputValue] = useState<string>("");
   const [prevInputValue, setPrevInputValue] = useState<string>("");
   const [pressEnter, setPressEnter] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (useSelectedSpaceState) {
@@ -50,7 +63,9 @@ export default function SpaceSettingPopup() {
       if (foundSpace) {
         setSpaceName(foundSpace.space_name);
         setSpacePublic(foundSpace.space_public);
-        setImageSource(foundSpace.space_profile_path);
+        setImageSource(
+          foundSpace.space_profile_path ? foundSpace.space_profile_path : null
+        );
       } else {
         toggleFnAndCancelAlert({
           isActOpen: true,
@@ -143,14 +158,24 @@ export default function SpaceSettingPopup() {
   const handleSearch = () => {
     if (inputValue === "") {
       setPressEnter(false);
-      setMemberList(useSpaceMemeberState);
+      setUseSpaceMemeberState(useSelectedSpaceState.UID, 0);
+      setPrevInputValue(inputValue);
     } else {
       setPressEnter(true);
-      const serachResult: SpaceMemberData[] = useSpaceMemeberState.filter(
-        (member) => member.user_name.includes(inputValue)
-      );
+      setUseSpaceMemeberState(useSelectedSpaceState.UID, 0, inputValue);
       setPrevInputValue(inputValue);
-      setMemberList(serachResult);
+    }
+  };
+
+  // 멤버 정보 검색
+  const handleViewUser = async (userUid: string) => {
+    const searchUser = await handleSearchUser(userUid);
+
+    if (searchUser) {
+      // 상세 정보 바인딩
+      toggleUserViewPopup({ isActOpen: true, user: searchUser });
+    } else {
+      toggleAlert("비공개 사용자입니다.");
     }
   };
 
@@ -162,6 +187,56 @@ export default function SpaceSettingPopup() {
     formData.append("exitType", exitType);
     postLeaveNotification(formData);
   };
+
+  const fetchMoreData = useCallback(async () => {
+    if (loading) return;
+
+    if (
+      useSpaceSettingState.mode === "member" &&
+      spaceMemeberPageInfo.currentPage !== spaceMemeberPageInfo.totalPages
+    ) {
+      setLoading(true);
+      if (!pressEnter) {
+        setUseSpaceMemeberState(
+          useSelectedSpaceState.UID,
+          spaceMemeberPageInfo.currentPage
+        );
+      } else {
+        setUseSpaceMemeberState(
+          useSelectedSpaceState.UID,
+          spaceMemeberPageInfo.currentPage,
+          prevInputValue
+        );
+      }
+
+      setLoading(false);
+    }
+  }, [useSpaceMemeberState, spaceMemeberPageInfo, loading]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (contentRef.current) {
+        const { scrollTop, clientHeight, scrollHeight } = contentRef.current;
+
+        if (scrollHeight - scrollTop <= clientHeight) {
+          fetchMoreData();
+        }
+      }
+    };
+
+    const refCurrent = contentRef.current;
+    refCurrent?.addEventListener("scroll", handleScroll);
+
+    return () => {
+      refCurrent?.removeEventListener("scroll", handleScroll);
+    };
+  }, [fetchMoreData]);
+
+  useEffect(() => {
+    if (useSpaceSettingState.mode === "member") {
+      setUseSpaceMemeberState(useSelectedSpaceState.UID, 0);
+    }
+  }, [useSpaceSettingState.mode]);
 
   // 이미지 정보 초기화
   useEffect(() => {
@@ -335,19 +410,20 @@ export default function SpaceSettingPopup() {
                     </button>
                   </div>
                 </div>
-                <div className={styles.searchResultWrapper}>
-                  {memberList && (
+                <div className={styles.searchResultWrapper} ref={contentRef}>
+                  {useSpaceMemeberState && (
                     <>
                       <p>
-                        {pressEnter && "검색 결과 : "} 총 {memberList.length} 명
+                        {pressEnter && "검색 결과 : "} 총{" "}
+                        {useSpaceMemeberState.length} 명
                       </p>
-                      {pressEnter && memberList.length < 1 ? (
+                      {pressEnter && useSpaceMemeberState.length < 1 ? (
                         <p className={styles.noSearchResults}>
                           검색 결과가 없습니다.
                         </p>
                       ) : (
                         <div className={styles.searchResultList}>
-                          {memberList.map(
+                          {useSpaceMemeberState.map(
                             (member: SpaceMemberData, index: number) => (
                               <div
                                 className={styles.searchResult}
@@ -357,6 +433,7 @@ export default function SpaceSettingPopup() {
                                   type="button"
                                   className={`button ${styles.goToSearchResult}`}
                                   title={`${member.user_name} 님 정보`}
+                                  onClick={() => handleViewUser(member.UID)}
                                 >
                                   {member.roll === "manager" && (
                                     <strong>M</strong>
@@ -379,7 +456,7 @@ export default function SpaceSettingPopup() {
                                   <button
                                     type="button"
                                     style={{ width: "80px", height: "38px" }}
-                                    className={buttonStyles.buttonBlue}
+                                    className={`button ${buttonStyles.buttonBlue}`}
                                     onClick={() => {
                                       if (useSelectedSpaceState.UID) {
                                         handleExit(

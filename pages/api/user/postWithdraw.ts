@@ -68,7 +68,7 @@ async function deleteSpaceAndUsers(
           }
         }
         // 게시글 삭제
-        await postRepository.delete({ UID: post.UID });
+        await postRepository.remove(post);
       }
     }
 
@@ -86,7 +86,7 @@ async function deleteSpaceAndUsers(
         await spaceListRepository.save(userSpaceList);
       }
     }
-    await spaceRepository.delete({ UID: space.UID });
+    await spaceRepository.remove(space);
   }
 }
 

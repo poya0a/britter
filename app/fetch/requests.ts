@@ -25,7 +25,7 @@ const requests = {
   LEAVE_SPACE: "api/space/postLeaveSpace",
   POST_SPACE_CONTENT: "api/space/postSpaceContent",
   DELETE_SPACE_CONTENT: "api/space/deleteSpaceContent",
-  GET_SPACE_MEMBER_LIST: "api/space/getSpaceMemberList",
+  POST_SPACE_MEMBER_LIST: "api/space/postSpaceMemberList",
   GET_NOTIFICATION_LIST: "api/notification/getNotificationList",
   POST_NOTIFICATION: "api/notification/postNotification",
   GET_MESSAGE_LIST: "api/message/getMessageList",

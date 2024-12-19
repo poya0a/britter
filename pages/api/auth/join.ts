@@ -213,11 +213,21 @@ export default async function handler(
 
     // 개인 스페이스 생성
     const spaceRepository = dataSource.getRepository(Space);
+    let randomString = generateRandomString();
+
+    const checkSameName = await spaceRepository.find({
+      where: { space_name: randomString },
+    });
+
+    // 랜덤으로 스페이스명을 생성할 때 동일한 값이 있는지 확인
+    if (checkSameName) {
+      randomString = `${randomString}_${checkSameName.length}`;
+    }
 
     const space: DeepPartial<Space> = {
       UID: uuidv4(),
       space_profile_seq: null,
-      space_name: emp.user_name,
+      space_name: randomString,
       space_manager: emp.UID,
       space_public: emp.user_public,
       space_users: [],
@@ -293,4 +303,18 @@ export default async function handler(
       resultCode: false,
     });
   }
+}
+
+function generateRandomString(length = 8) {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  const charactersLength = characters.length;
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charactersLength);
+    result += characters.charAt(randomIndex);
+  }
+
+  return result;
 }

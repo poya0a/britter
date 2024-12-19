@@ -24,12 +24,19 @@ export default function UserViewPopup() {
         <div className={styles.profile}>
           <div className={styles.settingMenu}>
             <div className={inputStyles.profile}>
-              <Image
-                src={useUserViewPopupState.user?.user_profile_path as string}
-                alt="profile"
-                width={120}
-                height={120}
-              />
+              {useUserViewPopupState.user?.user_profile_path !== null &&
+              useUserViewPopupState.user?.user_profile_path !== "" ? (
+                <Image
+                  src={useUserViewPopupState.user?.user_profile_path as string}
+                  alt="profile"
+                  width={120}
+                  height={120}
+                />
+              ) : (
+                <i className="normal">
+                  {useUserViewPopupState.user.user_name.charAt(0)}
+                </i>
+              )}
             </div>
           </div>
           <h1>{useUserViewPopupState.user?.user_id}</h1>

@@ -76,6 +76,12 @@ export default function SearchPopup() {
     setSearchLength(0);
     setNoSearchResults(false);
     setInputValue("");
+    setUseSearchState({
+      searchWord: "",
+      spaceList: [],
+      userList: [],
+      postList: [],
+    });
     clearErrors();
     toggleSearchPopup(false);
   };
@@ -354,8 +360,8 @@ export default function SearchPopup() {
                   useSearchState.spaceList &&
                   useSearchState.spaceList.map(
                     (space: SpaceListData, index: number) => {
-                      const spaceInfo = useSpaceState.find(
-                        (spaceData) => spaceData.UID === space.UID
+                      const spaceInfo = space.space_users.find((user) =>
+                        user.includes(useInfoState.UID)
                       );
                       const isSpaceInvited =
                         space.notify && space.notify.notifyType === "invite";

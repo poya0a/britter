@@ -29,6 +29,7 @@ export interface SpaceListData {
   space_name: string;
   space_public: boolean;
   space_manager: string;
+  space_users: string[];
   notify?: Notify;
 }
 
@@ -296,7 +297,7 @@ const useUpdateSpaceList = async (spaceList: SpaceListData[]) => {
   );
 
   const state = useSearchStore.getState();
-  if (state.searchPageNo.space !== 0 && state.useSearchState.spaceList) {
+  if (state.searchPageNo.space !== 1 && state.useSearchState.spaceList) {
     useSearchStore.setState({
       useSearchState: {
         ...state.useSearchState,
@@ -326,7 +327,7 @@ const useUpdateUserList = async (userList: UserListData[]) => {
   );
 
   const state = useSearchStore.getState();
-  if (state.searchPageNo.user !== 0 && state.useSearchState.userList) {
+  if (state.searchPageNo.user !== 1 && state.useSearchState.userList) {
     useSearchStore.setState({
       useSearchState: {
         ...state.useSearchState,
@@ -347,7 +348,7 @@ const useUpdatePostList = (postList: PostListData[], searchWord: string) => {
   }));
 
   const state = useSearchStore.getState();
-  if (state.searchPageNo.post !== 0 && state.useSearchState.postList) {
+  if (state.searchPageNo.post !== 1 && state.useSearchState.postList) {
     useSearchStore.setState({
       useSearchState: {
         ...state.useSearchState,

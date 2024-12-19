@@ -120,6 +120,7 @@ export default async function handler(
                     }
                   }
 
+                  existingPost.UID = uid;
                   existingPost.title = title;
                   existingPost.content = content;
                   existingPost.modify_date = new Date();

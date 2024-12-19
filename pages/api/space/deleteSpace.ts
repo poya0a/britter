@@ -8,6 +8,8 @@ import {
 } from "@server/utils/authenticateToken";
 import { SpaceList } from "@entities/SpaceList.entity";
 import { Post } from "@entities/Post.entity";
+import { extractImgDataSeq } from "@/server/utils/extractImgDataSeq";
+import { handleFileDelete } from "@/server/utils/fileDelete";
 
 export default async function handler(
   req: AuthenticatedRequest & NextApiRequest,
@@ -80,8 +82,18 @@ export default async function handler(
           where: { space_uid: spaceUid },
         });
 
-        if (findPosts) {
-          await postRepository.remove(findPosts);
+        if (findPosts.length > 0) {
+          for (const post of findPosts) {
+            const extractedSeqList = extractImgDataSeq(post.content);
+            // 게시글에 이미지 파일이 있는 경우 반복문으로 데이터 및 물리 파일 삭제
+            if (extractedSeqList.length > 0) {
+              for (const seq of extractedSeqList) {
+                await handleFileDelete(seq);
+              }
+            }
+            // 게시글 삭제
+            await postRepository.remove(post);
+          }
         }
 
         await spaceRepository.remove(findSpace);
