@@ -23,8 +23,8 @@ interface NotificationStore {
   pageNo: number;
   lastPage: boolean;
   fetchNotification: (page: number) => Promise<void>;
-  postNotification: (formData: FormData) => Promise<void>;
-  postLeaveNotification: (formData: FormData) => Promise<void>;
+  postNotification: (formData: FormData) => Promise<boolean>;
+  postLeaveNotification: (formData: FormData) => Promise<boolean>;
   setNotifications: (notifications: NotificationData[]) => void;
   setPageNo: (pageNo: number) => void;
   setLastPage: (lastPage: boolean) => void;
@@ -75,7 +75,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     }
   },
 
-  postNotification: async (formData: FormData) => {
+  postNotification: async (formData: FormData): Promise<boolean> => {
     const { fetchNotification } = get();
     const { toggleAlert } = useAlertStore.getState();
     const { setToast } = useToastStore.getState();
@@ -88,6 +88,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
 
       if (!res.resultCode) {
         toggleAlert(res.message);
+        return false;
       } else {
         setToast(res.message);
 
@@ -99,13 +100,15 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
             updateUser(res.data.uid);
           }
         }
+        return true;
       }
     } catch (error: any) {
       toggleAlert(error.message);
+      return false;
     }
   },
 
-  postLeaveNotification: async (formData: FormData) => {
+  postLeaveNotification: async (formData: FormData): Promise<boolean> => {
     const { toggleAlert } = useAlertStore.getState();
     const { setToast } = useToastStore.getState();
     try {
@@ -117,6 +120,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
 
       if (!res.resultCode) {
         toggleAlert(res.message);
+        return false;
       } else {
         setToast(res.message);
 
@@ -127,9 +131,11 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
             updateUser(res.data.uid);
           }
         }
+        return true;
       }
     } catch (error: any) {
       toggleAlert(error.message);
+      return false;
     }
   },
 }));

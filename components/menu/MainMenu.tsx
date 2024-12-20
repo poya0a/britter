@@ -31,7 +31,7 @@ export default function MainMenu() {
   const { usePostFolderPopupState, togglePostFolderPopup } =
     usePostFolderPopupStore();
   const { useInfoState } = useInfoStore();
-  const { useSpaceState, useSelectedSpaceState } = useSpaceStore();
+  const { useSpaceState, useSelectedSpaceState, fetchSpace } = useSpaceStore();
   const { usePostListState, pageSeq, setPageSeq, setType, deletePost } =
     usePostStore();
   const { postNotification, postLeaveNotification } = useNotificationStore();
@@ -241,15 +241,18 @@ export default function MainMenu() {
     toggleSearchPopup({ isActOpen: true, mode: "space" });
   };
 
-  const handleExit = (spaceUid: string) => {
+  const handleExit = async (spaceUid: string) => {
     const formData = new FormData();
     formData.append("exitUid", spaceUid);
     formData.append("senderUid", useInfoState.UID);
     formData.append("exitType", "space");
-    postLeaveNotification(formData);
+    const res = await postLeaveNotification(formData);
+    if (res) {
+      fetchSpace();
+    }
   };
 
-  const handleRequest = (
+  const handleRequest = async (
     spaceUid: string,
     notifyUID?: string,
     response?: boolean
@@ -266,7 +269,10 @@ export default function MainMenu() {
     formData.append("senderUid", useInfoState.UID);
     formData.append("recipientUid", spaceUid);
     formData.append("notifyType", "space");
-    postNotification(formData);
+    const res = await postNotification(formData);
+    if (res) {
+      fetchSpace();
+    }
   };
 
   const handleMoveAndCopyPost = (type: string) => {
