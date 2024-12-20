@@ -136,6 +136,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
 
 const updateSpace = async (uid: string) => {
   const { setUseSearchState, useSearchState } = useSearchStore.getState();
+  const { toggleAlert } = useAlertStore.getState();
   try {
     const res = await fetchApi({
       method: "GET",
@@ -161,7 +162,7 @@ const updateSpace = async (uid: string) => {
       setUseSearchState({ spaceList: updatedSpaceList });
     }
   } catch (error: any) {
-    console.error(error.message);
+    toggleAlert(error.message);
   }
 };
 
@@ -169,6 +170,7 @@ const updateUser = async (uid: string) => {
   const { setUseSearchState, useSearchState } = useSearchStore.getState();
   const { setUseSpaceMemeberState } = useSpaceStore.getState();
   const spaceUid = storage.getSpaceUid();
+  const { toggleAlert } = useAlertStore.getState();
 
   try {
     const res = await fetchApi({
@@ -201,6 +203,6 @@ const updateUser = async (uid: string) => {
       }
     }
   } catch (error: any) {
-    console.error(error.message);
+    toggleAlert(error.message);
   }
 };

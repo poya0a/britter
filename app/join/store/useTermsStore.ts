@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useAlertStore } from "@stores/popup/useAlertStore";
 
 export interface TermsData {
   seq: number;
@@ -24,6 +25,7 @@ export const useTermsStore = create<TermsState>((set) => ({
   selectedTerms: 0,
 
   fetchTermsList: async () => {
+    const { toggleAlert } = useAlertStore.getState();
     try {
       const res = await fetch("/api/auth/terms", {
         method: "GET",
@@ -36,8 +38,8 @@ export const useTermsStore = create<TermsState>((set) => ({
 
       const data = await res.json();
       set({ useTermsState: data.data });
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      toggleAlert(error);
     }
   },
 

@@ -90,7 +90,7 @@ export default async function handler(
             const checkSameName = await spaceRepository.find({
               where: { space_name: JSON.parse(spaceName) },
             });
-            console.log(checkSameName);
+
             if (checkSameName.length > 0) {
               return res.status(200).json({
                 message:

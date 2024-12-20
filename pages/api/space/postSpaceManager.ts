@@ -44,6 +44,18 @@ export default async function handler(
           });
         }
 
+        // 하나 이상의 스페이스에 매니저 권한 필수
+        const findSpaceInManager = await spaceRepository.find({
+          where: { space_manager: uid },
+        });
+
+        if (!findSpaceInManager || findSpaceInManager.length < 2) {
+          return res.status(200).json({
+            message: "하나 이상의 스페이스에 매니저 권한은 필수입니다.",
+            resultCode: false,
+          });
+        }
+
         const empsRepository = dataSource.getRepository(Emps);
 
         const findUser = await empsRepository.findOne({

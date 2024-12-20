@@ -252,7 +252,7 @@ export default function ToolBar({
           const imageUrl = URL.createObjectURL(blob);
           editor.chain().focus().setImage({ src: imageUrl }).run();
         } catch (error) {
-          console.error("Error handling pasted image:", error);
+          alert(`Error handling pasted image: ${error}`);
         }
       }
     }

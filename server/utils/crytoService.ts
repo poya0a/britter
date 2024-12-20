@@ -21,7 +21,7 @@ export function generateKeyPair(deviceId: string): {
 
 export function encryptData(data: string, key: string): string {
   const bufferPublicKey = Buffer.from(key, "base64");
-  console.log(crypto.createPublicKey(bufferPublicKey));
+
   const encryptedBuffer = crypto.publicEncrypt(
     {
       key: crypto.createPublicKey(bufferPublicKey),
@@ -29,7 +29,7 @@ export function encryptData(data: string, key: string): string {
     },
     Buffer.from(data)
   );
-  console.log(encryptedBuffer);
+
   return encryptedBuffer.toString("base64");
 }
 
