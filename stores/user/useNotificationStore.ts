@@ -40,6 +40,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   setLastPage: (lastPage) => set({ lastPage }),
 
   fetchNotification: async (page) => {
+    const spaceUid = storage.getSpaceUid();
     const { setNotifications, setPageNo, setLastPage, useNotificationState } =
       get();
     const { toggleAlert } = useAlertStore.getState();
@@ -48,13 +49,15 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     try {
       const res = await fetchApi({
         method: "GET",
-        url: `${requests.GET_NOTIFICATION_LIST}?page=${page + 1}`,
+        url: `${requests.GET_NOTIFICATION_LIST}?spaceUid=${spaceUid}&page=${
+          page + 1
+        }`,
       });
 
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode && res.data) {
-        if (res.data && page !== get().pageNo) {
+        if (res.pageInfo && page !== res.pageInfo.currentPage) {
           setNotifications(
             page === 0 ? res.data : [...useNotificationState, ...res.data]
           );
@@ -73,6 +76,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   },
 
   postNotification: async (formData: FormData) => {
+    const { fetchNotification } = get();
     const { toggleAlert } = useAlertStore.getState();
     const { setToast } = useToastStore.getState();
     try {
@@ -88,6 +92,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
         setToast(res.message);
 
         if (res.data) {
+          fetchNotification(0);
           if (res.data.type === "space") {
             updateSpace(res.data.uid);
           } else if (res.data.type === "user") {
@@ -141,10 +146,13 @@ const updateSpace = async (uid: string) => {
       const updatedSpaceList = await Promise.all(
         useSearchState.spaceList?.map(async (space) => {
           if (space.UID === res.data.UID) {
-            const space_profile_path = await fetchFile(
-              res.data.space_profile_seq
-            );
-            return { ...res.data, space_profile_path };
+            if (res.data.space_profile_seq !== null) {
+              const space_profile_path = await fetchFile(
+                res.data.space_profile_seq
+              );
+              return { ...res.data, space_profile_path };
+            }
+            return res.data;
           } else {
             return space;
           }
@@ -173,10 +181,13 @@ const updateUser = async (uid: string) => {
       const updatedUserList = await Promise.all(
         useSearchState.userList?.map(async (user) => {
           if (user.UID === res.data.UID) {
-            const user_profile_path = await fetchFile(
-              res.data.user_profile_seq
-            );
-            return { ...res.data, user_profile_path };
+            if (res.data.user_profile_seq !== null) {
+              const user_profile_path = await fetchFile(
+                res.data.user_profile_seq
+              );
+              return { ...res.data, user_profile_path };
+            }
+            return res.data;
           } else {
             return user;
           }

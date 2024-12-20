@@ -1,7 +1,6 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
 import { getDataSource } from "@database/typeorm.config";
-import { In, Not } from "typeorm";
 import {
   AuthenticatedRequest,
   authenticateToken,
@@ -25,6 +24,7 @@ export default async function handler(
       const uid = req.user.claims.UID;
 
       try {
+        const spaceUid = req.query.spaceUid as string;
         const pageNumber = parseInt(req.query.page as string);
         const dataSource = await getDataSource();
         const spaceListRepository = dataSource.getRepository(SpaceList);
@@ -34,43 +34,39 @@ export default async function handler(
           where: { UID: uid },
         });
 
-        if (!findSpaceList || findSpaceList.space.length === 0) {
+        const findSpace = await spaceRepository.findOne({
+          where: {
+            UID: spaceUid,
+          },
+        });
+
+        if (!findSpaceList || !findSpace || findSpaceList.space.length === 0) {
           return res.status(200).json({
             message: "사용자 정보를 찾을 수 없습니다.",
             resultCode: false,
           });
         }
 
-        const findSpace = await spaceRepository.find({
-          where: {
-            UID: In(findSpaceList.space),
-          },
-        });
+        let whereCondition = [{ recipient_uid: uid }, { sender_uid: uid }];
 
-        const findManagedSpaces = findSpace.filter(
-          (space) => space.space_manager === uid
-        );
+        if (findSpace.space_manager === uid) {
+          whereCondition.push(
+            { recipient_uid: findSpace.UID },
+            { sender_uid: findSpace.UID }
+          );
+        }
 
         const notificationsRepository = dataSource.getRepository(Notifications);
         const empsRepository = dataSource.getRepository(Emps);
 
         const [findNotifications, totalCount] =
           await notificationsRepository.findAndCount({
-            where: [
-              { recipient_uid: uid },
-              {
-                sender_uid: uid,
-              },
-              {
-                recipient_uid: In(findManagedSpaces.map((space) => space.UID)),
-              },
-              {
-                sender_uid: In(findManagedSpaces.map((space) => space.UID)),
-              },
-            ],
-
+            where: whereCondition,
             skip: (pageNumber - 1) * 50,
             take: 50,
+            order: {
+              create_date: "DESC",
+            },
           });
 
         const findName = async (type: string, uid: string) => {
@@ -93,18 +89,23 @@ export default async function handler(
 
         const notificationsWithName = await Promise.all(
           findNotifications.map(async (notification) => {
-            const includedSender =
-              notification.sender_uid === uid ||
-              findManagedSpaces.some(
-                (space) => space.UID === notification.sender_uid
-              );
+            let targetType = "";
+            let targetUid = "";
+            if (notification.sender_uid === uid) {
+              targetType = "space";
+              targetUid = notification.recipient_uid;
+            } else if (notification.sender_uid === findSpace.UID) {
+              targetType = "user";
+              targetUid = notification.recipient_uid;
+            } else if (notification.recipient_uid === uid) {
+              targetType = "space";
+              targetUid = notification.sender_uid;
+            } else {
+              targetType = "user";
+              targetUid = notification.sender_uid;
+            }
 
-            const name = await findName(
-              notification.sender_uid === uid ? "space" : "user",
-              includedSender
-                ? notification.recipient_uid
-                : notification.sender_uid
-            );
+            const name = await findName(targetType, targetUid);
             return {
               ...notification,
               name: name,

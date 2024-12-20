@@ -6,6 +6,8 @@ import {
   KeyboardEvent,
   useCallback,
 } from "react";
+import fetchApi from "@fetch/fetch";
+import requests from "@fetch/requests";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
@@ -32,8 +34,10 @@ export default function SpaceSettingPopup() {
     useSpaceState,
     useSpaceMemeberState,
     useSelectedSpaceState,
+    fetchSpace,
     updateSpace,
     deleteSpace,
+
     setUseSpaceMemeberState,
     spaceMemeberPageInfo,
   } = useSpaceStore();
@@ -186,6 +190,28 @@ export default function SpaceSettingPopup() {
     formData.append("senderUid", senderUid);
     formData.append("exitType", exitType);
     postLeaveNotification(formData);
+  };
+
+  const handleAuthority = async (uid: string) => {
+    try {
+      const res = await fetchApi({
+        method: "POST",
+        url: requests.POST_MANAGER,
+        body: JSON.stringify({
+          spaceUid: useSelectedSpaceState.UID,
+          userUid: uid,
+        }),
+      });
+
+      toggleAlert(res.message);
+
+      if (res.resultCode) {
+        fetchSpace();
+        toggleSpaceSettingPopup(false);
+      }
+    } catch (error: any) {
+      toggleAlert(error.message);
+    }
   };
 
   const fetchMoreData = useCallback(async () => {
@@ -453,22 +479,46 @@ export default function SpaceSettingPopup() {
                                 </button>
                                 {member.UID !==
                                   useSelectedSpaceState.space_manager && (
-                                  <button
-                                    type="button"
-                                    style={{ width: "80px", height: "38px" }}
-                                    className={`button ${buttonStyles.buttonBlue}`}
-                                    onClick={() => {
-                                      if (useSelectedSpaceState.UID) {
-                                        handleExit(
-                                          member.UID,
-                                          useSelectedSpaceState.UID,
-                                          "user"
-                                        );
-                                      }
-                                    }}
-                                  >
-                                    내보내기
-                                  </button>
+                                  <div className={styles.alertButton}>
+                                    <button
+                                      type="button"
+                                      style={{ width: "80px", height: "38px" }}
+                                      className={`button ${buttonStyles.buttonBorderBlue}`}
+                                      onClick={() => {
+                                        if (useSelectedSpaceState.UID) {
+                                          toggleFnAndCancelAlert({
+                                            isActOpen: true,
+                                            content: `${member.user_name} 님을 내보내시겠습니까?`,
+                                            fn: () =>
+                                              handleExit(
+                                                member.UID,
+                                                useSelectedSpaceState.UID,
+                                                "user"
+                                              ),
+                                          });
+                                        }
+                                      }}
+                                    >
+                                      내보내기
+                                    </button>
+                                    <button
+                                      type="button"
+                                      style={{ width: "80px", height: "38px" }}
+                                      className={`button ${buttonStyles.buttonBlue}`}
+                                      onClick={() => {
+                                        if (useSelectedSpaceState.UID) {
+                                          toggleFnAndCancelAlert({
+                                            isActOpen: true,
+                                            content: `매니저 권한을 ${member.user_name} 님에게 이관하시겠습니까?`,
+                                            fn: () =>
+                                              handleAuthority(member.UID),
+                                          });
+                                        }
+                                      }}
+                                    >
+                                      권한변경
+                                    </button>
+                                  </div>
                                 )}
                               </div>
                             )

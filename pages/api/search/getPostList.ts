@@ -74,7 +74,6 @@ export default async function handler(
         } else {
           return res.status(200).json({
             message: "검색 결과가 없습니다.",
-
             resultCode: true,
           });
         }

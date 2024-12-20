@@ -283,11 +283,13 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
   },
 }));
 
-// Helper functions to update lists
 const useUpdateSpaceList = async (spaceList: SpaceListData[]) => {
   const updatedList = await Promise.all(
     spaceList.map(async (space: SpaceListData) => {
-      if (space.space_profile_seq !== null) {
+      if (
+        space.space_profile_seq !== undefined &&
+        space.space_profile_seq !== null
+      ) {
         const space_profile_path = await fetchFile(space.space_profile_seq);
         return { ...space, space_profile_path };
       } else {

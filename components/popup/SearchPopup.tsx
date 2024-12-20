@@ -56,8 +56,7 @@ export default function SearchPopup() {
     handleSearchUser,
   } = useSearchStore();
   const { useInfoState } = useInfoStore();
-  const { useSpaceState, useSelectedSpaceState, useSpaceMemeberState } =
-    useSpaceStore();
+  const { useSelectedSpaceState, useSpaceMemeberState } = useSpaceStore();
   const { setPageSeq, setType } = usePostStore();
   const { postNotification, postLeaveNotification } = useNotificationStore();
   const { toggleAlert } = useAlertStore();

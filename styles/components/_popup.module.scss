@@ -29,15 +29,6 @@
     .alertContent {
       margin-bottom: 24px;
     }
-    .alertButton {
-      display: flex;
-      button {
-        margin-left: 10px;
-        &:first-child {
-          margin: 0;
-        }
-      }
-    }
   }
 }
 
@@ -187,6 +178,16 @@
     }
     .error {
       margin-bottom: 16px;
+    }
+  }
+}
+
+.alertButton {
+  display: flex;
+  button {
+    margin-left: 10px;
+    &:first-child {
+      margin: 0;
     }
   }
 }

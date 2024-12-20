@@ -48,6 +48,9 @@ export default async function handler(
             where: whereCondition,
             skip: (pageNumber - 1) * 20,
             take: 20,
+            order: {
+              create_date: "DESC",
+            },
           });
 
         const messageListWithName = await Promise.all(

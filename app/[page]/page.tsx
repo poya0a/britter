@@ -1,4 +1,5 @@
 "use client";
+import storage from "@fetch/auth/storage";
 import MainMenu from "@components/menu/MainMenu";
 import { EditorProvider } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -34,7 +35,9 @@ import { useAlertStore } from "@stores/popup/useAlertStore";
 import { PostListData, usePostStore } from "@stores/user/usePostStore";
 import { useFnAndCancelAlertStore } from "@stores/popup/useFnAndCancelAlertStore";
 import { useUpdateEffect } from "@utils/useUpdateEffect";
+import { useInfoStore } from "@stores/user/useInfoStore";
 import { useSpaceStore } from "@stores/user/useSpaceStore";
+import { useMessageStore } from "@stores/user/useMessageStore";
 
 const lowlight = createLowlight(common);
 
@@ -141,6 +144,10 @@ function findParentTitles(
 }
 
 export default function Page() {
+  const userToken = storage.getAccessToken();
+  const { fetchInfo } = useInfoStore();
+  const { fetchSpace, useSelectedSpaceState } = useSpaceStore();
+  const { fetchMessageList } = useMessageStore();
   const { useMainMenuWidthState } = useMainMenuWidthStore();
   const { useToolBarHeightState } = useToolBarHeightStore();
   const { useEditorState, setHasTableTag } = useEditorStore();
@@ -148,7 +155,6 @@ export default function Page() {
   const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
   const { toggleAlert } = useAlertStore();
   const { toggleFnAndCancelAlert } = useFnAndCancelAlertStore();
-  const { useSelectedSpaceState } = useSpaceStore();
   const {
     usePostListState,
     usePostState,
@@ -166,6 +172,14 @@ export default function Page() {
     setPathname,
   } = usePostStore();
   const [viewPost, setViewPost] = useState<PostListData>();
+
+  useEffect(() => {
+    if (userToken) {
+      fetchInfo();
+      fetchSpace();
+      fetchMessageList({ typeName: "receivedMessage", page: 0 });
+    }
+  }, []);
 
   useEffect(() => {
     let seq = pageSeq.seq || pageSeq.pSeq;

@@ -278,7 +278,7 @@ export default async function handler(
       } else {
         return res.status(200).json({
           message: "회원 가입에 실패하였습니다. 다시 시도해 주세요.",
-          resultCode: true,
+          resultCode: false,
         });
       }
     } else {
@@ -293,7 +293,7 @@ export default async function handler(
 
       return res.status(200).json({
         message: "회원 가입에 실패하였습니다. 다시 시도해 주세요.",
-        resultCode: true,
+        resultCode: false,
       });
     }
   } catch (error) {

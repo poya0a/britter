@@ -141,7 +141,7 @@ export default async function handler(
         } else {
           return res.status(200).json({
             message: "스페이스 정보가 올바르지 않습니다.",
-            resultCode: true,
+            resultCode: false,
           });
         }
       } catch (error) {
