@@ -36,6 +36,10 @@ export default function SettingMenu() {
     setPageSeq({ seq: "", pSeq: "" });
   };
 
+  const handleNotService = () => {
+    toggleAlert("서비스 준비 중입니다.");
+  };
+
   return (
     <div
       className={styles.settingMenu}
@@ -89,7 +93,7 @@ export default function SettingMenu() {
         스페이스 생성
       </button>
       <div className={styles.border} />
-      <button type="button" className="button">
+      <button type="button" className="button" onClick={handleNotService}>
         앱 설치
       </button>
     </div>

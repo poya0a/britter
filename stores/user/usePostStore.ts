@@ -144,7 +144,7 @@ export const usePostStore = create<PostStore>((set, get) => ({
   savePost: async (formData: FormData) => {
     const { toggleAlert } = useAlertStore.getState();
     const { setToast } = useToastStore.getState();
-    const { fetchPostList, fetchPost, setAuto } = get();
+    const { fetchPostList, fetchPost, setPageSeq, setAuto, setType } = get();
     try {
       const res = await fetchApi({
         method: "POST",
@@ -156,13 +156,15 @@ export const usePostStore = create<PostStore>((set, get) => ({
       } else if (res.resultCode && res.data) {
         if (!get().auto) {
           toggleAlert(res.message);
-          setAuto(null);
+          setType("view");
         } else {
           setToast(res.message);
         }
         fetchPostList();
+        setPageSeq({ seq: res.data.seq, pSeq: "" });
         fetchPost(res.data.seq);
       }
+      setAuto(null);
     } catch (error: any) {
       toggleAlert(error.message);
     }
