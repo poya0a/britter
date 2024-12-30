@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { onScrollLock, onScrollUnlock } from "@utils/scroll";
 import { useScrollLockStore } from "@stores/useScrollLockStore";
-import LoadingBar from "@/components/common/LoadingBar";
+import Loading from "@components/common/Loading";
 import storage from "@fetch/auth/storage";
 import { usePathname } from "next/navigation";
 
@@ -33,7 +33,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       {children}
-      <LoadingBar />
+      <Loading />
       <ScrollLockHandler />
     </>
   );
