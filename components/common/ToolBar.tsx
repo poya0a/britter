@@ -26,41 +26,21 @@ const isTablePresent = (editor: Editor): boolean => {
   return found;
 };
 
-export default function ToolBar({
-  titile,
-  content,
-}: {
-  titile: boolean;
-  content?: string;
-}) {
+export default function ToolBar({ titile, content }: { titile: boolean; content?: string }) {
   const toolbarRef = useRef<HTMLDivElement>(null);
   const { handleToolBarHeight } = useToolBarHeightStore();
   const { useMainMenuWidthState } = useMainMenuWidthStore();
   const { editor } = useCurrentEditor();
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
   const [currentTextColor, setCurrentTextColor] = useState<string>("#1F1F1F");
-  const [currentHighlightColor, setCurrentHighlightColor] =
-    useState<string>("transparent");
+  const [currentHighlightColor, setCurrentHighlightColor] = useState<string>("transparent");
   const [type, setType] = useState<string>("");
   const [autoSaved, setAutoSaved] = useState<boolean>(false);
   const imgRef = useRef<HTMLInputElement>(null);
-  const {
-    useEditorState,
-    setHasTableTag,
-    setTitle,
-    setFontSize,
-    plusFontSize,
-    minusFontSize,
-  } = useEditorStore();
+  const { useEditorState, setHasTableTag, setTitle, setFontSize, plusFontSize, minusFontSize } = useEditorStore();
   const { useURLPopupState, toggleURLPopup } = useURLPopupStore();
   const colorPickerRef = useRef<HTMLDivElement>(null);
-  const {
-    auto,
-    editorContent,
-    usePostState,
-    type: pageType,
-    pageSeq,
-  } = usePostStore();
+  const { auto, editorContent, usePostState, type: pageType, pageSeq } = usePostStore();
 
   if (editor === null) return;
 
@@ -91,14 +71,9 @@ export default function ToolBar({
 
       if (target === null) return;
 
-      const closestIgnoreElement = target.closest(
-        "[data-ignore-outside-click]"
-      );
+      const closestIgnoreElement = target.closest("[data-ignore-outside-click]");
 
-      if (
-        !closestIgnoreElement &&
-        !colorPickerRef.current.contains(event.target as Node)
-      ) {
+      if (!closestIgnoreElement && !colorPickerRef.current.contains(event.target as Node)) {
         setShowColorPicker(false);
         setType("");
         editor.view.dom.style.pointerEvents = "auto";
@@ -176,20 +151,14 @@ export default function ToolBar({
     if (!useURLPopupState.isActOpen && useURLPopupState.value.URL !== null) {
       editor.commands.setContent(
         `<a href="${useURLPopupState.value.URL}" target="_blank">${
-          useURLPopupState.value.label === null
-            ? useURLPopupState.value.URL
-            : useURLPopupState.value.label
+          useURLPopupState.value.label === null ? useURLPopupState.value.URL : useURLPopupState.value.label
         }</a>`
       );
     }
   }, [useURLPopupState.isActOpen]);
 
   const createTable = useCallback(() => {
-    editor
-      .chain()
-      .focus()
-      .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
-      .run();
+    editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
 
     if (editor) {
       setHasTableTag(isTablePresent(editor));
@@ -333,8 +302,7 @@ export default function ToolBar({
               className={styles.colorbar}
               style={{
                 backgroundColor: currentTextColor,
-                border:
-                  currentTextColor === "#ffffff" ? "1px solid #1f1f1f" : "",
+                border: currentTextColor === "#ffffff" ? "1px solid #1f1f1f" : "",
               }}
             />
           </button>
@@ -352,8 +320,7 @@ export default function ToolBar({
               style={{
                 backgroundColor: currentHighlightColor,
                 border:
-                  currentHighlightColor === "transparent" ||
-                  currentHighlightColor === "#ffffff"
+                  currentHighlightColor === "transparent" || currentHighlightColor === "#ffffff"
                     ? "1px solid #1f1f1f"
                     : "",
               }}
@@ -362,9 +329,7 @@ export default function ToolBar({
           {showColorPicker && (
             <div className={styles.colorPicker} ref={colorPickerRef}>
               <SketchPicker
-                color={
-                  type === "text" ? currentTextColor : currentHighlightColor
-                }
+                color={type === "text" ? currentTextColor : currentHighlightColor}
                 onChange={handleColorChange}
               />
             </div>
@@ -378,18 +343,10 @@ export default function ToolBar({
               value={useEditorState.fontSize}
               onChange={(e) => setFontSize(e.target.value)}
             />
-            <button
-              type="button"
-              className={`button ${styles.fontSizeButton}`}
-              onClick={plusFontSize}
-            >
+            <button type="button" className={`button ${styles.fontSizeButton}`} onClick={plusFontSize}>
               <img src="/images/icon/up.svg" alt="" />
             </button>
-            <button
-              type="button"
-              className={`button ${styles.fontSizeButton}`}
-              onClick={minusFontSize}
-            >
+            <button type="button" className={`button ${styles.fontSizeButton}`} onClick={minusFontSize}>
               <img src="/images/icon/down.svg" alt="" />
             </button>
           </div>
@@ -398,9 +355,7 @@ export default function ToolBar({
           <button
             type="button"
             onClick={() => editor.chain().focus().setTextAlign("left").run()}
-            className={
-              editor.isActive({ textAlign: "left" }) ? `${styles.active}` : ""
-            }
+            className={editor.isActive({ textAlign: "left" }) ? `${styles.active}` : ""}
             title="좌측 정렬"
           >
             <img src="/images/icon/textalign_left.svg" alt="left" />
@@ -408,9 +363,7 @@ export default function ToolBar({
           <button
             type="button"
             onClick={() => editor.chain().focus().setTextAlign("center").run()}
-            className={
-              editor.isActive({ textAlign: "center" }) ? `${styles.active}` : ""
-            }
+            className={editor.isActive({ textAlign: "center" }) ? `${styles.active}` : ""}
             title="가운데 정렬"
           >
             <img src="/images/icon/textalign_center.svg" alt="center" />
@@ -418,9 +371,7 @@ export default function ToolBar({
           <button
             type="button"
             onClick={() => editor.chain().focus().setTextAlign("right").run()}
-            className={
-              editor.isActive({ textAlign: "right" }) ? `${styles.active}` : ""
-            }
+            className={editor.isActive({ textAlign: "right" }) ? `${styles.active}` : ""}
             title="우측 정렬"
           >
             <img src="/images/icon/textalign_right.svg" alt="right" />
@@ -428,11 +379,7 @@ export default function ToolBar({
           <button
             type="button"
             onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-            className={
-              editor.isActive({ textAlign: "justify" })
-                ? `${styles.active}`
-                : ""
-            }
+            className={editor.isActive({ textAlign: "justify" }) ? `${styles.active}` : ""}
             title="양쪽 맞춤"
           >
             <img src="/images/icon/textalign_justify.svg" alt="justify" />
@@ -480,18 +427,10 @@ export default function ToolBar({
           >
             <img src="/images/icon/blockquote.svg" alt="blockquote" />
           </button>
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().setHorizontalRule().run()}
-            title="가로선"
-          >
+          <button type="button" onClick={() => editor.chain().focus().setHorizontalRule().run()} title="가로선">
             <img src="/images/icon/horizontal_line.svg" alt="horizontal_line" />
           </button>
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().setHardBreak().run()}
-            title="줄바꿈"
-          >
+          <button type="button" onClick={() => editor.chain().focus().setHardBreak().run()} title="줄바꿈">
             <img src="/images/icon/hardbreak.svg" alt="hardbreak" />
           </button>
         </div>
@@ -522,11 +461,7 @@ export default function ToolBar({
           <button type="button" onClick={setMention} title="언급">
             <img src="/images/icon/at.svg" alt="mention" />
           </button> */}
-          <button
-            type="button"
-            onClick={() => toggleURLPopup(true)}
-            title="연결 삽입"
-          >
+          <button type="button" onClick={() => toggleURLPopup(true)} title="연결 삽입">
             <img src="/images/icon/link.svg" alt="link" />
           </button>
         </div>
@@ -552,35 +487,14 @@ export default function ToolBar({
         {useEditorState.hasTableTag && (
           <div>
             <div className={styles.toolbarWrapper}>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().addRowBefore().run()}
-                title="위에 행 추가"
-              >
-                <img
-                  src="/images/icon/table_row_plus_before.svg"
-                  alt="table_row_plus_before"
-                />
+              <button type="button" onClick={() => editor.chain().focus().addRowBefore().run()} title="위에 행 추가">
+                <img src="/images/icon/table_row_plus_before.svg" alt="table_row_plus_before" />
               </button>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().addRowAfter().run()}
-                title="아래에 행 추가"
-              >
-                <img
-                  src="/images/icon/table_row_plus_after.svg"
-                  alt="아래에 행 추가"
-                />
+              <button type="button" onClick={() => editor.chain().focus().addRowAfter().run()} title="아래에 행 추가">
+                <img src="/images/icon/table_row_plus_after.svg" alt="아래에 행 추가" />
               </button>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().deleteRow().run()}
-                title="행 삭제"
-              >
-                <img
-                  src="/images/icon/table_row_remove.svg"
-                  alt="table_row_remove"
-                />
+              <button type="button" onClick={() => editor.chain().focus().deleteRow().run()} title="행 삭제">
+                <img src="/images/icon/table_row_remove.svg" alt="table_row_remove" />
               </button>
             </div>
             <div className={styles.toolbarWrapper}>
@@ -589,89 +503,40 @@ export default function ToolBar({
                 onClick={() => editor.chain().focus().addColumnBefore().run()}
                 title="왼쪽에 열 삽입"
               >
-                <img
-                  src="/images/icon/table_column_plus_before.svg"
-                  alt="table_column_plus_before"
-                />
+                <img src="/images/icon/table_column_plus_before.svg" alt="table_column_plus_before" />
               </button>
               <button
                 type="button"
                 onClick={() => editor.chain().focus().addColumnAfter().run()}
                 title="오른쪽에 열 삽입"
               >
-                <img
-                  src="/images/icon/table_column_plus_after.svg"
-                  alt="table_column_plus_after"
-                />
+                <img src="/images/icon/table_column_plus_after.svg" alt="table_column_plus_after" />
               </button>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().deleteColumn().run()}
-                title="열 삭제"
-              >
-                <img
-                  src="/images/icon/table_column_remove.svg"
-                  alt="table_column_remove"
-                />
+              <button type="button" onClick={() => editor.chain().focus().deleteColumn().run()} title="열 삭제">
+                <img src="/images/icon/table_column_remove.svg" alt="table_column_remove" />
               </button>
             </div>
             <div className={styles.toolbarWrapper}>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().mergeCells().run()}
-                title="셀 병합"
-              >
-                <img
-                  src="/images/icon/table_merge_cells.svg"
-                  alt="Merge cells"
-                />
+              <button type="button" onClick={() => editor.chain().focus().mergeCells().run()} title="셀 병합">
+                <img src="/images/icon/table_merge_cells.svg" alt="Merge cells" />
               </button>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().splitCell().run()}
-                title="병합된 셀 나누기"
-              >
-                <img
-                  src="/images/icon/table_split_cells.svg"
-                  alt="Split cell"
-                />
+              <button type="button" onClick={() => editor.chain().focus().splitCell().run()} title="병합된 셀 나누기">
+                <img src="/images/icon/table_split_cells.svg" alt="Split cell" />
               </button>
             </div>
             <div className={styles.toolbarWrapper}>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().toggleHeaderRow().run()}
-                title="머릿행"
-              >
+              <button type="button" onClick={() => editor.chain().focus().toggleHeaderRow().run()} title="머릿행">
                 <img src="/images/icon/table_head.svg" alt="table_head" />
               </button>
-              <button
-                type="button"
-                onClick={() =>
-                  editor.chain().focus().toggleHeaderColumn().run()
-                }
-                title="머릿열"
-              >
-                <img
-                  src="/images/icon/table_head.svg"
-                  alt="table_head"
-                  style={{ transform: "rotate(-90deg)" }}
-                />
+              <button type="button" onClick={() => editor.chain().focus().toggleHeaderColumn().run()} title="머릿열">
+                <img src="/images/icon/table_head.svg" alt="table_head" style={{ transform: "rotate(-90deg)" }} />
               </button>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().toggleHeaderCell().run()}
-                title="머릿셀"
-              >
+              <button type="button" onClick={() => editor.chain().focus().toggleHeaderCell().run()} title="머릿셀">
                 <img src="/images/icon/table_cell.svg" alt="table_head" />
               </button>
             </div>
             <div className={styles.toolbarWrapper}>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().fixTables().run()}
-                title="틀 고정"
-              >
+              <button type="button" onClick={() => editor.chain().focus().fixTables().run()} title="틀 고정">
                 <img src="/images/icon/table_fixed.svg" alt="Fix tables" />
               </button>
             </div>

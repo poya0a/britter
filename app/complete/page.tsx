@@ -1,12 +1,17 @@
 "use client";
+import { useEffect, useState } from "react";
 import styles from "./page.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function Complete() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const userId = searchParams?.get("user_id");
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("user_id");
+    setUserId(storedUserId);
+  }, []);
 
   return (
     <main className={styles.complete}>
@@ -20,7 +25,10 @@ export default function Complete() {
         <button
           type="button"
           className={`button ${buttonStyles.buttonFooter}`}
-          onClick={() => router.push("/login")}
+          onClick={() => {
+            router.push("/login");
+            localStorage.removeItem("user_id");
+          }}
         >
           로그인
         </button>
@@ -28,3 +36,5 @@ export default function Complete() {
     </main>
   );
 }
+
+

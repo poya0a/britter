@@ -45,19 +45,13 @@ export default function Join() {
   } = useForm<JoinForm>({ mode: "onChange" });
 
   const router = useRouter();
-  const {
-    useImageCropState,
-    setImageCustom,
-    reset: imageReset,
-  } = useImageCropStore();
+  const { useImageCropState, setImageCustom, reset: imageReset } = useImageCropStore();
   const { isLocked, toggleScrollLock } = useScrollLockStore();
   const { toggleAlert } = useAlertStore();
   const { useTermsPopupState, toggleTermsPopup } = useTermsPopupStore();
   const { useTermsState, fetchTermsList, toggleCheckAll } = useTermsStore();
   const termsChecked = useTermsState
-    ? useTermsState
-        .filter((term: TermsData) => term.required)
-        .every((term) => term.checked)
+    ? useTermsState.filter((term: TermsData) => term.required).every((term) => term.checked)
     : false;
   const imgUploadInput = useRef<HTMLInputElement | null>(null);
   const [dupleCheck, setDupleCheck] = useState<{
@@ -136,9 +130,7 @@ export default function Join() {
             clearErrors(name);
           } else {
             const errorData = await res.json();
-            toggleAlert(
-              errorData.message || "서버와의 통신에 문제가 발생했습니다."
-            );
+            toggleAlert(errorData.message || "서버와의 통신에 문제가 발생했습니다.");
           }
         } catch (error) {
           toggleAlert("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
@@ -262,10 +254,7 @@ export default function Join() {
   }, [watch("user_hp"), trigger]);
 
   useEffect(() => {
-    setValue(
-      "verify_number",
-      regexValue(onlyNumPattern, watch("verify_number"))
-    );
+    setValue("verify_number", regexValue(onlyNumPattern, watch("verify_number")));
   }, [watch("verify_number"), trigger]);
 
   useEffect(() => {
@@ -274,10 +263,7 @@ export default function Join() {
 
   const onSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (
-      typeof window !== "undefined" &&
-      document.activeElement instanceof HTMLElement
-    ) {
+    if (typeof window !== "undefined" && document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
     const data: FieldValues = getValues();
@@ -301,19 +287,13 @@ export default function Join() {
     });
 
     // 필수 이용약관 동의 확인
-    const hasAgreeRequiredTerms = useTermsState
-      .filter((term) => term.required)
-      .every((term) => term.checked);
+    const hasAgreeRequiredTerms = useTermsState.filter((term) => term.required).every((term) => term.checked);
 
     if (
       Object.keys(emptyFields).length > 0 ||
       !dupleCheck.userId ||
       data.user_pw !== data.user_pw_check ||
-      (!(
-        data.user_email === undefined ||
-        data.user_email === "" ||
-        data.user_email === null
-      ) &&
+      (!(data.user_email === undefined || data.user_email === "" || data.user_email === null) &&
         !dupleCheck.userEmail) ||
       !useVerifyState.verify ||
       !useVerifyState.seq ||
@@ -340,11 +320,7 @@ export default function Join() {
       } else if (
         !dupleCheck.userId ||
         data.user_pw !== data.user_pw_check ||
-        (!(
-          data.user_email === undefined ||
-          data.user_email === "" ||
-          data.user_email === null
-        ) &&
+        (!(data.user_email === undefined || data.user_email === "" || data.user_email === null) &&
           !dupleCheck.userEmail) ||
         !useVerifyState.verify ||
         !useVerifyState.seq
@@ -362,11 +338,7 @@ export default function Join() {
           });
         }
         if (
-          !(
-            data.user_email === undefined ||
-            data.user_email === "" ||
-            data.user_email === null
-          ) &&
+          !(data.user_email === undefined || data.user_email === "" || data.user_email === null) &&
           !dupleCheck.userEmail
         ) {
           setError("user_email", {
@@ -392,9 +364,7 @@ export default function Join() {
 
       const formData = new FormData();
 
-      const terms = useTermsState
-        .filter((term) => term.checked)
-        .map((term) => term.seq);
+      const terms = useTermsState.filter((term) => term.checked).map((term) => term.seq);
 
       for (const key in data) {
         formData.append(key, data[key]);
@@ -417,7 +387,8 @@ export default function Join() {
           const resData = await res.json();
 
           if (resData.resultCode) {
-            router.push(`/complete?user_id=${data.user_id}`);
+            localStorage.setItem("user_id", data.user_id);
+            router.push("/complete");
             reset();
           } else {
             toggleAlert(resData.message);
@@ -453,11 +424,7 @@ export default function Join() {
         <div className={styles.joinWrapper}>
           <div className={inputStyles.profile}>
             <Image
-              src={
-                useImageCropState.imageSource !== null
-                  ? (useImageCropState.imageSource as string)
-                  : profile
-              }
+              src={useImageCropState.imageSource !== null ? (useImageCropState.imageSource as string) : profile}
               alt="profile"
               width={120}
               height={120}
@@ -507,16 +474,11 @@ export default function Join() {
                   required: true,
                   pattern: {
                     value: idPattern,
-                    message:
-                      "6자리 이상 15자 이하 영문 혹은 영문과 숫자를 조합하여 입력해 주세요.",
+                    message: "6자리 이상 15자 이하 영문 혹은 영문과 숫자를 조합하여 입력해 주세요.",
                   },
                 })}
               />
-              <button
-                type="button"
-                className="button"
-                onClick={() => handleDupleCheck("id")}
-              >
+              <button type="button" className="button" onClick={() => handleDupleCheck("id")}>
                 중복 확인
               </button>
             </div>
@@ -524,9 +486,7 @@ export default function Join() {
           <ErrorMessage
             errors={errors}
             name="user_id"
-            render={({ message }) => (
-              <p className={inputStyles.errorMessage}>{message}</p>
-            )}
+            render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
           />
           <PasswordInput
             id="userPw"
@@ -538,8 +498,7 @@ export default function Join() {
                 required: true,
                 pattern: {
                   value: passwordPattern,
-                  message:
-                    "영문, 숫자 포함 8자리 이상 50자 이하 입력해 주세요.",
+                  message: "영문, 숫자 포함 8자리 이상 50자 이하 입력해 주세요.",
                 },
               }),
             }}
@@ -547,9 +506,7 @@ export default function Join() {
           <ErrorMessage
             errors={errors}
             name="user_pw"
-            render={({ message }) => (
-              <p className={inputStyles.errorMessage}>{message}</p>
-            )}
+            render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
           />
           <PasswordInput
             id="userPwConfirm"
@@ -560,8 +517,7 @@ export default function Join() {
                 required: true,
                 pattern: {
                   value: passwordPattern,
-                  message:
-                    "영문, 숫자 포함 8자리 이상 50자 이하 입력해 주세요.",
+                  message: "영문, 숫자 포함 8자리 이상 50자 이하 입력해 주세요.",
                 },
                 validate: (value) => {
                   const passwordValue = getValues("user_pw");
@@ -577,9 +533,7 @@ export default function Join() {
           <ErrorMessage
             errors={errors}
             name="user_pw_check"
-            render={({ message }) => (
-              <p className={inputStyles.errorMessage}>{message}</p>
-            )}
+            render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
           />
           <div className={inputStyles.inputText}>
             <label htmlFor="userName" className={inputStyles.required}>
@@ -596,9 +550,7 @@ export default function Join() {
             <ErrorMessage
               errors={errors}
               name="user_name"
-              render={({ message }) => (
-                <p className={inputStyles.errorMessage}>{message}</p>
-              )}
+              render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
             />
           </div>
           <PhoneNumberInput
@@ -607,8 +559,7 @@ export default function Join() {
                 required: true,
                 pattern: {
                   value: phonePattern,
-                  message:
-                    "잘못된 휴대 전화 번호입니다. 확인 후 다시 입력해 주세요.",
+                  message: "잘못된 휴대 전화 번호입니다. 확인 후 다시 입력해 주세요.",
                 },
               }),
             }}
@@ -638,11 +589,7 @@ export default function Join() {
                   },
                 })}
               />
-              <button
-                type="button"
-                className="button"
-                onClick={() => handleDupleCheck("email")}
-              >
+              <button type="button" className="button" onClick={() => handleDupleCheck("email")}>
                 중복 확인
               </button>
             </div>
@@ -650,9 +597,7 @@ export default function Join() {
           <ErrorMessage
             errors={errors}
             name="user_email"
-            render={({ message }) => (
-              <p className={inputStyles.errorMessage}>{message}</p>
-            )}
+            render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
           />
           <div className={inputStyles.inputText}>
             <label htmlFor="userBirth">생년월일</label>
@@ -674,9 +619,7 @@ export default function Join() {
           <ErrorMessage
             errors={errors}
             name="user_birth"
-            render={({ message }) => (
-              <p className={inputStyles.errorMessage}>{message}</p>
-            )}
+            render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
           />
         </div>
 
@@ -698,11 +641,7 @@ export default function Join() {
           </div>
         </div>
         <div className={buttonStyles.buttonFooterWrapper}>
-          <button
-            type="submit"
-            className={`button ${buttonStyles.buttonFooter}`}
-            onClick={onSubmit}
-          >
+          <button type="submit" className={`button ${buttonStyles.buttonFooter}`} onClick={onSubmit}>
             회원 가입
           </button>
         </div>

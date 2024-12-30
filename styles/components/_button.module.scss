@@ -5,8 +5,8 @@
   width: 100%;
   height: 40px;
   border-radius: 5px;
-  background-color: $main-color;
-  color: $background-color;
+  background-color: $main-color !important;
+  color: $background-color !important;
   font-size: 14px;
   font-weight: bold;
   border: none;
@@ -16,8 +16,8 @@
   width: 100%;
   height: 40px;
   border-radius: 5px;
-  background-color: $blue-color;
-  color: $background-color;
+  background-color: $blue-color !important;
+  color: $background-color !important;
   font-size: 14px;
   font-weight: bold;
   border: none;
@@ -27,8 +27,8 @@
   width: 100%;
   height: 40px;
   border-radius: 5px;
-  background-color: $background-color;
-  color: $main-color;
+  background-color: $background-color !important;
+  color: $main-color !important;
   font-size: 14px;
   font-weight: bold;
 }
@@ -37,22 +37,22 @@
   width: 100%;
   height: 40px;
   border-radius: 5px;
-  background-color: $background-color;
-  color: $main-color;
+  background-color: $background-color !important;
+  color: $main-color !important;
   font-size: 14px;
   font-weight: bold;
-  border: 2px solid $main-color;
+  border: 2px solid $main-color !important;
 }
 
 .buttonBorderRed {
   width: 100%;
   height: 40px;
   border-radius: 5px;
-  background-color: $background-color;
-  color: $red-color;
+  background-color: $background-color !important;
+  color: $red-color !important;
   font-size: 14px;
   font-weight: bold;
-  border: 2px solid $red-color;
+  border: 2px solid $red-color !important;
 }
 
 .buttonFooterWrapper {
@@ -62,7 +62,7 @@
   position: fixed;
   bottom: 0;
   left: 0;
-  background-color: $background-color;
+  background-color: $background-color !important;
 }
 
 .buttonFooter {
@@ -73,8 +73,8 @@
   width: calc(100% - 32px);
   height: 40px;
   border-radius: 5px;
-  background-color: $main-color;
-  color: $background-color;
+  background-color: $main-color !important;
+  color: $background-color !important;
   font-size: 14px;
   font-weight: bold;
   box-shadow: 5px 5px 5px rgba(171,189,255, .5);
@@ -84,10 +84,10 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  border: 1px solid $border-color;
+  border: 1px solid $border-color !important;
   padding: 0;
-  margin-right: 12px;
-  &:last-child {margin: 0;}
+  margin-right: 12px !important;
+  &:last-child {margin: 0  !important;}
   img {
     width: 24px;
     height: 24px;
@@ -99,7 +99,7 @@
   margin: 8px 0;
   a {
     font-size: 12px;
-    color: $blue-color;
+    color: $blue-color !important;
     padding-right: 20px;
     position: relative;
     text-decoration: none;
@@ -113,8 +113,8 @@
       content: '';
       width: 1px;
       height: 14px;
-      background-color: $blue-color;
-      position: absolute;
+      background-color: $blue-color !important;
+      position: absolute !important;
       top: 0;
       right: 10px;
     }
@@ -135,14 +135,14 @@
     transform: translateY(-50%);
     width: 100%;
     height: 1px;
-    background-color: $border-color;
+    background-color: $border-color !important;
     z-index: 1;
   }
   em {
     position: relative;
     z-index: 1;
     padding: 5px 10px;
-    background-color: $background-color;
+    background-color: $background-color !important;
     color: $text-sub;
     font-size: 12px;
     margin-top: -10px;
@@ -164,15 +164,15 @@
     width: 80px;
     height: 40px;
     border-radius: 5px 5px 0 0;
-    border: 2px solid $main-color;
-    background-color: $background-color;
-    color: $main-color;
+    border: 2px solid $main-color !important;
+    background-color: $background-color !important;
+    color: $main-color !important;
     font-size: 14px;
     font-weight: bold;
     transition: all .2s ease-out;
     &.active {
-      background-color: $main-color;
-      color: $background-color;
+      background-color: $main-color !important;
+      color: $background-color !important;
     }
   }
 }
@@ -187,9 +187,9 @@
     width: 40px;
     height: 100px;
     border-radius: 5px 0 0 5px;
-    border: 2px solid $main-color;
-    background-color: $background-color;
-    color: $main-color;
+    border: 2px solid $main-color !important;
+    background-color: $background-color !important;
+    color: $main-color !important;
     font-size: 14px;
     font-weight: bold;
     transition: all .2s ease-out;
@@ -197,8 +197,8 @@
     text-orientation: upright;
     text-align: center; 
     &.active {
-      background-color: $main-color;
-      color: $background-color;
+      background-color: $main-color !important;
+      color: $background-color !important;
     }
   }
 }
@@ -210,14 +210,14 @@
     min-width: 80px;
     margin-top: 10px;
     height: 40px;
-    border-bottom: 2px solid $text-sub2;
-    color: $text-sub2;
+    border-bottom: 2px solid $text-sub2 !important;
+    color: $text-sub2 !important;
     font-size: 14px;
     font-weight: bold;
     transition: all .2s ease-out;
     &.active {
-      color: $main-color;
-      border-bottom: 2px solid $main-color;
+      color: $main-color !important;
+      border-bottom: 2px solid $main-color !important;
     }
   }
 }
@@ -225,7 +225,7 @@
 .tapWrapper {
   width: 400px;
   padding: 15px;
-  border: 2px solid $main-color;
+  border: 2px solid $main-color !important;
   border-radius: 5px;
   margin-top: -2px;
 }
@@ -251,7 +251,7 @@
   width: 50px;
   height: 25px;
   border-radius: 5px;
-  background-color: $blue-color;
+  background-color: $blue-color !important;
   transition: all .3s ease , ;
 
   &::before {
@@ -259,7 +259,7 @@
     width: 20px;
     height: 20px;
     border-radius: 5px;
-    background-color: $sub-color;
+    background-color: $sub-color !important;
     position: absolute;
     right: 3px;
     top: 50%;
@@ -268,7 +268,7 @@
   }
 
   &.disabled {
-    background-color: $chat-background;
+    background-color: $chat-background !important;
     &::before {
       right: calc(100% - 23px);
     }
@@ -283,7 +283,7 @@
 .buttonEmoji {
   width: 40px;
   height: 40px;
-  border: 1px solid $main-color;
+  border: 1px solid $main-color !important;
   border-radius: 5px;
   > i {
     width: 40px;

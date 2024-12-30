@@ -52,15 +52,17 @@ const removeToken = () => {
   removeStorage("expanded-posts");
 };
 
-export default {
-  getAccessToken: getAccessToken,
-  setAccessToken: setAccessToken,
-  getRefreshToken: getRefreshToken,
-  setRefreshToken: setRefreshToken,
-  getSpaceUid: getSpaceUid,
-  setSpaceUid: setSpaceUid,
-  setExpandedPosts: setExpandedPosts,
-  getExpandedPosts: getExpandedPosts,
-  removeStorage: removeStorage,
-  removeToken: removeToken,
+const storage = {
+  getAccessToken,
+  setAccessToken,
+  getRefreshToken,
+  setRefreshToken,
+  getSpaceUid,
+  setSpaceUid,
+  setExpandedPosts,
+  getExpandedPosts,
+  removeStorage,
+  removeToken,
 };
+
+export default storage;
