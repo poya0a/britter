@@ -22,14 +22,7 @@ const ScrollLockHandler = () => {
 const Providers = ({ children }: { children: React.ReactNode }) => {
   const userToken = storage.getAccessToken();
   const pathname = usePathname();
-  const pathWithoutToken = [
-    "/login",
-    "/join",
-    "/find-id",
-    "/find-password",
-    "/reset-password",
-    "/complete",
-  ];
+  const pathWithoutToken = ["/login", "/join", "/find-id", "/find-password", "/reset-password", "/complete"];
 
   useEffect(() => {
     if (userToken && pathname && pathWithoutToken.includes(pathname)) {

@@ -27,7 +27,7 @@ const dataSource = new DataSource({
   username: DB_USER,
   password: DB_PASSWORD,
   database: DB_SCHEMA,
-  synchronize: true,
+  synchronize: false,
   logging: false,
   entities: [File, Tag, Terms, Space, SpaceList, Certification, Private, Emps, Post, Comment, Notifications, Message],
   migrations: [],
