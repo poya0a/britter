@@ -1,7 +1,7 @@
 import { useLoadingStore } from "@stores/useLoadingStore";
 import { BeatLoader } from "react-spinners";
 
-const Loading = () => {
+const LoadingBar = () => {
   const { isLoading } = useLoadingStore();
 
   return (
@@ -34,4 +34,4 @@ const Loading = () => {
   );
 };
 
-export default Loading;
+export default LoadingBar;
