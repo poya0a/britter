@@ -2,19 +2,13 @@
 import { NextApiResponse, NextApiRequest } from "next";
 import { getDataSource } from "@database/typeorm.config";
 import { Space } from "@entities/Space.entity";
-import {
-  AuthenticatedRequest,
-  authenticateToken,
-} from "@server/utils/authenticateToken";
+import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 import { SpaceList } from "@entities/SpaceList.entity";
 import { Post } from "@entities/Post.entity";
 import { extractImgDataSeq } from "@/server/utils/extractImgDataSeq";
 import { handleFileDelete } from "@/server/utils/fileDelete";
 
-export default async function handler(
-  req: AuthenticatedRequest & NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: AuthenticatedRequest & NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
@@ -54,9 +48,7 @@ export default async function handler(
           });
         } else {
           // 사용자의 스페이스 리스트에서 삭제
-          findSpaceList.space = findSpaceList.space.filter(
-            (space: string) => space !== spaceUid
-          );
+          findSpaceList.space = findSpaceList.space.filter((space: string) => space !== spaceUid);
 
           await spaceListRepository.save(findSpaceList);
         }
@@ -69,9 +61,7 @@ export default async function handler(
           });
 
           if (userSpaceList) {
-            userSpaceList.space = userSpaceList.space.filter(
-              (spaceId: string) => spaceId !== spaceUid
-            );
+            userSpaceList.space = userSpaceList.space.filter((spaceId: string) => spaceId !== spaceUid);
 
             await spaceListRepository.save(userSpaceList);
           }
@@ -104,8 +94,7 @@ export default async function handler(
         });
       } catch (error) {
         return res.status(500).json({
-          message:
-            typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });
