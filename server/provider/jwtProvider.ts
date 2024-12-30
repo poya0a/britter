@@ -5,16 +5,13 @@ var jwt = require("jsonwebtoken");
 
 config();
 
-const SECRET_KEY = process.env.TOKEN_SECRET_KEY || "default_secret_key";
+const SECRET_KEY = process.env.SUPABASE_JWT_SECRET || "default_secret_key";
 const ACCESS_TOKEN_EXPIRES_IN_MINUTES = {
   DAY: 24 * 60,
   WEEK: 7 * 24 * 60 * 60,
 };
 
-export function createAccessToken(userVO: {
-  UID: string;
-  user_id: string;
-}): string {
+export function createAccessToken(userVO: { UID: string; user_id: string }): string {
   const now = Math.floor(Date.now() / 1000);
   const expiration = now + ACCESS_TOKEN_EXPIRES_IN_MINUTES.DAY * 60;
 
@@ -32,10 +29,7 @@ export function createAccessToken(userVO: {
   return token;
 }
 
-export function createRefreshToken(userVO: {
-  UID: string;
-  user_id: string;
-}): string {
+export function createRefreshToken(userVO: { UID: string; user_id: string }): string {
   const randomKey = getRandomKey();
   const now = Math.floor(Date.now() / 1000);
   const expiration = now + ACCESS_TOKEN_EXPIRES_IN_MINUTES.WEEK;
@@ -59,9 +53,7 @@ interface DecodedToken {
   claims?: { UID: string; user_id: string };
 }
 
-export function verifyRefreshToken(
-  refreshToken: string
-): { UID: string; user_id: string } | null {
+export function verifyRefreshToken(refreshToken: string): { UID: string; user_id: string } | null {
   try {
     const decoded = jwt.verify(refreshToken, SECRET_KEY, {
       algorithms: ["HS512"],

@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from "http";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.TOKEN_SECRET_KEY || "default_secret_key";
+const JWT_SECRET = process.env.SUPABASE_JWT_SECRET || "default_secret_key";
 
 export interface AuthenticatedRequest extends IncomingMessage {
   user?: {
@@ -15,11 +15,7 @@ export interface AuthenticatedRequest extends IncomingMessage {
   };
 }
 
-export const authenticateToken = (
-  req: AuthenticatedRequest,
-  res: ServerResponse,
-  next: () => void
-) => {
+export const authenticateToken = (req: AuthenticatedRequest, res: ServerResponse, next: () => void) => {
   const token = req.headers["user-token"] as string | undefined;
 
   if (!token) {
@@ -28,33 +24,29 @@ export const authenticateToken = (
     return;
   }
 
-  jwt.verify(
-    token,
-    JWT_SECRET,
-    (err: Error | null, user: string | object | undefined) => {
-      if (err) {
-        res.writeHead(403, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "유효하지 않은 토큰입니다." }));
-        return;
-      }
-
-      if (
-        typeof user === "object" &&
-        user.hasOwnProperty("sub") &&
-        user.hasOwnProperty("claims") &&
-        user.hasOwnProperty("iat") &&
-        user.hasOwnProperty("exp")
-      ) {
-        req.user = user as AuthenticatedRequest["user"];
-        next();
-      } else {
-        res.writeHead(403, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            error: "유효한 사용자 정보가 포함되지 않은 토큰입니다.",
-          })
-        );
-      }
+  jwt.verify(token, JWT_SECRET, (err: Error | null, user: string | object | undefined) => {
+    if (err) {
+      res.writeHead(403, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "유효하지 않은 토큰입니다." }));
+      return;
     }
-  );
+
+    if (
+      typeof user === "object" &&
+      user.hasOwnProperty("sub") &&
+      user.hasOwnProperty("claims") &&
+      user.hasOwnProperty("iat") &&
+      user.hasOwnProperty("exp")
+    ) {
+      req.user = user as AuthenticatedRequest["user"];
+      next();
+    } else {
+      res.writeHead(403, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          error: "유효한 사용자 정보가 포함되지 않은 토큰입니다.",
+        })
+      );
+    }
+  });
 };
