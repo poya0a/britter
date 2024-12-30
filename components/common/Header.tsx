@@ -21,14 +21,7 @@ import { useUserSettingPopupStore } from "@stores/popup/useUserSettingPopupStore
 
 export default function Header() {
   const pathname = usePathname();
-  const pathWithoutLogout = [
-    "/login",
-    "/join",
-    "/find-id",
-    "/find-password",
-    "/reset-password",
-    "/complete",
-  ];
+  const pathWithoutLogout = ["/login", "/join", "/find-id", "/find-password", "/reset-password", "/complete"];
 
   const { toggleAlert } = useAlertStore();
   const { toggleRouteAlert } = useRouteAlertStore();
@@ -39,8 +32,7 @@ export default function Header() {
   const { toggleCreatePopup } = useCreatePopupStore();
   const { toggleSpaceSettingPopup } = useSpaceSettingPopupStore();
   const { toggleURLPopup } = useURLPopupStore();
-  const { usePostFolderPopupState, togglePostFolderPopup } =
-    usePostFolderPopupStore();
+  const { usePostFolderPopupState, togglePostFolderPopup } = usePostFolderPopupStore();
   const { useMessagePopupState, toggleMessagePopup } = useMessagePopupStore();
   const { toggleUserViewPopup } = useUserViewPopupStore();
   const { toggleUserSettingPopup } = useUserSettingPopupStore();
@@ -85,12 +77,9 @@ export default function Header() {
 
   return (
     <header className={styles.header}>
-      <HeaderLogo />
+      <HeaderLogo allowPageMovement={!pathWithoutLogout.includes(pathname || "") ? true : false} />
       {!pathWithoutLogout.includes(pathname || "") && (
-        <button
-          className={`button ${styles.logoutButton}`}
-          onClick={handleLogout}
-        >
+        <button className={`button ${styles.logoutButton}`} onClick={handleLogout}>
           <img src="/images/icon/logout.svg" alt="logout" />
         </button>
       )}
