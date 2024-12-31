@@ -54,6 +54,9 @@ export const initializeDataSource = async (): Promise<DataSource> => {
         ], // 엔터티들
         migrations: [],
         subscribers: [],
+        ssl: {
+          rejectUnauthorized: false,
+        },
         extra: {
           connectionLimit: 10, // 커넥션 풀 제한 설정
         },
