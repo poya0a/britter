@@ -17,7 +17,7 @@ import { Message } from "@entities/Message.entity";
 
 dotenv.config();
 
-const { SUPABASE_HOST } = process.env;
+const { SUPABASE_HOST, SUPABASE_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DATABASE} = process.env;
 
 // 데이터베이스 연결 설정
 let dataSource: DataSource | null = null;
@@ -31,10 +31,15 @@ export const initializeDataSource = async (): Promise<DataSource> => {
     try {
       dataSource = new DataSource({
         type: "postgres", // PostgreSQL 사용
-        host: SUPABASE_HOST, // 환경 변수로 DB 호스트 설정
+        host: SUPABASE_HOST,
+        port: parseInt(SUPABASE_PORT || "5432"),
+        username: POSTGRES_USER,
+        password: POSTGRES_PASSWORD,
+        database: POSTGRES_DATABASE, 
         synchronize: false, // 프로덕션에서는 false로 설정
         logging: false, // 로그를 기록하지 않도록 설정
         schema: "public",
+        ssl: false,
         entities: [
           File,
           Tag,
@@ -53,7 +58,6 @@ export const initializeDataSource = async (): Promise<DataSource> => {
         subscribers: [],
         extra: {
           connectionLimit: 10, // 커넥션 풀 제한 설정
-          ssl: { rejectUnauthorized: false }
         },
       });
       await dataSource.initialize(); // 연결 초기화
