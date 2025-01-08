@@ -37,7 +37,7 @@ export const initializeDataSource = async (): Promise<DataSource> => {
         synchronize: false, // 프로덕션에서는 false로 설정
         logging: false, // 로그를 기록하지 않도록 설정
         schema: "public",
-        ssl: false,
+        ssl: true,
         entities: [
           File,
           Tag,
@@ -54,9 +54,6 @@ export const initializeDataSource = async (): Promise<DataSource> => {
         ], // 엔터티들
         migrations: [],
         subscribers: [],
-        extra: {
-          connectionLimit: 10, // 커넥션 풀 제한 설정
-        },
       });
       await dataSource.initialize(); // 연결 초기화
       console.log("Database connection initialized.");
