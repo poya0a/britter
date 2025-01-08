@@ -20,7 +20,7 @@ import { Message } from "@entities/Message.entity";
 
 dotenv.config();
 
-const { NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;
+const { POSTGRES_PRISMA_URL, POSTGRES_URL_NON_POOLING, SUPABASE_SERVICE_ROLE_KEY } = process.env;
 
 const sslDirectory = path.join(process.cwd(), 'prod-ca-2021.crt');
 
@@ -37,7 +37,8 @@ export const getDataSource = async (): Promise<DataSource> => {
     try {
       dataSource = new DataSource({
         type: "postgres", // PostgreSQL 사용
-        url: NEXT_PUBLIC_SUPABASE_URL,
+        database: POSTGRES_PRISMA_URL,
+        url: POSTGRES_URL_NON_POOLING,
         password: SUPABASE_SERVICE_ROLE_KEY,
         synchronize: false, // 프로덕션에서는 false로 설정
         logging: false, // 로그를 기록하지 않도록 설정
@@ -59,6 +60,11 @@ export const getDataSource = async (): Promise<DataSource> => {
           Notifications,
           Message,
         ], // 엔터티들
+        extra: {
+          // 서버리스 환경에서는 connection pooling을 사용하지 않도록 설정
+          max: 1, // 최대 연결 수 1개로 설정
+          connectionTimeoutMillis: 30000, // 연결 타임아웃 설정
+        },
         migrations: [],
         subscribers: [],
       });
@@ -74,18 +80,18 @@ export const getDataSource = async (): Promise<DataSource> => {
   return dataSource; // 초기화된 연결을 반환
 };
 
-// 서버 종료 시 데이터베이스 연결 종료 처리
-const shutdown = async () => {
-  if (dataSource?.isInitialized) {
-    try {
-      await dataSource.destroy(); // 데이터베이스 연결 종료
-      console.log("Database connection closed.");
-    } catch (error) {
-      console.error("Error while closing database connection:", error);
-    }
-  }
-};
+// // 서버 종료 시 데이터베이스 연결 종료 처리
+// const shutdown = async () => {
+//   if (dataSource?.isInitialized) {
+//     try {
+//       await dataSource.destroy(); // 데이터베이스 연결 종료
+//       console.log("Database connection closed.");
+//     } catch (error) {
+//       console.error("Error while closing database connection:", error);
+//     }
+//   }
+// };
 
-// SIGINT (Ctrl + C) 및 SIGTERM (종료 시그널) 이벤트 핸들러 등록
-process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
+// // SIGINT (Ctrl + C) 및 SIGTERM (종료 시그널) 이벤트 핸들러 등록
+// process.on("SIGINT", shutdown);
+// process.on("SIGTERM", shutdown);
