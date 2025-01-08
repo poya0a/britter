@@ -1,11 +1,12 @@
-// import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { config } from "dotenv";
+
 var jwt = require("jsonwebtoken");
 
 config();
 
-const SECRET_KEY = process.env.SUPABASE_JWT_SECRET || "default_secret_key";
+const { JWT_SECRET } = process.env;
+
 const ACCESS_TOKEN_EXPIRES_IN_MINUTES = {
   DAY: 24 * 60,
   WEEK: 7 * 24 * 60 * 60,
@@ -22,7 +23,7 @@ export function createAccessToken(userVO: { UID: string; user_id: string }): str
       iat: now,
       exp: expiration,
     },
-    SECRET_KEY,
+    JWT_SECRET,
     { algorithm: "HS512" }
   );
 
@@ -41,7 +42,7 @@ export function createRefreshToken(userVO: { UID: string; user_id: string }): st
       iat: now,
       exp: expiration,
     },
-    SECRET_KEY,
+    JWT_SECRET,
     { algorithm: "HS512" }
   );
 
@@ -55,7 +56,7 @@ interface DecodedToken {
 
 export function verifyRefreshToken(refreshToken: string): { UID: string; user_id: string } | null {
   try {
-    const decoded = jwt.verify(refreshToken, SECRET_KEY, {
+    const decoded = jwt.verify(refreshToken, JWT_SECRET, {
       algorithms: ["HS512"],
     }) as DecodedToken;
 

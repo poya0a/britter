@@ -1,7 +1,10 @@
 import { IncomingMessage, ServerResponse } from "http";
+import { config } from "dotenv";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.SUPABASE_JWT_SECRET || "default_secret_key";
+config();
+
+const { JWT_SECRET } = process.env;
 
 export interface AuthenticatedRequest extends IncomingMessage {
   user?: {
