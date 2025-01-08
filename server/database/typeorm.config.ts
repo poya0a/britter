@@ -19,7 +19,7 @@ import { Message } from "@entities/Message.entity";
 
 dotenv.config();
 
-const { POSTGRES_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_DATABASE } = process.env;
+const { NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_DATABASE } = process.env;
 
 // 데이터베이스 연결 설정
 let dataSource: DataSource | null = null;
@@ -33,7 +33,7 @@ export const initializeDataSource = async (): Promise<DataSource> => {
     try {
       dataSource = new DataSource({
         type: "postgres", // PostgreSQL 사용
-        url: POSTGRES_URL,
+        url: NEXT_PUBLIC_SUPABASE_URL,
         password: NEXT_PUBLIC_SUPABASE_ANON_KEY,
         // database: SUPABASE_DATABASE, 
         synchronize: false, // 프로덕션에서는 false로 설정
