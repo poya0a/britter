@@ -35,7 +35,7 @@ export const initializeDataSource = async (): Promise<DataSource> => {
         type: "postgres", // PostgreSQL 사용
         url: POSTGRES_URL,
         password: NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        database: SUPABASE_DATABASE, 
+        // database: SUPABASE_DATABASE, 
         synchronize: false, // 프로덕션에서는 false로 설정
         logging: false, // 로그를 기록하지 않도록 설정
         schema: "public",
