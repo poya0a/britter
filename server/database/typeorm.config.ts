@@ -17,7 +17,7 @@ import { Message } from "@entities/Message.entity";
 
 dotenv.config();
 
-const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_DATABASE } = process.env;
+const { POSTGRES_URL_NON_POOLING, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_DATABASE } = process.env;
 
 // 데이터베이스 연결 설정
 let dataSource: DataSource | null = null;
@@ -31,7 +31,7 @@ export const initializeDataSource = async (): Promise<DataSource> => {
     try {
       dataSource = new DataSource({
         type: "postgres", // PostgreSQL 사용
-        url: SUPABASE_URL,
+        host: POSTGRES_URL_NON_POOLING,
         password: SUPABASE_SERVICE_ROLE_KEY,
         database: SUPABASE_DATABASE, 
         synchronize: false, // 프로덕션에서는 false로 설정
