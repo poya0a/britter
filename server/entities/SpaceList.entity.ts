@@ -8,8 +8,9 @@ export class SpaceList {
   @Column({
     type: "text",
     nullable: false,
-    default: "[]",
-    comment: "사용자가 속한 공긴 목록",
+    default: [],
+    array: true, 
+    comment: "사용자가 속한 공간 목록",
   })
-  space!: string;
+  space!: string[];
 }

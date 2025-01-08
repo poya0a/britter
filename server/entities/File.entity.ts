@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity("File")
 export class File {
-  @PrimaryGeneratedColumn({ type: "int4", comment: "고유번호" })
+  @PrimaryGeneratedColumn({ type: "int", comment: "고유번호" })
   seq!: number;
 
   @Column({ type: "bytea", nullable: false, comment: "파일" })

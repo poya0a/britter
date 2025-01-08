@@ -20,7 +20,7 @@ export class Post {
   UID!: string;
 
   @Column({ type: "integer", nullable: true, comment: "태그 고유번호 목록" })
-  tag_seq?: number;
+  tag_seq?: number[];
 
   @Column({ type: "text", nullable: false, comment: "제목" })
   title!: string;
@@ -39,7 +39,7 @@ export class Post {
   @Column({ type: "timestamp", nullable: false, comment: "수정일" })
   modify_date?: Date;
 
-  @Column({ type: "int4", nullable: false, comment: "순번" })
+  @Column({ type: "int", nullable: false, comment: "순번" })
   order_number: number;
 
   @Column({ type: "text", nullable: true, comment: "게시글이 속한 공간 고유번호" })

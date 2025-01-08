@@ -8,7 +8,7 @@ export class Comment {
   @PrimaryColumn({ type: "text", comment: "고유번호" })
   seq!: string;
 
-  @Column({ type: "int4", nullable: true, comment: "상위 댓글 고유번호" })
+  @Column({ type: "int", nullable: true, comment: "상위 댓글 고유번호" })
   p_seq?: number;
 
   @Column({ type: "text", nullable: false, comment: "작성자 고유번호" })
@@ -40,7 +40,7 @@ export class Comment {
   @Column({ type: "timestamp", nullable: true, comment: "수정일" })
   modify_date?: Date;
 
-  @Column({ type: "int4", nullable: false, default: 0, comment: "좋아요 개수" })
+  @Column({ type: "int", nullable: false, default: 0, comment: "좋아요 개수" })
   like_count!: number;
 
   @ManyToOne(() => Post, { onDelete: "CASCADE" })

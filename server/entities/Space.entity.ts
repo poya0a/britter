@@ -26,10 +26,11 @@ export class Space {
   @Column({
     type: "text",
     nullable: false,
-    default: "[]",
+    default: [],
+    array: true,
     comment: "참여자 고유번호 목록",
   })
-  space_users!: string;
+  space_users!: string[];
 
   @Column({ type: "text", nullable: false, comment: "콘텐츠" })
   space_content: string | null;
