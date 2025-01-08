@@ -8,7 +8,6 @@ export interface CommentInterface {
   UID: string;
   postSeq: string;
   user_profile_seq: number;
-  file_seq?: number;
   user_id: string;
   user_name: string;
   content: string;
@@ -27,7 +26,6 @@ export class CommentModel implements CommentInterface {
   UID: string;
   postSeq: string;
   user_profile_seq: number;
-  file_seq?: number;
   user_id: string;
   user_name: string;
   content: string;
@@ -45,7 +43,6 @@ export class CommentModel implements CommentInterface {
     this.UID = comment.UID;
     this.postSeq = comment.postSeq;
     this.user_profile_seq = comment.user_profile_seq;
-    this.file_seq = comment.file_seq;
     this.user_id = comment.user_id;
     this.user_name = comment.user_name;
     this.content = comment.content;

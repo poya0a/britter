@@ -4,8 +4,8 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -497,
-    "scrollLeft": -300,
+    "scrollTop": -327,
+    "scrollLeft": -200,
     "zoomLevel": 0.78,
     "show": 431,
     "database": 4,
@@ -48,7 +48,6 @@
       "2ec20e67-9d22-4043-8382-2e9083710c5e",
       "59e2acb0-ce01-4af7-a694-3d0f62f21bef",
       "caf8f480-86d0-42bb-8be6-bc60d0a2a98b",
-      "d569581a-593f-4394-9ded-d59957cec944",
       "9dcba4e0-63f3-4636-9824-8b4b333e8be9",
       "dc6ae527-de1a-40f5-9c45-149c9dc83c37",
       "303d7c64-a875-41e5-9d98-992583206397",
@@ -211,7 +210,6 @@
           "c1319dd7-c1b3-4299-aa87-29e669801bed",
           "7f1a05a1-6a62-431e-b9a9-a05dee6da1f4",
           "ae63b36b-8375-4c6b-9f08-aee7cc9ed01c",
-          "bed507f6-1eec-4be9-8d0a-f912e2104eb2",
           "ec261194-adb3-4b83-a7a7-26b6aa0f60ed",
           "52a5602f-cd86-43d6-b981-e4ab04c30c31",
           "2e6d772a-2064-4686-ab23-9dcdad54c659",
@@ -242,7 +240,7 @@
           "color": "#FFEB3B"
         },
         "meta": {
-          "updateAt": 1725513169648,
+          "updateAt": 1736296750822,
           "createAt": 1725513169648
         }
       },
@@ -1301,7 +1299,7 @@
         "default": "",
         "options": 0,
         "ui": {
-          "keys": 2,
+          "keys": 0,
           "widthName": 60,
           "widthComment": 65,
           "widthDataType": 60,
@@ -2394,7 +2392,7 @@
             "7f1a05a1-6a62-431e-b9a9-a05dee6da1f4"
           ],
           "x": 1097,
-          "y": 1159,
+          "y": 1141,
           "direction": 1
         },
         "meta": {
@@ -2440,7 +2438,7 @@
           "columnIds": [
             "af0fa732-f8e4-4dfe-8152-f3a0a8a0ffb5"
           ],
-          "x": 1284.1666666666665,
+          "x": 1315.75,
           "y": 1419,
           "direction": 4
         },
@@ -2449,8 +2447,8 @@
           "columnIds": [
             "ae63b36b-8375-4c6b-9f08-aee7cc9ed01c"
           ],
-          "x": 1211.75,
-          "y": 1245,
+          "x": 1324,
+          "y": 1221,
           "direction": 8
         },
         "meta": {
@@ -2534,7 +2532,7 @@
             "c1319dd7-c1b3-4299-aa87-29e669801bed"
           ],
           "x": 1097,
-          "y": 987,
+          "y": 981,
           "direction": 1
         },
         "meta": {
@@ -2636,7 +2634,7 @@
           "columnIds": [
             "af0fa732-f8e4-4dfe-8152-f3a0a8a0ffb5"
           ],
-          "x": 1536.833333333333,
+          "x": 1505.25,
           "y": 1419,
           "direction": 4
         },
@@ -2924,6 +2922,18 @@
         "dataType": 1733879092628,
         "comment": 1733879116713
       }
+    ],
+    "d569581a-593f-4394-9ded-d59957cec944": [
+      "relationshipEntities",
+      -1,
+      1736296750819,
+      {}
+    ],
+    "bed507f6-1eec-4be9-8d0a-f912e2104eb2": [
+      "tableColumnEntities",
+      -1,
+      1736296750819,
+      {}
     ]
   }
 }

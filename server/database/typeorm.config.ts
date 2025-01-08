@@ -53,6 +53,7 @@ export const initializeDataSource = async (): Promise<DataSource> => {
         subscribers: [],
         extra: {
           connectionLimit: 10, // 커넥션 풀 제한 설정
+          ssl: { rejectUnauthorized: false }
         },
       });
       await dataSource.initialize(); // 연결 초기화

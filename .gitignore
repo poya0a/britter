@@ -40,3 +40,5 @@ db.vuerd.json
 
 #history
 .history/*
+
+*.php

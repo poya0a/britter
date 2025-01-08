@@ -20,9 +20,6 @@ export class Comment {
   @Column({ type: "int", nullable: false })
   user_profile_seq!: number;
 
-  @Column({ type: "int", nullable: true })
-  file_seq?: number;
-
   @Column({ type: "varchar", nullable: false })
   user_id!: string;
 
