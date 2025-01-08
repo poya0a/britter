@@ -4,6 +4,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
 import fs from "fs";
+import path from "path";
 import { File } from "@entities/File.entity";
 import { Tag } from "@entities/Tag.entity";
 import { Terms } from "@entities/Terms.entity";
@@ -21,15 +22,18 @@ dotenv.config();
 
 const { NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;
 
+const sslDirectory = path.join(process.cwd(), 'prod-ca-2021.crt');
+
 // 데이터베이스 연결 설정
-let dataSource: DataSource | null = null;
+let dataSource: DataSource | null = null; // 초기화된 dataSource를 저장할 변수
 
 /**
- * 데이터베이스 연결 초기화 함수
- * 한 번 초기화되면 이후에는 동일한 연결을 재사용
+ * 데이터베이스 연결 객체 반환
+ * 이미 초기화된 경우 바로 반환
  */
-export const initializeDataSource = async (): Promise<DataSource> => {
+export const getDataSource = async (): Promise<DataSource> => {
   if (!dataSource) {
+    // dataSource가 없으면 처음 한 번만 초기화
     try {
       dataSource = new DataSource({
         type: "postgres", // PostgreSQL 사용
@@ -39,7 +43,7 @@ export const initializeDataSource = async (): Promise<DataSource> => {
         logging: false, // 로그를 기록하지 않도록 설정
         schema: "public",
         ssl: {
-          ca: fs.readFileSync('./prod-ca-2021.crt'),
+          ca: fs.readFileSync(sslDirectory), // SSL 인증서
         },
         entities: [
           File,
@@ -58,43 +62,23 @@ export const initializeDataSource = async (): Promise<DataSource> => {
         migrations: [],
         subscribers: [],
       });
-      await dataSource.initialize(); // 연결 초기화
+      
+      await dataSource.initialize(); // 데이터베이스 연결 초기화
       console.log("Database connection initialized.");
     } catch (error) {
       console.error("Failed to initialize database connection:", error);
       throw new Error("Database initialization failed.");
     }
   }
-  return dataSource;
-};
 
-/**
- * 데이터베이스 연결 객체 반환
- * 이미 초기화된 경우 바로 반환
- */
-export const getDataSource = async (): Promise<DataSource> => {
-  if (!dataSource) {
-    try {
-      await initializeDataSource();
-    } catch (error) {
-      console.error("Error while getting data source:", error);
-      throw new Error("Unable to get data source.");
-    }
-  }
-
-  // 데이터베이스 연결이 없으면 예외 처리
-  if (!dataSource) {
-    throw new Error("DataSource is not initialized.");
-  }
-
-  return dataSource;
+  return dataSource; // 초기화된 연결을 반환
 };
 
 // 서버 종료 시 데이터베이스 연결 종료 처리
 const shutdown = async () => {
   if (dataSource?.isInitialized) {
     try {
-      await dataSource.destroy();
+      await dataSource.destroy(); // 데이터베이스 연결 종료
       console.log("Database connection closed.");
     } catch (error) {
       console.error("Error while closing database connection:", error);
@@ -102,5 +86,6 @@ const shutdown = async () => {
   }
 };
 
+// SIGINT (Ctrl + C) 및 SIGTERM (종료 시그널) 이벤트 핸들러 등록
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
