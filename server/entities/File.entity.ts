@@ -5,7 +5,7 @@ export class File {
   @PrimaryGeneratedColumn()
   seq!: number;
 
-  @Column({ type: "longblob", nullable: false })
+  @Column({ type: "bytea", nullable: false })
   file!: Buffer;
 
   @Column({ type: "text", nullable: false })

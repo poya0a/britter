@@ -46,7 +46,6 @@ export default async function handler(
                   "space_content",
                 ],
               });
-
               return space;
             })
           );
