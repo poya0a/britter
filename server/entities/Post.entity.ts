@@ -10,22 +10,22 @@ import { Emps } from "./Emps.entity";
 
 @Entity("Post")
 export class Post {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ comment: "고유번호" })
   seq!: string;
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", nullable: true, comment: "상위 게시글 고유번호" })
   p_seq?: string;
 
-  @Column({ type: "text", nullable: false })
+  @Column({ type: "text", nullable: false, comment: "작성자 고유번호" })
   UID!: string;
 
-  @Column({ type: "int", nullable: true })
+  @Column({ type: "integer", nullable: true, comment: "태그 고유번호 목록" })
   tag_seq?: number;
 
-  @Column({ type: "text", nullable: false })
+  @Column({ type: "text", nullable: false, comment: "제목" })
   title!: string;
 
-  @Column({ type: "text", nullable: false })
+  @Column({ type: "text", nullable: false, comment: "내용" })
   content!: string;
 
   @Column({
@@ -36,13 +36,13 @@ export class Post {
   })
   create_date: Date;
 
-  @Column({ type: "timestamp", nullable: false })
+  @Column({ type: "timestamp", nullable: false, comment: "수정일" })
   modify_date?: Date;
 
-  @Column({ type: "int", nullable: false })
+  @Column({ type: "int4", nullable: false, comment: "순번" })
   order_number: number;
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", nullable: true, comment: "게시글이 속한 공간 고유번호" })
   space_uid: string;
 
   @ManyToOne(() => Emps, { onDelete: "CASCADE" })

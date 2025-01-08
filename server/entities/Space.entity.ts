@@ -6,13 +6,13 @@ export class Space {
   @PrimaryColumn({ type: "text", comment: "고유번호" })
   UID!: string;
 
-  @Column({ type: "int", nullable: true, comment: "이미지" })
+  @Column({ type: "int", nullable: true, comment: "이미지 식별번호" })
   space_profile_seq?: number | null;
 
   @Column({ type: "text", nullable: false, comment: "이름" })
   space_name!: string;
 
-  @Column({ type: "text", nullable: false, comment: "대표 uid" })
+  @Column({ type: "text", nullable: false, comment: "매니저 고유번호" })
   space_manager!: string;
 
   @Column({
@@ -24,14 +24,14 @@ export class Space {
   space_public!: boolean;
 
   @Column({
-    type: "json",
+    type: "text",
     nullable: false,
     default: "[]",
-    comment: "사용자 uid",
+    comment: "참여자 고유번호 목록",
   })
-  space_users!: string[];
+  space_users!: string;
 
-  @Column({ type: "text", nullable: false })
+  @Column({ type: "text", nullable: false, comment: "콘텐츠" })
   space_content: string | null;
 
   @Column({

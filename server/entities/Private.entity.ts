@@ -2,12 +2,12 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity("Private")
 export class Private {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: "int4", comment: "고유번호" })
   seq!: number;
 
-  @Column({ type: "text", nullable: false })
+  @Column({ type: "text", nullable: false, comment: "접속 기기" })
   device_id!: string;
 
-  @Column({ type: "text", nullable: false })
+  @Column({ type: "text", nullable: false, comment: "키" })
   private_key!: string;
 }

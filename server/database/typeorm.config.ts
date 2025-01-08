@@ -2,7 +2,7 @@
 "use server";
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import dotenv from "dotenv";
+import { config } from "dotenv";
 import fs from "fs";
 import path from "path";
 import { File } from "@entities/File.entity";
@@ -18,7 +18,7 @@ import { Comment } from "@entities/Comment.entity";
 import { Notifications } from "@entities/Notifications.entity";
 import { Message } from "@entities/Message.entity";
 
-dotenv.config();
+config();
 
 const { DATABASE_URL, DIRECT_URL } = process.env;
 

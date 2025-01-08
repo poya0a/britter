@@ -5,28 +5,28 @@ import { File } from "./File.entity";
 
 @Entity("Comment")
 export class Comment {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: "text", comment: "고유번호" })
   seq!: string;
 
-  @Column({ type: "int", nullable: true })
+  @Column({ type: "int4", nullable: true, comment: "상위 댓글 고유번호" })
   p_seq?: number;
 
-  @Column({ type: "text", nullable: false })
+  @Column({ type: "text", nullable: false, comment: "작성자 고유번호" })
   UID!: string;
 
-  @Column({ type: "text", nullable: false })
+  @Column({ type: "text", nullable: false, comment: "게시글 고유번호" })
   postSeq!: string;
 
-  @Column({ type: "int", nullable: false })
+  @Column({ type: "int4", nullable: false, comment: "작성자 프로필 이미지 고유번호" })
   user_profile_seq!: number;
 
-  @Column({ type: "text", nullable: false })
+  @Column({ type: "text", nullable: false, comment: "작성자 아이디" })
   user_id!: string;
 
-  @Column({ type: "text", nullable: false })
+  @Column({ type: "text", nullable: false, comment: "작성자 이름" })
   user_name!: string;
 
-  @Column({ type: "text", nullable: false })
+  @Column({ type: "text", nullable: false, comment: "내용" })
   content!: string;
 
   @Column({
@@ -37,10 +37,10 @@ export class Comment {
   })
   create_date: Date;
 
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, comment: "수정일" })
   modify_date?: Date;
 
-  @Column({ type: "int", nullable: false, default: 0 })
+  @Column({ type: "int4", nullable: false, default: 0, comment: "좋아요 개수" })
   like_count!: number;
 
   @ManyToOne(() => Post, { onDelete: "CASCADE" })

@@ -33,7 +33,7 @@ export default async function handler(
           const spaceRepository = dataSource.getRepository(Space);
 
           const foundSpaces = await Promise.all(
-            findSpaceList.space.map(async (spaceUID: string) => {
+            JSON.parse(findSpaceList.space || "[]").map(async (spaceUID: string) => {
               const space = await spaceRepository.findOne({
                 where: { UID: spaceUID },
                 select: [

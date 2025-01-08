@@ -2,13 +2,14 @@ import { Entity, Column, PrimaryColumn } from "typeorm";
 
 @Entity("SpaceList")
 export class SpaceList {
-  @PrimaryColumn({ type: "text", comment: "고유번호" })
+  @PrimaryColumn({ type: "text", comment: "사용자 고유번호" })
   UID!: string;
 
   @Column({
-    type: "json",
+    type: "text",
     nullable: false,
-    comment: "사용자가 속한 공간 리스트",
+    default: "[]",
+    comment: "사용자가 속한 공긴 목록",
   })
-  space!: string[];
+  space!: string;
 }
