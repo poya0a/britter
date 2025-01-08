@@ -17,7 +17,7 @@ import { Message } from "@entities/Message.entity";
 
 dotenv.config();
 
-const { SUPABASE_HOST, SUPABASE_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DATABASE} = process.env;
+const { SUPABASE_HOST, SUPABASE_PORT, SUPABASE_USER, SUPABASE_PASSWORD, SUPABASE_DATABASE} = process.env;
 
 // 데이터베이스 연결 설정
 let dataSource: DataSource | null = null;
@@ -33,9 +33,9 @@ export const initializeDataSource = async (): Promise<DataSource> => {
         type: "postgres", // PostgreSQL 사용
         host: SUPABASE_HOST,
         port: parseInt(SUPABASE_PORT || "5432"),
-        username: POSTGRES_USER,
-        password: POSTGRES_PASSWORD,
-        database: POSTGRES_DATABASE, 
+        username: SUPABASE_USER,
+        password: SUPABASE_PASSWORD,
+        database: SUPABASE_DATABASE, 
         synchronize: false, // 프로덕션에서는 false로 설정
         logging: false, // 로그를 기록하지 않도록 설정
         schema: "public",
