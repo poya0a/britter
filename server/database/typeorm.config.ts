@@ -1,7 +1,9 @@
+
 "use server";
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
+import fs from "fs";
 import { File } from "@entities/File.entity";
 import { Tag } from "@entities/Tag.entity";
 import { Terms } from "@entities/Terms.entity";
@@ -17,7 +19,7 @@ import { Message } from "@entities/Message.entity";
 
 dotenv.config();
 
-const { POSTGRES_URL_NON_POOLING, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_DATABASE } = process.env;
+const { POSTGRES_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_DATABASE } = process.env;
 
 // 데이터베이스 연결 설정
 let dataSource: DataSource | null = null;
@@ -31,13 +33,15 @@ export const initializeDataSource = async (): Promise<DataSource> => {
     try {
       dataSource = new DataSource({
         type: "postgres", // PostgreSQL 사용
-        host: POSTGRES_URL_NON_POOLING,
-        password: SUPABASE_SERVICE_ROLE_KEY,
+        url: POSTGRES_URL,
+        password: NEXT_PUBLIC_SUPABASE_ANON_KEY,
         database: SUPABASE_DATABASE, 
         synchronize: false, // 프로덕션에서는 false로 설정
         logging: false, // 로그를 기록하지 않도록 설정
         schema: "public",
-        ssl: true,
+        ssl: {
+          ca: fs.readFileSync('./prod-ca-2021.crt'),
+        },
         entities: [
           File,
           Tag,
