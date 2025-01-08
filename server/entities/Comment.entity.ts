@@ -11,33 +11,33 @@ export class Comment {
   @Column({ type: "int", nullable: true })
   p_seq?: number;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   UID!: string;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   postSeq!: string;
 
   @Column({ type: "int", nullable: false })
   user_profile_seq!: number;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   user_id!: string;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   user_name!: string;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   content!: string;
 
   @Column({
-    type: "datetime",
+    type: "timestamp",
     nullable: false,
     default: () => "CURRENT_TIMESTAMP",
     comment: "생성일",
   })
   create_date: Date;
 
-  @Column({ type: "datetime", nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   modify_date?: Date;
 
   @Column({ type: "int", nullable: false, default: 0 })

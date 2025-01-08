@@ -3,16 +3,16 @@ import { File } from "./File.entity";
 
 @Entity("Space")
 export class Space {
-  @PrimaryColumn({ type: "varchar", comment: "고유번호" })
+  @PrimaryColumn({ type: "text", comment: "고유번호" })
   UID!: string;
 
   @Column({ type: "int", nullable: true, comment: "이미지" })
   space_profile_seq?: number | null;
 
-  @Column({ type: "varchar", nullable: false, comment: "이름" })
+  @Column({ type: "text", nullable: false, comment: "이름" })
   space_name!: string;
 
-  @Column({ type: "varchar", nullable: false, comment: "대표 uid" })
+  @Column({ type: "text", nullable: false, comment: "대표 uid" })
   space_manager!: string;
 
   @Column({
@@ -35,7 +35,7 @@ export class Space {
   space_content: string | null;
 
   @Column({
-    type: "datetime",
+    type: "timestamp",
     nullable: false,
     default: () => "CURRENT_TIMESTAMP",
     comment: "생성일",

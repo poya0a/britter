@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryColumn } from "typeorm";
 
 @Entity("SpaceList")
 export class SpaceList {
-  @PrimaryColumn({ type: "varchar", length: 255, comment: "고유번호" })
+  @PrimaryColumn({ type: "text", length: 255, comment: "고유번호" })
   UID!: string;
 
   @Column({

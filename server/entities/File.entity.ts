@@ -8,15 +8,15 @@ export class File {
   @Column({ type: "longblob", nullable: false })
   file!: Buffer;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   file_name!: string;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   file_path!: string;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   file_size!: string;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   file_extension!: string;
 }

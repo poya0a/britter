@@ -5,7 +5,7 @@ export class Terms {
   @PrimaryGeneratedColumn()
   seq!: number;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   title!: string;
 
   @Column({ type: "text", nullable: false })
@@ -18,7 +18,7 @@ export class Terms {
   in_used!: boolean;
 
   @Column({
-    type: "datetime",
+    type: "timestamp",
     nullable: false,
     default: () => "CURRENT_TIMESTAMP",
     comment: "생성일",

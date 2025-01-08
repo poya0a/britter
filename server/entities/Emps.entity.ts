@@ -22,25 +22,25 @@ export class Emps {
   @Column({ type: "int", nullable: true })
   private_seq?: number | null;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   user_id!: string;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   user_pw!: string;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   user_name!: string;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   user_hp!: string;
 
   @Column({ type: "int", nullable: true })
   user_certification?: number | null;
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: "text", nullable: true })
   user_email?: string;
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: "text", nullable: true })
   user_birth?: string;
 
   @Column({ type: "boolean", nullable: false })
@@ -50,20 +50,20 @@ export class Emps {
   user_level!: number;
 
   @Column({
-    type: "datetime",
+    type: "timestamp",
     nullable: false,
     default: () => "CURRENT_TIMESTAMP",
     comment: "생성일",
   })
   create_date: Date;
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: "text", nullable: true })
   status_emoji?: string;
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: "text", nullable: true })
   status_message?: string;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   terms!: string;
 
   @OneToMany(() => Comment, (comment) => comment.user)

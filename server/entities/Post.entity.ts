@@ -13,36 +13,36 @@ export class Post {
   @PrimaryGeneratedColumn()
   seq!: string;
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: "text", nullable: true })
   p_seq?: string;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   UID!: string;
 
   @Column({ type: "int", nullable: true })
   tag_seq?: number;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "text", nullable: false })
   title!: string;
 
   @Column({ type: "text", nullable: false })
   content!: string;
 
   @Column({
-    type: "datetime",
+    type: "timestamp",
     nullable: false,
     default: () => "CURRENT_TIMESTAMP",
     comment: "생성일",
   })
   create_date: Date;
 
-  @Column({ type: "datetime", nullable: false })
+  @Column({ type: "timestamp", nullable: false })
   modify_date?: Date;
 
   @Column({ type: "int", nullable: false })
   order_number: number;
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: "text", nullable: true })
   space_uid: string;
 
   @ManyToOne(() => Emps, { onDelete: "CASCADE" })
