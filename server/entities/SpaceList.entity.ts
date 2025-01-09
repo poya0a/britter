@@ -1,9 +1,9 @@
 import { Entity, Column, PrimaryColumn } from "typeorm";
 
-@Entity("SpaceList")
+@Entity("spaceList")
 export class SpaceList {
-  @PrimaryColumn({ type: "text", comment: "사용자 고유번호" })
-  UID!: string;
+  @PrimaryColumn({ type: "text", nullable: false, comment: "사용자 고유번호" })
+  "UID"!: string;
 
   @Column({
     type: "text",

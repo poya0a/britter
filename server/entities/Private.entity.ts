@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-@Entity("Private")
+@Entity("private")
 export class Private {
   @PrimaryGeneratedColumn({ type: "int", comment: "고유번호" })
   seq!: number;

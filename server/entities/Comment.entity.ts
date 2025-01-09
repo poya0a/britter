@@ -3,16 +3,16 @@ import { Emps } from "./Emps.entity";
 import { Post } from "./Post.entity";
 import { File } from "./File.entity";
 
-@Entity("Comment")
+@Entity("comment")
 export class Comment {
-  @PrimaryColumn({ type: "text", comment: "고유번호" })
+  @PrimaryColumn({ type: "text", nullable: false, comment: "고유번호" })
   seq!: string;
 
   @Column({ type: "int", nullable: true, comment: "상위 댓글 고유번호" })
   p_seq?: number;
 
   @Column({ type: "text", nullable: false, comment: "작성자 고유번호" })
-  UID!: string;
+  "UID"!: string;
 
   @Column({ type: "text", nullable: false, comment: "게시글 고유번호" })
   postSeq!: string;
@@ -35,7 +35,7 @@ export class Comment {
     default: () => "CURRENT_TIMESTAMP",
     comment: "생성일",
   })
-  create_date: Date;
+  create_date!: Date;
 
   @Column({ type: "timestamp", nullable: true, comment: "수정일" })
   modify_date?: Date;

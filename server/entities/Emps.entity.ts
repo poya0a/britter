@@ -11,10 +11,10 @@ import { File } from "./File.entity";
 import { Post } from "./Post.entity";
 import { Private } from "./Private.entity";
 
-@Entity("Emps")
+@Entity("emps")
 export class Emps {
-  @PrimaryColumn({ type: "text", comment: "고유번호" })
-  UID!: string;
+  @PrimaryColumn({ type: "text", nullable: false, comment: "고유번호" })
+  "UID"!: string;
 
   @Column({ type: "int", nullable: false, comment: "프로필 이미지 고유번호" })
   user_profile_seq!: number;
@@ -50,12 +50,12 @@ export class Emps {
   user_level!: number;
 
   @Column({
-    type: "timestamp",
+    type: "timestamp with time zone",
     nullable: false,
-    default: () => "CURRENT_TIMESTAMP",
+    default: () => "now()",
     comment: "생성일",
   })
-  create_date: Date;
+  create_date!: Date;
 
   @Column({ type: "text", nullable: true, comment: "상태 이모지" })
   status_emoji?: string;

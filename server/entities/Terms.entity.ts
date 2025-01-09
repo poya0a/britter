@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-@Entity("Terms")
+@Entity("terms")
 export class Terms {
   @PrimaryGeneratedColumn({ type: "int4", comment: "고유번호" })
   seq!: number;
@@ -23,5 +23,5 @@ export class Terms {
     default: () => "CURRENT_TIMESTAMP",
     comment: "생성일",
   })
-  create_date: Date;
+  create_date!: Date;
 }

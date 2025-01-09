@@ -1,5 +1,5 @@
 export interface MessageInterface {
-  UID: string;
+  "UID": string;
   recipient_uid: string;
   sender_uid: string;
   message: string;
@@ -8,7 +8,7 @@ export interface MessageInterface {
 }
 
 export class MessageModel implements MessageInterface {
-  UID: string;
+  "UID": string;
   recipient_uid: string;
   sender_uid: string;
   message: string;

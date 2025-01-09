@@ -34,41 +34,35 @@ let dataSource: DataSource | null = null; // 초기화된 dataSource를 저장�
 export const getDataSource = async (): Promise<DataSource> => {
   if (!dataSource) {
     // dataSource가 없으면 처음 한 번만 초기화
-    try {
-      dataSource = new DataSource({
-        type: "postgres", // PostgreSQL 사용
-        database: DATABASE_URL,
-        url: DIRECT_URL,
-        synchronize: false, // 프로덕션에서는 false로 설정
-        logging: false, // 로그를 기록하지 않도록 설정
-        schema: "public",
-        ssl: {
-          ca: fs.readFileSync(sslDirectory), // SSL 인증서
-        },
-        entities: [
-          File,
-          Tag,
-          Terms,
-          Space,
-          SpaceList,
-          Certification,
-          Private,
-          Emps,
-          Post,
-          Comment,
-          Notifications,
-          Message,
-        ], // 엔터티들
-        migrations: [],
-        subscribers: [],
-      });
-      
-      await dataSource.initialize(); // 데이터베이스 연결 초기화
-      console.log("Database connection initialized.");
-    } catch (error) {
-      console.error("Failed to initialize database connection:", error);
-      throw new Error("Database initialization failed.");
-    }
+    dataSource = new DataSource({
+      type: "postgres", // PostgreSQL 사용
+      // database: DATABASE_URL,
+      url: DIRECT_URL,
+      synchronize: false, // 프로덕션에서는 false로 설정
+      logging: false, // 로그를 기록하지 않도록 설정
+      schema: "public",
+      ssl: {
+        ca: fs.readFileSync(sslDirectory), // SSL 인증서
+      },
+      entities: [
+        File,
+        Tag,
+        Terms,
+        Space,
+        SpaceList,
+        Certification,
+        Private,
+        Emps,
+        Post,
+        Comment,
+        Notifications,
+        Message,
+      ], // 엔터티들
+      migrations: [],
+      subscribers: [],
+    });
+    
+    await dataSource.initialize(); // 데이터베이스 연결 초기화
   }
 
   return dataSource; // 초기화된 연결을 반환

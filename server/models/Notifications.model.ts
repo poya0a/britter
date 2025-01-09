@@ -1,5 +1,5 @@
 export interface NofiticationsInterface {
-  UID: string;
+  "UID": string;
   recipient_uid: string;
   sender_uid: string;
   notify_type: string;
@@ -7,7 +7,7 @@ export interface NofiticationsInterface {
 }
 
 export class NofiticationsModel implements NofiticationsInterface {
-  UID: string;
+  "UID": string;
   recipient_uid: string;
   sender_uid: string;
   notify_type: string;

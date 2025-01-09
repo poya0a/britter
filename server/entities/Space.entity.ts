@@ -1,10 +1,10 @@
 import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from "typeorm";
 import { File } from "./File.entity";
 
-@Entity("Space")
+@Entity("space")
 export class Space {
-  @PrimaryColumn({ type: "text", comment: "고유번호" })
-  UID!: string;
+  @PrimaryColumn({ type: "text", nullable: false, comment: "고유번호" })
+  "UID"!: string;
 
   @Column({ type: "int", nullable: true, comment: "이미지 식별번호" })
   space_profile_seq?: number | null;

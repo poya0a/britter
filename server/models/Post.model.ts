@@ -5,7 +5,7 @@ import { TagModel } from "./Tag.model";
 export interface PostInterface {
   seq: string;
   p_seq?: string;
-  UID: string;
+  "UID": string;
   tag_seq?: number;
   title: string;
   content: string;
@@ -21,7 +21,7 @@ export interface PostInterface {
 export class PostModel implements PostInterface {
   seq: string;
   p_seq?: string;
-  UID: string;
+  "UID": string;
   tag_seq?: number;
   title: string;
   content: string;

@@ -1,12 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-@Entity("Certification")
+@Entity("certification")
 export class Certification {
   @PrimaryGeneratedColumn({ type: "int", comment: "고유번호" })
-  seq: number;
+  seq!: number;
 
   @Column({ type: "text", nullable: false, comment: "전화번호" })
-  user_hp: string;
+  user_hp!: string;
 
   @Column({
     name: "certification_number",
@@ -14,7 +14,7 @@ export class Certification {
     nullable: false,
     comment: "인증번호",
   })
-  certification_number: string;
+  certification_number!: string;
 
   @Column({
     type: "timestamp",
@@ -22,7 +22,7 @@ export class Certification {
     default: () => "CURRENT_TIMESTAMP",
     comment: "생성일",
   })
-  create_date: Date;
+  create_date!: Date;
 
   @Column({ type: "timestamp", nullable: true, comment: "수정일" })
   modify_date?: Date;

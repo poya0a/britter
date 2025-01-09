@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-@Entity("File")
+@Entity("file")
 export class File {
   @PrimaryGeneratedColumn({ type: "int", comment: "고유번호" })
   seq!: number;

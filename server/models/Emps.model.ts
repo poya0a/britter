@@ -4,7 +4,7 @@ import { FileModel } from "./File.model";
 import { PrivateModel } from "./Private.model";
 
 export interface EmpsInterface {
-  UID: string;
+  "UID": string;
   user_profile_seq: number;
   private_seq?: number | null;
   user_id: string;
@@ -19,7 +19,7 @@ export interface EmpsInterface {
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
-  terms: string;
+  terms: number[] | null[];
   comments?: CommentModel[];
   posts?: PostModel[];
   userProfile?: FileModel;
@@ -27,7 +27,7 @@ export interface EmpsInterface {
 }
 
 export class EmpsModel implements EmpsInterface {
-  UID: string;
+  "UID": string;
   user_profile_seq: number;
   private_seq?: number | null;
   user_id: string;
@@ -42,7 +42,7 @@ export class EmpsModel implements EmpsInterface {
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
-  terms: string;
+  terms: number[] | null[];
   comments?: CommentModel[];
   posts?: PostModel[];
   userProfile?: FileModel;

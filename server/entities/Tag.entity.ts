@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-@Entity("Tag")
+@Entity("tag")
 export class Tag {
   @PrimaryGeneratedColumn({ type: "int4", comment: "고유번호" })
   seq!: number;
