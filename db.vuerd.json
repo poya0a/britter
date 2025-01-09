@@ -4,7 +4,7 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -327,
+    "scrollTop": -623,
     "scrollLeft": -200,
     "zoomLevel": 0.78,
     "show": 431,
@@ -775,7 +775,7 @@
         "tableId": "7c7d167e-ec27-4f68-918b-583011921d9a",
         "name": "terms",
         "comment": "약관 동의",
-        "dataType": "VARCHAR",
+        "dataType": "INT",
         "default": "",
         "options": 0,
         "ui": {
@@ -786,7 +786,7 @@
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1725513169648,
+          "updateAt": 1736383968304,
           "createAt": 1725513169648
         }
       },
@@ -2456,34 +2456,6 @@
           "createAt": 1725513169648
         }
       },
-      "d569581a-593f-4394-9ded-d59957cec944": {
-        "id": "d569581a-593f-4394-9ded-d59957cec944",
-        "identification": false,
-        "relationshipType": 2,
-        "startRelationshipType": 1,
-        "start": {
-          "tableId": "ee82ff58-a784-4b89-8ae6-c65b57484570",
-          "columnIds": [
-            "af0fa732-f8e4-4dfe-8152-f3a0a8a0ffb5"
-          ],
-          "x": 1410.4999999999998,
-          "y": 1419,
-          "direction": 4
-        },
-        "end": {
-          "tableId": "87ebaae9-cff4-47a6-9964-755eb00c63aa",
-          "columnIds": [
-            "bed507f6-1eec-4be9-8d0a-f912e2104eb2"
-          ],
-          "x": 1441.25,
-          "y": 1245,
-          "direction": 8
-        },
-        "meta": {
-          "updateAt": 1725513169648,
-          "createAt": 1725513169648
-        }
-      },
       "9dcba4e0-63f3-4636-9824-8b4b333e8be9": {
         "id": "9dcba4e0-63f3-4636-9824-8b4b333e8be9",
         "identification": false,
@@ -2923,17 +2895,19 @@
         "comment": 1733879116713
       }
     ],
-    "d569581a-593f-4394-9ded-d59957cec944": [
-      "relationshipEntities",
-      -1,
-      1736296750819,
-      {}
-    ],
     "bed507f6-1eec-4be9-8d0a-f912e2104eb2": [
       "tableColumnEntities",
       -1,
       1736296750819,
       {}
+    ],
+    "9361128c-00f4-4a5b-ab26-f0933161fff8": [
+      "tableColumnEntities",
+      -1,
+      -1,
+      {
+        "dataType": 1736383968303
+      }
     ]
   }
 }

@@ -192,6 +192,11 @@ export default async function handler(
 
     const hashedPassword = await bcrypt.hash(data.user_pw!, 10);
 
+    const termsList: number[] = await Promise.all(
+      Array(data.terms).map((terms: string | undefined) => typeof terms === "string" ? parseInt(terms, 10) : 0)
+    );
+    
+
     const emp: DeepPartial<Emps> = {
       UID: uuidv4(),
       user_profile_seq: 0,
@@ -205,7 +210,7 @@ export default async function handler(
       user_public: data.user_public ? data.user_public : true,
       user_level: 1,
       create_date: new Date(),
-      terms: data.terms,
+      terms: termsList,
     };
 
     const newUser = empsRepository.create(emp);

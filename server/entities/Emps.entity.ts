@@ -63,8 +63,8 @@ export class Emps {
   @Column({ type: "text", nullable: true, comment: "상태 메시지" })
   status_message?: string;
 
-  @Column({ type: "text", nullable: false, default: "[]", comment: "동의한 이용약관 고유번호 목록" })
-  terms!: string;
+  @Column({ type: "int", nullable: false, default: [], array: true, comment: "동의한 이용약관 고유번호 목록" })
+  terms!: number[];
 
   @OneToMany(() => Comment, (comment) => comment.user)
   comments?: Comment[];
