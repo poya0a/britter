@@ -103,9 +103,9 @@ export default async function handler(
     });
 
     const requiredTermsIds = terms.map((term) => term.seq);
-    const agreedTermsIds = data.terms;
+    const agreedTermsIds: number[] | null[] | undefined = data.terms;
 
-    if (!agreedTermsIds) {
+    if (!agreedTermsIds || agreedTermsIds.every(terms => terms === null)) {
       return res.status(200).json({
         message: "필수 이용약관에 동의해 주세요.",
         resultCode: false,
@@ -113,7 +113,7 @@ export default async function handler(
     }
 
     const hasAgreedToAllRequiredTerms = requiredTermsIds.every((seq: number) =>
-      agreedTermsIds.includes(seq.toString())
+      agreedTermsIds.includes(seq)
     );
 
     if (!hasAgreedToAllRequiredTerms) {
@@ -193,7 +193,9 @@ export default async function handler(
     const hashedPassword = await bcrypt.hash(data.user_pw!, 10);
 
     const termsList: number[] = await Promise.all(
-      Array(data.terms).map((terms: string | undefined) => typeof terms === "string" ? parseInt(terms, 10) : 0)
+      data.terms?.every((terms: number | null | undefined) => terms !== null && terms !== undefined)
+        ? data.terms.map((terms: number) => terms)
+        : [] 
     );
     
 
