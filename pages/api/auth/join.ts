@@ -54,22 +54,11 @@ const runMiddleware = (req: NextApiRequest, res: NextApiResponse, fn: any) => {
   });
 };
 
-const requiredField = [
-  "user_id",
-  "user_pw",
-  "user_name",
-  "user_hp",
-  "user_certification",
-];
+const requiredField = ["user_id", "user_pw", "user_name", "user_hp", "user_certification"];
 
-export default async function handler(
-  req: NextApiRequestWithFormData,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequestWithFormData, res: NextApiResponse) {
   if (req.method !== "POST") {
-    return res
-      .status(405)
-      .json({ message: "잘못된 메소드입니다.", resultCode: false });
+    return res.status(405).json({ message: "잘못된 메소드입니다.", resultCode: false });
   }
   await runMiddleware(req, res, upload);
 
@@ -105,16 +94,14 @@ export default async function handler(
     const requiredTermsIds = terms.map((term) => term.seq);
     const agreedTermsIds: number[] | null[] | undefined = data.terms;
 
-    if (!agreedTermsIds || agreedTermsIds.every(terms => terms === null)) {
+    if (!agreedTermsIds || agreedTermsIds.every((terms) => terms === null)) {
       return res.status(200).json({
         message: "필수 이용약관에 동의해 주세요.",
         resultCode: false,
       });
     }
 
-    const hasAgreedToAllRequiredTerms = requiredTermsIds.every((seq: number) =>
-      agreedTermsIds.includes(seq)
-    );
+    const hasAgreedToAllRequiredTerms = requiredTermsIds.every((seq: number) => agreedTermsIds.includes(seq));
 
     if (!hasAgreedToAllRequiredTerms) {
       return res.status(200).json({
@@ -132,10 +119,7 @@ export default async function handler(
 
   // 유효성 검사
   const errorMessages = Object.keys(data).reduce(
-    (
-      errors: Partial<{ [key in keyof EmpsInterface]: string }>,
-      fieldName: string
-    ) => {
+    (errors: Partial<{ [key in keyof EmpsInterface]: string }>, fieldName: string) => {
       if (requiredField.includes(fieldName)) {
         const patternInfo = validationRules[fieldName as keyof EmpsInterface];
         if (patternInfo) {
@@ -185,9 +169,7 @@ export default async function handler(
       } else if (existingEmail) {
         name = "이메일";
       }
-      return res
-        .status(200)
-        .json({ message: `이미 사용 중인 ${name}입니다.`, resultCode: false });
+      return res.status(200).json({ message: `이미 사용 중인 ${name}입니다.`, resultCode: false });
     }
 
     const hashedPassword = await bcrypt.hash(data.user_pw!, 10);
@@ -195,9 +177,8 @@ export default async function handler(
     const termsList: number[] = await Promise.all(
       data.terms?.every((terms: number | null | undefined) => terms !== null && terms !== undefined)
         ? data.terms.map((terms: number) => terms)
-        : [] 
+        : []
     );
-    
 
     const emp: DeepPartial<Emps> = {
       UID: uuidv4(),
@@ -271,8 +252,7 @@ export default async function handler(
             });
           } else {
             return res.status(200).json({
-              message:
-                "프로필 이미지 저장에 실패하였습니다. 개인 정보 수정에서 다시 시도해 주세요.",
+              message: "프로필 이미지 저장에 실패하였습니다. 개인 정보 수정에서 다시 시도해 주세요.",
               resultCode: false,
             });
           }
@@ -313,8 +293,7 @@ export default async function handler(
 }
 
 function generateRandomString(length = 8) {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
   const charactersLength = characters.length;
 
@@ -325,7 +304,6 @@ function generateRandomString(length = 8) {
 
   return result;
 }
-
 
 // SUPABASE 회원 가입 후 DB 접근 권한 부여
 // import { createClient } from '@supabase/supabase-js';

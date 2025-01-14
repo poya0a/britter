@@ -21,7 +21,6 @@ export default async function handler(
   }
 
   try {
-    // Supabase에서 이메일 확인
     const { data: existingUser, error } = await supabase
       .from("emps")
       .select("user_email")
@@ -29,9 +28,7 @@ export default async function handler(
       .single();
 
     if (error) {
-      // Supabase에서 발생한 에러 처리
       if (error.code === "PGRST116") {
-        // 데이터가 없는 경우
         return res
           .status(200)
           .json({ message: "사용 가능한 이메일입니다.", resultCode: true });
