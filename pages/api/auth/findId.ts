@@ -1,7 +1,5 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import { Emps } from "@entities/Emps.entity";
 import supabase from "@database/supabase.config";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -38,11 +36,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       throw error;
     }
 
-    const id = maskId(existingUser.user_id);
-    return res.status(200).json({
-      message: `아이디는 ${id} 입니다.`,
-      resultCode: true,
-    });
+    if (existingUser) {
+      const id = maskId(existingUser.user_id);
+      return res.status(200).json({
+        message: `아이디는 ${id} 입니다.`,
+        resultCode: true,
+      });
+    } else {
+      return res.status(200).json({ message: "회원 정보가 없습니다.", resultCode: false });
+    }
   } catch (error) {
     return res.status(500).json({
       message: "서버 에러가 발생하였습니다.",
