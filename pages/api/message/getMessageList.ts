@@ -18,17 +18,18 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         const pageNumber = parseInt(req.query.page as string);
         const searchWord = req.query.searchWord;
 
-        const {
-          data: findMessageList,
-          error: messageError,
-          count: totalCount,
-        } = await supabase
+        let query = supabase
           .from("message")
           .select("*", { count: "exact" })
-          // .ilike("message", searchWord ? `%${searchWord}%` : "")
           .eq(messageType === "receivedMessage" ? "recipient_uid" : "sender_uid", uid)
           .range((pageNumber - 1) * 20, pageNumber * 20 - 1)
           .order("create_date", { ascending: false });
+
+        if (searchWord) {
+          query = query.ilike("message", `%${searchWord}%`);
+        }
+
+        const { data: findMessageList, error: messageError, count: totalCount } = await query;
 
         if (messageError) {
           return res.status(200).json({
