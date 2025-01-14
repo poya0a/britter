@@ -42,14 +42,9 @@ const runMiddleware = (req: NextApiRequest, res: NextApiResponse, fn: any) => {
   });
 };
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
-    return res
-      .status(405)
-      .json({ message: "잘못된 메소드입니다.", resultCode: false });
+    return res.status(405).json({ message: "잘못된 메소드입니다.", resultCode: false });
   }
 
   authenticateToken(req, res, async () => {
@@ -74,10 +69,10 @@ export default async function handler(
           resultCode: false,
         });
       }
-    } catch (error: any) {
-      return res.status(500).json({
+    } catch (error) {
+      return res.status(200).json({
         message: "서버 에러가 발생하였습니다.",
-        error: error?.message,
+        error: error,
         resultCode: false,
       });
     }

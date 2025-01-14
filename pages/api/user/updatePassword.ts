@@ -1,13 +1,9 @@
 "use server";
 import { NextApiResponse } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import {
-  AuthenticatedRequest,
-  authenticateToken,
-} from "@server/utils/authenticateToken";
+import supabase from "@database/supabase.config";
+import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 import formidable from "formidable";
 import bcrypt from "bcrypt";
-import { Emps } from "@entities/Emps.entity";
 import { passwordPattern, regexValue } from "@utils/regex";
 
 export const config = {
@@ -16,10 +12,7 @@ export const config = {
   },
 };
 
-export default async function handler(
-  req: AuthenticatedRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
@@ -29,7 +22,7 @@ export default async function handler(
 
     form.parse(req, async (err, fields) => {
       if (err) {
-        return res.status(500).json({
+        return res.status(200).json({
           message: err,
           resultCode: false,
         });
@@ -39,9 +32,7 @@ export default async function handler(
         const uid = req.user.claims.UID;
 
         if (!fields.userOriginalPw || !fields.userPw) {
-          return res
-            .status(200)
-            .json({ message: "비밀번호를 입력해 주세요.", resultCode: false });
+          return res.status(200).json({ message: "비밀번호를 입력해 주세요.", resultCode: false });
         }
 
         const userOriginalPw: string = fields.userOriginalPw[0];
@@ -57,10 +48,6 @@ export default async function handler(
         }
 
         try {
-          const dataSource = await getDataSource();
-
-          const empsRepository = dataSource.getRepository(Emps);
-
           if (!uid) {
             return res.status(200).json({
               message: "사용자 정보를 찾을 수 없습니다.",
@@ -68,15 +55,10 @@ export default async function handler(
             });
           }
 
-          const findUser = await empsRepository.findOne({
-            where: { UID: uid },
-          });
+          const { data: findUser } = await supabase.from("emps").select("*").eq("UID", uid).single();
 
           if (findUser) {
-            const isMatch = await bcrypt.compare(
-              JSON.parse(userOriginalPw),
-              findUser.user_pw
-            );
+            const isMatch = await bcrypt.compare(JSON.parse(userOriginalPw), findUser.user_pw);
 
             if (!isMatch) {
               return res.status(200).json({
@@ -96,19 +78,22 @@ export default async function handler(
 
             findUser.user_pw = hashedPassword;
 
-            const updateUser = await empsRepository.save(findUser);
+            const { error: updateError } = await supabase
+              .from("emps")
+              .update({ user_pw: hashedPassword })
+              .eq("UID", uid);
 
-            if (updateUser) {
+            if (updateError) {
               return res.status(200).json({
-                message: "비밀번호가 변경되었습니다.",
-                resultCode: true,
-              });
-            } else {
-              return res.status(200).json({
-                message: "비밀번호가 변경에 실패하였습니니다.",
+                message: "비밀번호 변경에 실패하였습니다.",
                 resultCode: false,
               });
             }
+
+            return res.status(200).json({
+              message: "비밀번호가 변경되었습니다.",
+              resultCode: true,
+            });
           } else {
             return res.status(200).json({
               message: "사용자 정보를 찾을 수 없습니다.",
@@ -116,9 +101,8 @@ export default async function handler(
             });
           }
         } catch (error) {
-          return res.status(500).json({
-            message:
-              typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          return res.status(200).json({
+            message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
             error: error,
             resultCode: false,
           });

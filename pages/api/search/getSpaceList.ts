@@ -1,21 +1,13 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import { Space } from "@entities/Space.entity";
-import { Notifications } from "@entities/Notifications.entity";
-import {
-  AuthenticatedRequest,
-  authenticateToken,
-} from "@server/utils/authenticateToken";
-import { ILike } from "typeorm";
+import supabase from "@database/supabase.config";
+import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 
-export default async function handler(
-  req: AuthenticatedRequest & NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: AuthenticatedRequest & NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
+
   const { searchWord, page } = JSON.parse(req.body);
   const pageNumber = parseInt(page, 10);
 
@@ -25,50 +17,49 @@ export default async function handler(
       const uid = req.user.claims.UID;
 
       try {
-        const dataSource = await getDataSource();
-        const spaceRepository = dataSource.getRepository(Space);
-        const notificationsRepository = dataSource.getRepository(Notifications);
+        // Space와 Notifications 테이블에서 데이터 조회
+        const {
+          data: findSpace,
+          error: spaceError,
+          count: totalCount,
+        } = await supabase
+          .from("space")
+          .select("UID, space_profile_seq, space_name, space_public, space_manager, space_users", { count: "exact" })
+          .ilike("space_name", `%${searchWord}%`)
+          .range((pageNumber - 1) * 10, pageNumber * 10 - 1);
 
-        const [findSpace, totalCount] = await spaceRepository.findAndCount({
-          where: { space_name: ILike(`%${searchWord}%`) },
-          select: [
-            "UID",
-            "space_profile_seq",
-            "space_name",
-            "space_public",
-            "space_manager",
-            "space_users",
-          ],
-          skip: (pageNumber - 1) * 10,
-          take: 10,
-        });
+        if (spaceError) {
+          return res.status(200).json({
+            message: "서버 에러가 발생하였습니다.",
+            error: spaceError,
+            resultCode: false,
+          });
+        }
 
-        if (findSpace) {
+        if (findSpace && totalCount !== undefined) {
+          // 알림 정보 조회
           const spaceWithNotification = await Promise.all(
             findSpace.map(async (space) => {
-              const userNotification = await notificationsRepository.findOne({
-                where: [
-                  {
-                    notify_type: "user",
-                    sender_uid: space.UID,
-                    recipient_uid: uid,
-                  },
-                  {
-                    notify_type: "space",
-                    sender_uid: uid,
-                    recipient_uid: space.UID,
-                  },
-                ],
-                select: ["UID", "notify_type"],
-              });
+              const { data: userNotification, error: notifyError } = await supabase
+                .from("notifications")
+                .select("UID, notify_type")
+                .or(
+                  `and(notify_type.eq.user,sender_uid.eq.${space.UID},recipient_uid.eq.${uid}),and(notify_type.eq.space,sender_uid.eq.${uid},recipient_uid.eq.${space.UID})`
+                )
+                .single();
+
+              if (notifyError) {
+                return res.status(200).json({
+                  message: "서버 에러가 발생하였습니다.",
+                  error: notifyError,
+                  resultCode: false,
+                });
+              }
 
               if (userNotification) {
                 const notify = {
                   notifyUID: userNotification.UID,
-                  notifyType:
-                    userNotification.notify_type === "space"
-                      ? "participation"
-                      : "invite",
+                  notifyType: userNotification.notify_type === "space" ? "participation" : "invite",
                 };
 
                 return {
@@ -81,7 +72,7 @@ export default async function handler(
             })
           );
 
-          const totalPages = Math.ceil(totalCount / 10);
+          const totalPages = Math.ceil(totalCount ?? 0 / 10);
 
           const pageInfo = {
             currentPage: pageNumber,
@@ -103,9 +94,8 @@ export default async function handler(
           });
         }
       } catch (error) {
-        return res.status(500).json({
-          message:
-            typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+        return res.status(200).json({
+          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

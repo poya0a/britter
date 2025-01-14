@@ -1,10 +1,7 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import { Space } from "@entities/Space.entity";
+import supabase from "@database/supabase.config";
 import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
-import { SpaceList } from "@entities/SpaceList.entity";
-import { Post } from "@entities/Post.entity";
 import { extractImgDataSeq } from "@/server/utils/extractImgDataSeq";
 import { handleFileDelete } from "@/server/utils/fileDelete";
 
@@ -12,88 +9,110 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
   if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
+
   const { spaceUid } = JSON.parse(req.body);
 
   authenticateToken(req, res, async () => {
     if (req.user) {
-      // 토큰 이용하여 UID GET
       const uid = req.user.claims.UID;
 
       try {
-        const dataSource = await getDataSource();
-        const spaceRepository = dataSource.getRepository(Space);
-        const spaceListRepository = dataSource.getRepository(SpaceList);
-        const postRepository = dataSource.getRepository(Post);
+        const { data: space, error: spaceError } = await supabase
+          .from("spaces")
+          .select("*")
+          .eq("UID", spaceUid)
+          .eq("space_manager", uid)
+          .single();
 
-        const findSpace = await spaceRepository.findOne({
-          where: { UID: spaceUid, space_manager: uid },
-        });
-
-        const findSpaceList = await spaceListRepository.findOne({
-          where: { UID: uid },
-        });
-
-        if (!findSpace || !findSpaceList) {
+        if (spaceError || !space) {
           return res.status(200).json({
             message: "삭제할 스페이스를 찾을 수 없습니다.",
             resultCode: false,
           });
         }
 
-        // 스페이스가 하나인 경우 삭제 불가
-        if (findSpaceList.space.length <= 1) {
+        const { data: spaceList, error: spaceListError } = await supabase
+          .from("space_lists")
+          .select("space")
+          .eq("UID", uid)
+          .single();
+
+        if (spaceListError || !spaceList) {
+          return res.status(200).json({
+            message: "사용자의 스페이스 리스트를 찾을 수 없습니다.",
+            resultCode: false,
+          });
+        }
+
+        if (spaceList.space.length <= 1) {
           return res.status(200).json({
             message: "최소한 하나의 스페이스를 가지고 있어야 합니다.",
             resultCode: false,
           });
-        } else {
-          // 사용자의 스페이스 리스트에서 삭제
-          findSpaceList.space = findSpaceList.space.filter((space: string) => space !== spaceUid);
-
-          await spaceListRepository.save(findSpaceList);
         }
 
-        // 해당 스페이스를 가진 사람의 스페이스 리스트에서 삭제
-        const spaceUsers = findSpace.space_users || [];
-        for (const userUid of spaceUsers) {
-          const userSpaceList = await spaceListRepository.findOne({
-            where: { UID: userUid },
+        const updatedSpaceList = spaceList.space.filter((spaceId: string) => spaceId !== spaceUid);
+
+        await supabase.from("space_lists").update({ space: updatedSpaceList }).eq("UID", uid);
+
+        const { data: spaceUsers, error: spaceUsersError } = await supabase
+          .from("spaces")
+          .select("space_users")
+          .eq("UID", spaceUid)
+          .single();
+
+        if (spaceUsersError || !spaceUsers) {
+          return res.status(200).json({
+            message: "스페이스 사용자 정보를 찾을 수 없습니다.",
+            resultCode: false,
           });
-
-          if (userSpaceList) {
-            userSpaceList.space = userSpaceList.space.filter((spaceId: string) => spaceId !== spaceUid);
-
-            await spaceListRepository.save(userSpaceList);
-          }
         }
 
-        // 해당 스페이스의 게시글 삭제
-        const findPosts = await postRepository.find({
-          where: { space_uid: spaceUid },
-        });
+        for (const userUid of spaceUsers.space_users || []) {
+          const { data: userSpaceList, error: userSpaceListError } = await supabase
+            .from("space_lists")
+            .select("space")
+            .eq("UID", userUid)
+            .single();
 
-        if (findPosts.length > 0) {
-          for (const post of findPosts) {
+          if (userSpaceListError || !userSpaceList) continue;
+
+          const updatedUserSpaceList = userSpaceList.space.filter((spaceId: string) => spaceId !== spaceUid);
+
+          await supabase.from("space_lists").update({ space: updatedUserSpaceList }).eq("UID", userUid);
+        }
+
+        const { data: posts, error: postsError } = await supabase.from("posts").select("*").eq("space_uid", spaceUid);
+
+        if (postsError) {
+          return res.status(200).json({
+            message: "게시글을 찾을 수 없습니다.",
+            resultCode: false,
+          });
+        }
+
+        if (posts && posts.length > 0) {
+          for (const post of posts) {
             const extractedSeqList = extractImgDataSeq(post.content);
-            // 게시글에 이미지 파일이 있는 경우 반복문으로 데이터 및 물리 파일 삭제
+
             if (extractedSeqList.length > 0) {
               for (const seq of extractedSeqList) {
                 await handleFileDelete(seq);
               }
             }
-            // 게시글 삭제
-            await postRepository.remove(post);
+
+            await supabase.from("posts").delete().eq("seq", post.seq);
           }
         }
 
-        await spaceRepository.remove(findSpace);
+        await supabase.from("spaces").delete().eq("UID", spaceUid);
 
         return res.status(200).json({
           message: "스페이스가 성공적으로 삭제되었습니다.",
           resultCode: true,
         });
       } catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
           message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,

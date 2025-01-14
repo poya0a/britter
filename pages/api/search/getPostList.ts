@@ -1,62 +1,48 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import {
-  AuthenticatedRequest,
-  authenticateToken,
-} from "@server/utils/authenticateToken";
-import { Post } from "@entities/Post.entity";
+import { createClient } from "@supabase/supabase-js";
+import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 
-export default async function handler(
-  req: AuthenticatedRequest & NextApiRequest,
-  res: NextApiResponse
-) {
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+
+export default async function handler(req: AuthenticatedRequest & NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
+
   const { searchWord, page } = JSON.parse(req.body);
 
   authenticateToken(req, res, async () => {
     if (req.user) {
       try {
-        const dataSource = await getDataSource();
-        const postRepository = dataSource.getRepository(Post);
-        const [findPost, totalCount] = await postRepository
-          .createQueryBuilder("post")
-          .where("post.title LIKE :searchWord COLLATE utf8mb4_general_ci", {
-            searchWord: `%${searchWord}%`,
-          })
-          .orWhere(
-            "REGEXP_REPLACE(post.content, '<[^>]+>', '') LIKE :searchWord COLLATE utf8mb4_general_ci",
-            { searchWord: `%${searchWord}%` }
-          )
-          .select([
-            "post.UID",
-            "post.seq",
-            "post.title",
-            "post.content",
-            "post.space_uid",
-          ])
-          .skip((page - 1) * 10)
-          .take(10)
-          .getManyAndCount();
+        const {
+          data: posts,
+          count: totalCount,
+          error,
+        } = await supabase
+          .from("post")
+          .select("UID, seq, title, content, space_uid")
+          .ilike("title", `%${searchWord}%`)
+          .or(`content.ilike.%${searchWord}%,content.is.null`)
+          .range((page - 1) * 10, page * 10 - 1)
+          .limit(10);
 
-        if (findPost) {
-          const result = findPost.map((post) => {
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        if (posts && posts.length > 0) {
+          const result = posts.map((post) => {
             return {
               UID: post.UID,
               seq: post.seq,
               space_uid: post.space_uid,
-              title: post.title
-                ? extractSnippet(post.title, searchWord)
-                : getTruncatedText(post.title, 50),
-              content: post.content
-                ? extractSnippet(post.content, searchWord)
-                : getTruncatedText(post.content, 50),
+              title: post.title ? extractSnippet(post.title, searchWord) : getTruncatedText(post.title, 50),
+              content: post.content ? extractSnippet(post.content, searchWord) : getTruncatedText(post.content, 50),
             };
           });
 
-          const totalPages = Math.ceil(totalCount / 10);
+          const totalPages = Math.ceil(totalCount ?? 0 / 10);
 
           const pageInfo = {
             currentPage: page,
@@ -78,9 +64,8 @@ export default async function handler(
           });
         }
       } catch (error) {
-        return res.status(500).json({
-          message:
-            typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+        return res.status(200).json({
+          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });
@@ -99,16 +84,11 @@ function extractSnippet(text: string, searchWord: string): string {
   const searchWordIndex = text.indexOf(searchWord);
 
   if (searchWordIndex === -1) {
-    return text.length <= snippetLength
-      ? text
-      : text.slice(0, snippetLength) + "...";
+    return text.length <= snippetLength ? text : text.slice(0, snippetLength) + "...";
   }
 
   const start = Math.max(0, searchWordIndex - snippetLength);
-  const end = Math.min(
-    text.length,
-    searchWordIndex + searchWord.length + snippetLength
-  );
+  const end = Math.min(text.length, searchWordIndex + searchWord.length + snippetLength);
 
   return text.slice(start, end);
 }

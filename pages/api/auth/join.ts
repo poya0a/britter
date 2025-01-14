@@ -102,7 +102,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       });
     }
   } catch (error) {
-    return res.status(500).json({
+    return res.status(200).json({
       message: "서버 에러가 발생하였습니다.",
       error: error,
       resultCode: false,
@@ -181,7 +181,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     const { error: userError } = await supabase.from("emps").insert(emp).single();
 
     if (userError) {
-      return res.status(500).json({
+      return res.status(200).json({
         message: "회원 가입에 실패하였습니다.",
         error: userError.message,
         resultCode: false,
@@ -213,7 +213,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     if (spaceError) {
       await supabase.from("emps").delete().eq("UID", emp.UID);
 
-      return res.status(500).json({
+      return res.status(200).json({
         message: "스페이스 생성에 실패하였습니다.",
         error: spaceError.message,
         resultCode: false,
@@ -232,7 +232,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       await supabase.from("emps").delete().eq("UID", emp.UID);
       await supabase.from("space").delete().eq("UID", space.UID);
 
-      return res.status(500).json({
+      return res.status(200).json({
         message: "스페이스 리스트 생성에 실패하였습니다.",
         error: spaceListError.message,
         resultCode: false,
@@ -252,7 +252,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
         await supabase.from("space").delete().eq("UID", space.UID);
         await supabase.from("spaceList").delete().eq("UID", emp.UID);
 
-        return res.status(500).json({
+        return res.status(200).json({
           message: "프로필 이미지 저장에 실패하였습니다.",
           error: profileError.message,
           resultCode: false,
@@ -264,7 +264,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       resultCode: true,
     });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(200).json({
       message: "서버 에러가 발생하였습니다.",
       error: error,
       resultCode: false,

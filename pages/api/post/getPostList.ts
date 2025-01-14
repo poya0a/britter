@@ -1,20 +1,16 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import { Post } from "@entities/Post.entity";
-import {
-  AuthenticatedRequest,
-  authenticateToken,
-} from "@server/utils/authenticateToken";
+import supabase from "@database/supabase.config";
+import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 
-interface PostData extends Post {
+interface PostData {
+  seq: string;
+  p_seq?: string;
+  title: string;
   subPost?: PostData[];
 }
 
-export default async function handler(
-  req: AuthenticatedRequest & NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: AuthenticatedRequest & NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
@@ -24,18 +20,22 @@ export default async function handler(
   authenticateToken(req, res, async () => {
     if (req.user) {
       try {
-        const dataSource = await getDataSource();
-        const postRepository = dataSource.getRepository(Post);
+        const { data: posts, error } = await supabase
+          .from("posts")
+          .select("seq, p_seq, title")
+          .eq("space_uid", postUid)
+          .order("p_seq", { ascending: true })
+          .order("order_number", { ascending: true });
 
-        const posts = await postRepository
-          .createQueryBuilder("post")
-          .select(["post.seq", "post.p_seq", "post.title"])
-          .where("post.space_uid = :postUid", { postUid })
-          .orderBy("post.p_seq", "ASC")
-          .addOrderBy("post.order_number", "ASC")
-          .getMany();
+        if (error) {
+          return res.status(200).json({
+            message: "서버 에러가 발생하였습니다.",
+            error: error.message,
+            resultCode: false,
+          });
+        }
 
-        const groupedPosts: PostData[] = groupPosts(posts);
+        const groupedPosts = groupPosts(posts);
 
         return res.status(200).json({
           message: "게시글 목록 조회 완료했습니다.",
@@ -43,9 +43,8 @@ export default async function handler(
           resultCode: true,
         });
       } catch (error) {
-        return res.status(500).json({
-          message:
-            typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+        return res.status(200).json({
+          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

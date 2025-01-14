@@ -1,16 +1,9 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import {
-  AuthenticatedRequest,
-  authenticateToken,
-} from "@server/utils/authenticateToken";
-import { Message } from "@entities/Message.entity";
+import supabase from "@database/supabase.config";
+import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 
-export default async function handler(
-  req: AuthenticatedRequest & NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: AuthenticatedRequest & NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
@@ -22,30 +15,26 @@ export default async function handler(
       const uid = req.user.claims.UID;
 
       try {
-        const dataSource = await getDataSource();
-        const messageRepository = dataSource.getRepository(Message);
-
-        const findMessage = await messageRepository.findOne({
-          where: { UID: messageUid },
-        });
+        const { data: findMessage } = await supabase.from("message").select("*").eq("UID", messageUid).single();
 
         if (findMessage) {
           if (findMessage.recipient_uid === uid) {
             findMessage.confirm = true;
 
-            await messageRepository.save(findMessage);
+            const { error: upsertError } = await supabase.from("message").upsert(findMessage);
 
-            return res.status(200).json({
-              message: "메시지 읽음 처리되었습니다.",
-              data: { uid: findMessage.UID },
-              resultCode: true,
-            });
-          } else {
-            return res.status(200).json({
-              message: "메시지는 수신자만 읽음 처리할 수 있습니다.",
-              resultCode: false,
-            });
+            if (upsertError) {
+              return res.status(200).json({
+                message: "메시지는 수신자만 읽음 처리할 수 있습니다.",
+                resultCode: false,
+              });
+            }
           }
+          return res.status(200).json({
+            message: "메시지 읽음 처리되었습니다.",
+            data: { uid: findMessage.UID },
+            resultCode: true,
+          });
         } else {
           return res.status(200).json({
             message: "삭제된 메시지입니다.",
@@ -53,9 +42,8 @@ export default async function handler(
           });
         }
       } catch (error) {
-        return res.status(500).json({
-          message:
-            typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+        return res.status(200).json({
+          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

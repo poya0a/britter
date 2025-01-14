@@ -1,30 +1,32 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import { Post } from "@entities/Post.entity";
-import {
-  AuthenticatedRequest,
-  authenticateToken,
-} from "@server/utils/authenticateToken";
+import supabase from "@database/supabase.config";
+import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 
-export default async function handler(
-  req: AuthenticatedRequest & NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: AuthenticatedRequest & NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
+
   authenticateToken(req, res, async () => {
     const postSeq = req.query.postSeq as string;
 
     if (req.user && postSeq) {
       try {
-        const dataSource = await getDataSource();
-        const postRepository = dataSource.getRepository(Post);
+        // 게시글 조회
+        const { data: findPost, error: postError } = await supabase
+          .from("posts")
+          .select("*")
+          .eq("seq", postSeq)
+          .single();
 
-        const findPost = await postRepository.findOne({
-          where: { seq: postSeq },
-        });
+        if (postError) {
+          return res.status(200).json({
+            message: "서버 에러가 발생하였습니다.",
+            error: postError,
+            resultCode: false,
+          });
+        }
 
         if (findPost) {
           return res.status(200).json({
@@ -39,9 +41,8 @@ export default async function handler(
           });
         }
       } catch (error) {
-        return res.status(500).json({
-          message:
-            typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+        return res.status(200).json({
+          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

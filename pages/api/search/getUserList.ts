@@ -1,18 +1,9 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import {
-  AuthenticatedRequest,
-  authenticateToken,
-} from "@server/utils/authenticateToken";
-import { ILike } from "typeorm";
-import { Emps } from "@entities/Emps.entity";
-import { Notifications } from "@entities/Notifications.entity";
+import supabase from "@database/supabase.config";
+import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 
-export default async function handler(
-  req: AuthenticatedRequest & NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: AuthenticatedRequest & NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
@@ -22,50 +13,51 @@ export default async function handler(
   authenticateToken(req, res, async () => {
     if (req.user) {
       try {
-        const dataSource = await getDataSource();
-        const empsRepository = dataSource.getRepository(Emps);
-        const notificationsRepository = dataSource.getRepository(Notifications);
-        const [findUser, totalCount] = await empsRepository.findAndCount({
-          where: { user_id: ILike(`%${searchWord}%`) },
-          select: [
-            "UID",
-            "user_profile_seq",
-            "user_id",
-            "user_name",
-            "user_public",
-          ],
-          skip: (pageNumber - 1) * 10,
-          take: 10,
-        });
+        // 사용자 검색
+        const {
+          data: findUser,
+          error: userError,
+          count: totalCount,
+        } = await supabase
+          .from("emps")
+          .select("UID, user_profile_seq, user_id, user_name, user_public", { count: "exact" })
+          .ilike("user_id", `%${searchWord}%`) // ILike와 동일한 기능
+          .range((pageNumber - 1) * 10, pageNumber * 10 - 1); // 페이지네이션
+
+        if (userError) {
+          return res.status(200).json({
+            message: "서버 에러가 발생하였습니다.",
+            error: userError,
+            resultCode: false,
+          });
+        }
 
         if (findUser) {
+          // 알림 조회 및 사용자와 결합
           const userWithNotification = await Promise.all(
             findUser.map(async (user) => {
               const uid = spaceUid;
 
-              const userNotification = await notificationsRepository.findOne({
-                where: [
-                  {
-                    notify_type: "space",
-                    sender_uid: user.UID,
-                    recipient_uid: uid,
-                  },
-                  {
-                    notify_type: "user",
-                    sender_uid: uid,
-                    recipient_uid: user.UID,
-                  },
-                ],
-                select: ["UID", "notify_type"],
-              });
+              const { data: userNotification, error: notifyError } = await supabase
+                .from("notifications")
+                .select("UID, notify_type")
+                .or(
+                  `and(notify_type.eq.space,sender_uid.eq.${user.UID},recipient_uid.eq.${uid}),and(notify_type.eq.user,sender_uid.eq.${uid},recipient_uid.eq.${user.UID})`
+                )
+                .single(); // 단일 결과만 조회
+
+              if (notifyError) {
+                return res.status(200).json({
+                  message: "서버 에러가 발생하였습니다.",
+                  error: notifyError,
+                  resultCode: false,
+                });
+              }
 
               if (userNotification) {
                 const notify = {
                   notifyUID: userNotification.UID,
-                  notifyType:
-                    userNotification.notify_type === "space"
-                      ? "participation"
-                      : "invite",
+                  notifyType: userNotification.notify_type === "space" ? "participation" : "invite",
                 };
 
                 return {
@@ -78,7 +70,8 @@ export default async function handler(
             })
           );
 
-          const totalPages = Math.ceil(totalCount / 10);
+          // 페이지 정보 계산
+          const totalPages = Math.ceil(totalCount ?? 0 / 10);
 
           const pageInfo = {
             currentPage: pageNumber,
@@ -100,9 +93,8 @@ export default async function handler(
           });
         }
       } catch (error) {
-        return res.status(500).json({
-          message:
-            typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+        return res.status(200).json({
+          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

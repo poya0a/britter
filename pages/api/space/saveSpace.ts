@@ -1,20 +1,10 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import { Space } from "@entities/Space.entity";
-import {
-  AuthenticatedRequest,
-  authenticateToken,
-} from "@server/utils/authenticateToken";
-import { DeepPartial } from "typeorm";
+import supabase from "@database/supabase.config";
+import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 import { v4 as uuidv4 } from "uuid";
-import { SpaceList } from "@entities/SpaceList.entity";
-import { Emps } from "@entities/Emps.entity";
 
-export default async function handler(
-  req: AuthenticatedRequest & NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: AuthenticatedRequest & NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
@@ -26,85 +16,90 @@ export default async function handler(
       const userUid = req.user.claims.UID;
 
       try {
-        const dataSource = await getDataSource();
-        const spaceRepository = dataSource.getRepository(Space);
-
         const uid = uuidv4();
-        const space: DeepPartial<Space> = {
-          UID: uid,
-          space_name: spaceName,
-          space_manager: userUid,
-          space_public: true,
-          space_users: [],
-          create_date: new Date(),
-        };
 
-        const newSpace = spaceRepository.create(space);
+        const { error: spaceError } = await supabase
+          .from("spaces")
+          .insert([
+            {
+              UID: uid,
+              space_name: spaceName,
+              space_manager: userUid,
+              space_public: true,
+              space_users: [],
+              create_date: new Date(),
+            },
+          ])
+          .single();
 
-        const saveSpace = await spaceRepository.save(newSpace);
-
-        if (saveSpace) {
-          const spaceListRepository = dataSource.getRepository(SpaceList);
-
-          const findSpaceList = await spaceListRepository.findOne({
-            where: { UID: userUid },
-          });
-
-          // 사용자의 레벨과 보유한 스페이스 수 확인
-          const empsRepository = dataSource.getRepository(Emps);
-
-          const findUser = await empsRepository.findOne({
-            where: { UID: userUid },
-          });
-
-          if (!findUser || !findSpaceList) {
-            return res.status(200).json({
-              message: "사용자 정보를 찾을 수 없습니다.",
-              resultCode: false,
-            });
-          }
-          if (findSpaceList) {
-            if (findUser.user_level === 1 && findSpaceList.space.length >= 3) {
-              return res.status(200).json({
-                message: "참여할 수 있는 스페이스는 최대 3개입니다.",
-                resultCode: false,
-              });
-            } else {
-              findSpaceList.space.push(uid);
-              const updateSpaceList = await spaceListRepository.save(
-                findSpaceList
-              );
-
-              if (updateSpaceList) {
-                return res.status(200).json({
-                  message: "스페이스가 생성되었습니다.",
-                  data: { spaceUid: space.UID },
-                  resultCode: true,
-                });
-              } else {
-                if (saveSpace) {
-                  await spaceRepository.delete(saveSpace.UID);
-                }
-
-                return res.status(200).json({
-                  message: "스페이스 생성에 실패하였습니다.",
-                  resultCode: false,
-                });
-              }
-            }
-          }
-        } else {
+        if (spaceError) {
           return res.status(200).json({
             message: "스페이스 생성에 실패하였습니다.",
             resultCode: false,
+            error: spaceError.message,
           });
         }
+
+        const { data: spaceList, error: spaceListError } = await supabase
+          .from("space_list")
+          .select("*")
+          .eq("UID", userUid)
+          .single();
+
+        if (spaceListError) {
+          return res.status(200).json({
+            message: "사용자의 스페이스 리스트를 찾을 수 없습니다.",
+            resultCode: false,
+            error: spaceListError.message,
+          });
+        }
+
+        const { data: userData, error: userError } = await supabase
+          .from("emps")
+          .select("*")
+          .eq("UID", userUid)
+          .single();
+
+        if (userError) {
+          return res.status(200).json({
+            message: "사용자 정보를 찾을 수 없습니다.",
+            resultCode: false,
+            error: userError.message,
+          });
+        }
+
+        if (userData.user_level === 1 && spaceList.space.length >= 3) {
+          return res.status(400).json({
+            message: "참여할 수 있는 스페이스는 최대 3개입니다.",
+            resultCode: false,
+          });
+        }
+
+        const updatedSpaceList = [...spaceList.space, uid];
+        const { error: updateError } = await supabase
+          .from("space_list")
+          .update({ space: updatedSpaceList })
+          .eq("UID", userUid);
+
+        if (updateError) {
+          await supabase.from("spaces").delete().eq("UID", uid);
+          return res.status(200).json({
+            message: "스페이스 리스트 업데이트에 실패하였습니다.",
+            resultCode: false,
+            error: updateError.message,
+          });
+        }
+
+        return res.status(200).json({
+          message: "스페이스가 생성되었습니다.",
+          data: { spaceUid: uid },
+          resultCode: true,
+        });
       } catch (error) {
-        return res.status(500).json({
-          message:
-            typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
-          error: error,
+        return res.status(200).json({
+          message: "서버 에러가 발생하였습니다.",
           resultCode: false,
+          error: error,
         });
       }
     } else {

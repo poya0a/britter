@@ -1,19 +1,9 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import {
-  AuthenticatedRequest,
-  authenticateToken,
-} from "@server/utils/authenticateToken";
-import { Notifications } from "@entities/Notifications.entity";
-import { Space } from "@entities/Space.entity";
-import { SpaceList } from "@entities/SpaceList.entity";
-import { Emps } from "@entities/Emps.entity";
+import supabase from "@database/supabase.config";
+import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 
-export default async function handler(
-  req: AuthenticatedRequest & NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: AuthenticatedRequest & NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
@@ -26,21 +16,20 @@ export default async function handler(
       try {
         const spaceUid = req.query.spaceUid as string;
         const pageNumber = parseInt(req.query.page as string);
-        const dataSource = await getDataSource();
-        const spaceListRepository = dataSource.getRepository(SpaceList);
-        const spaceRepository = dataSource.getRepository(Space);
 
-        const findSpaceList = await spaceListRepository.findOne({
-          where: { UID: uid },
-        });
+        const { data: findSpaceList, error: spaceListError } = await supabase
+          .from("spaceList")
+          .select("*")
+          .eq("UID", uid)
+          .single();
 
-        const findSpace = await spaceRepository.findOne({
-          where: {
-            UID: spaceUid,
-          },
-        });
+        const { data: findSpace, error: spaceError } = await supabase
+          .from("space")
+          .select("*")
+          .eq("UID", spaceUid)
+          .single();
 
-        if (!findSpaceList || !findSpace || findSpaceList.space.length === 0) {
+        if (spaceListError || spaceError || !findSpaceList || !findSpace || findSpaceList.space.length === 0) {
           return res.status(200).json({
             message: "사용자 정보를 찾을 수 없습니다.",
             resultCode: false,
@@ -50,40 +39,43 @@ export default async function handler(
         let whereCondition = [{ recipient_uid: uid }, { sender_uid: uid }];
 
         if (findSpace.space_manager === uid) {
-          whereCondition.push(
-            { recipient_uid: findSpace.UID },
-            { sender_uid: findSpace.UID }
-          );
+          whereCondition.push({ recipient_uid: findSpace.UID }, { sender_uid: findSpace.UID });
         }
 
-        const notificationsRepository = dataSource.getRepository(Notifications);
-        const empsRepository = dataSource.getRepository(Emps);
+        const {
+          data: findNotifications,
+          count: totalCount,
+          error: notificationError,
+        } = await supabase
+          .from("notifications")
+          .select("*", { count: "exact" })
+          .in(
+            "recipient_uid",
+            whereCondition.map((cond) => cond.recipient_uid)
+          )
+          .in(
+            "sender_uid",
+            whereCondition.map((cond) => cond.sender_uid)
+          )
+          .range((pageNumber - 1) * 50, pageNumber * 50 - 1)
+          .order("create_date", { ascending: false });
 
-        const [findNotifications, totalCount] =
-          await notificationsRepository.findAndCount({
-            where: whereCondition,
-            skip: (pageNumber - 1) * 50,
-            take: 50,
-            order: {
-              create_date: "DESC",
-            },
+        if (notificationError) {
+          return res.status(200).json({
+            message: "알림 조회에 실패하였습니다.",
+            resultCode: false,
+            error: notificationError,
           });
+        }
 
         const findName = async (type: string, uid: string) => {
           if (type === "space") {
-            const find = await spaceRepository.findOne({
-              where: { UID: uid },
-              select: ["space_name"],
-            });
-            return find?.space_name;
+            const { data: spaceData } = await supabase.from("space").select("space_name").eq("UID", uid).single();
+            return spaceData?.space_name;
           } else if (type === "user") {
-            const find = await empsRepository.findOne({
-              where: { UID: uid },
-              select: ["user_name"],
-            });
-            return find?.user_name;
+            const { data: userData } = await supabase.from("emps").select("user_name").eq("UID", uid).single();
+            return userData?.user_name;
           }
-
           return null;
         };
 
@@ -113,7 +105,7 @@ export default async function handler(
           })
         );
 
-        const totalPages = Math.ceil(totalCount / 50);
+        const totalPages = Math.ceil(totalCount ?? 0 / 50);
 
         const pageInfo = {
           currentPage: pageNumber,
@@ -129,9 +121,8 @@ export default async function handler(
           resultCode: true,
         });
       } catch (error) {
-        return res.status(500).json({
-          message:
-            typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+        return res.status(200).json({
+          message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

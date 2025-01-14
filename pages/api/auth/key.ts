@@ -56,8 +56,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } else {
       return res.status(200).json({ message: "키 생성을 실패하였습니다.", resultCode: false });
     }
-  } catch (error: any) {
-    return res.status(500).json({
+  } catch (error) {
+    return res.status(200).json({
       message: "서버 에러가 발생하였습니다.",
       error: error,
       resultCode: false,

@@ -1,16 +1,8 @@
 "use server";
 import { NextApiResponse } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import { Space } from "@entities/Space.entity";
-import {
-  AuthenticatedRequest,
-  authenticateToken,
-} from "@server/utils/authenticateToken";
-import { DeepPartial } from "typeorm";
+import supabase from "@database/supabase.config";
+import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 import { v4 as uuidv4 } from "uuid";
-import { Notifications } from "@entities/Notifications.entity";
-import { Emps } from "@entities/Emps.entity";
-import { SpaceList } from "@entities/SpaceList.entity";
 import formidable from "formidable";
 
 export const config = {
@@ -19,10 +11,7 @@ export const config = {
   },
 };
 
-export default async function handler(
-  req: AuthenticatedRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
@@ -32,31 +21,29 @@ export default async function handler(
 
     form.parse(req, async (err, fields) => {
       if (err) {
-        return res.status(500).json({
+        return res.status(200).json({
           message: err,
           resultCode: false,
         });
       }
       if (req.user) {
         try {
-          const dataSource = await getDataSource();
-          const notificationsRepository =
-            dataSource.getRepository(Notifications);
-          const spaceRepository = dataSource.getRepository(Space);
-          const spaceListRepository = dataSource.getRepository(SpaceList);
-          const empsRepository = dataSource.getRepository(Emps);
-
           if (fields.senderUid && fields.recipientUid && fields.notifyType) {
             const notifyType: string = fields.notifyType[0];
             const senderUid: string = fields.senderUid[0];
             const recipientUid: string = fields.recipientUid[0];
 
-            const findUser = await empsRepository.findOne({
-              where: { UID: notifyType === "space" ? senderUid : recipientUid },
-            });
-            const findSpaceList = await spaceListRepository.findOne({
-              where: { UID: notifyType === "space" ? senderUid : recipientUid },
-            });
+            const { data: findUser } = await supabase
+              .from("emps")
+              .select("*")
+              .eq("UID", notifyType === "space" ? senderUid : recipientUid)
+              .single();
+
+            const { data: findSpaceList } = await supabase
+              .from("spaceList")
+              .select("*")
+              .eq("UID", notifyType === "space" ? senderUid : recipientUid)
+              .single();
 
             if (!findUser || !findSpaceList) {
               return res.status(200).json({
@@ -65,49 +52,46 @@ export default async function handler(
               });
             }
 
-            let findSpace = await spaceRepository.findOne({
-              where: {
-                UID: notifyType === "space" ? recipientUid : senderUid,
-              },
-            });
+            const { data: findSpace, error: spaceError } = await supabase
+              .from("space")
+              .select("*")
+              .eq("UID", notifyType === "space" ? recipientUid : senderUid)
+              .single();
 
-            if (!findSpace) {
+            if (spaceError) {
               return res.status(200).json({
-                message:
-                  "스페이스 정보를 찾을 수 없습니다. 다시 시도해 주세요.",
+                message: "스페이스 정보를 찾을 수 없습니다. 다시 시도해 주세요.",
                 resultCode: false,
               });
             }
 
-            // 요청 응답
             if (fields.UID && fields.response) {
-              const existingNotification =
-                await notificationsRepository.findOne({
-                  where: { UID: fields.UID[0] },
-                });
+              const { data: existingNotification } = await supabase
+                .from("notifications")
+                .select("*")
+                .eq("UID", fields.UID[0])
+                .single();
 
               if (
                 existingNotification &&
                 senderUid === existingNotification.sender_uid &&
                 recipientUid === existingNotification.recipient_uid
               ) {
-                // 요청 취소
                 if (fields.response[0] === "false") {
-                  const deleteNotification =
-                    await notificationsRepository.delete(existingNotification);
+                  const { error } = await supabase.from("notifications").delete().eq("UID", fields.UID[0]);
 
-                  if (deleteNotification) {
-                    return res.status(200).json({
-                      message: "요청 취소되었습니다.",
-                      data: { type: notifyType, uid: recipientUid },
-                      resultCode: true,
-                    });
-                  } else {
+                  if (error) {
                     return res.status(200).json({
                       message: "취소 실패하였습니다.",
                       resultCode: false,
                     });
                   }
+
+                  return res.status(200).json({
+                    message: "요청 취소되었습니다.",
+                    data: { type: notifyType, uid: recipientUid },
+                    resultCode: true,
+                  });
                 } else {
                   return res.status(200).json({
                     message: "중복된 요청입니다.",
@@ -120,7 +104,6 @@ export default async function handler(
                 recipientUid === existingNotification.sender_uid
               ) {
                 if (fields.response[0] === "true") {
-                  // 요청 수락
                   try {
                     if (notifyType === "space") {
                       findSpace.space_users.push(senderUid);
@@ -130,60 +113,43 @@ export default async function handler(
                       findSpaceList.space.push(findSpace.UID);
                     }
 
-                    try {
-                      // 요청 수락 알림 저장
-                      const uid = uuidv4();
+                    const { data: updatedSpace } = await supabase.from("space").upsert(findSpace);
 
-                      const notify: DeepPartial<Notifications> = {
-                        UID: uid,
-                        recipient_uid: recipientUid,
-                        sender_uid: senderUid,
-                        notify_type: "acceptance",
-                        create_date: new Date(),
-                      };
+                    const { data: updatedSpaceList } = await supabase.from("spaceList").upsert(findSpaceList);
 
-                      const newNotify = notificationsRepository.create(notify);
-                      await notificationsRepository.save(newNotify);
+                    const uid = uuidv4();
+                    const notify = {
+                      UID: uid,
+                      recipient_uid: recipientUid,
+                      sender_uid: senderUid,
+                      notify_type: "acceptance",
+                      create_date: new Date(),
+                    };
 
-                      await spaceRepository.save(findSpace);
-                      await spaceListRepository.save(findSpaceList);
+                    const { data: newNotify } = await supabase.from("notifications").insert([notify]);
 
+                    if (updatedSpace && updatedSpaceList && newNotify) {
                       return res.status(200).json({
-                        message: `${
-                          notifyType === "space" ? "스페이스" : "사용자"
-                        }를 추가하였습니다.`,
+                        message: `${notifyType === "space" ? "스페이스" : "사용자"}를 추가하였습니다.`,
                         data: { type: notifyType, uid: recipientUid },
                         resultCode: true,
                       });
-                    } catch (error) {
-                      await spaceRepository.delete(findSpace.UID);
-
+                    } else {
                       return res.status(200).json({
-                        message: `${
-                          notifyType === "space" ? "스페이스" : "사용자"
-                        } 추가에 실패하였습니다.`,
+                        message: `${notifyType === "space" ? "스페이스" : "사용자"} 추가에 실패하였습니다.`,
                         resultCode: false,
                       });
-                    } finally {
-                      await notificationsRepository.delete(
-                        existingNotification
-                      );
                     }
                   } catch (error) {
-                    return res.status(500).json({
-                      message: `${
-                        notifyType === "space" ? "스페이스" : "사용자"
-                      } 추가 중 오류가 발생하였습니다.`,
+                    return res.status(200).json({
+                      message: `${notifyType === "space" ? "스페이스" : "사용자"} 추가 중 오류가 발생하였습니다.`,
                       resultCode: false,
                     });
                   }
                 } else if (fields.response[0] === "false") {
-                  // 요청 거절
                   try {
-                    // 요청 거절 알림 저장
                     const uid = uuidv4();
-
-                    const notify: DeepPartial<Notifications> = {
+                    const notify = {
                       UID: uid,
                       recipient_uid: recipientUid,
                       sender_uid: senderUid,
@@ -191,8 +157,8 @@ export default async function handler(
                       create_date: new Date(),
                     };
 
-                    const newNotify = notificationsRepository.create(notify);
-                    await notificationsRepository.save(newNotify);
+                    await supabase.from("notifications").insert([notify]);
+
                     return res.status(200).json({
                       message: "거절 완료되었습니다.",
                       data: { type: notifyType, uid: recipientUid },
@@ -203,18 +169,12 @@ export default async function handler(
                       message: "거절 실패하였습니다.",
                       resultCode: false,
                     });
-                  } finally {
-                    await notificationsRepository.delete(existingNotification);
                   }
                 }
               }
             } else {
-              // 요청
               if (notifyType === "space") {
-                if (
-                  findUser.user_level === 1 &&
-                  findSpaceList.space.length >= 3
-                ) {
+                if (findUser.user_level === 1 && findSpaceList.space.length >= 3) {
                   return res.status(200).json({
                     message: "참여할 수 있는 스페이스는 최대 3개입니다.",
                     resultCode: false,
@@ -222,8 +182,7 @@ export default async function handler(
                 }
 
                 if (findSpace.space_public) {
-                  const existingUser =
-                    findSpace.space_users.includes(senderUid);
+                  const existingUser = findSpace.space_users.includes(senderUid);
 
                   if (existingUser) {
                     return res.status(200).json({
@@ -233,10 +192,9 @@ export default async function handler(
                   } else {
                     findSpace.space_users.push(senderUid);
                     findSpaceList.space.push(recipientUid);
-                    // 새로운 멤버 참여 알림 저장
-                    const uid = uuidv4();
 
-                    const notify: DeepPartial<Notifications> = {
+                    const uid = uuidv4();
+                    const notify = {
                       UID: uid,
                       recipient_uid: recipientUid,
                       sender_uid: senderUid,
@@ -244,17 +202,13 @@ export default async function handler(
                       create_date: new Date(),
                     };
 
-                    const newNotify = notificationsRepository.create(notify);
+                    const { data: newNotify } = await supabase.from("notifications").insert([notify]);
 
-                    const updateSpace = await spaceRepository.save(findSpace);
-                    const updateSpaceList = await spaceListRepository.save(
-                      findSpaceList
-                    );
-                    const saveNotify = await notificationsRepository.save(
-                      newNotify
-                    );
+                    const { data: updatedSpace } = await supabase.from("space").upsert(findSpace);
 
-                    if (updateSpace && updateSpaceList && saveNotify) {
+                    const { data: updatedSpaceList } = await supabase.from("spaceList").upsert(findSpaceList);
+
+                    if (updatedSpace && updatedSpaceList && newNotify) {
                       return res.status(200).json({
                         message: "스페이스를 추가하였습니다.",
                         data: { type: notifyType, uid: recipientUid },
@@ -268,13 +222,13 @@ export default async function handler(
                     }
                   }
                 } else {
-                  const existingNotify = await notificationsRepository.findOne({
-                    where: {
-                      recipient_uid: recipientUid,
-                      sender_uid: senderUid,
-                      notify_type: notifyType,
-                    },
-                  });
+                  const { data: existingNotify } = await supabase
+                    .from("notifications")
+                    .select("*")
+                    .eq("recipient_uid", recipientUid)
+                    .eq("sender_uid", senderUid)
+                    .eq("notify_type", notifyType)
+                    .single();
 
                   if (existingNotify) {
                     return res.status(200).json({
@@ -283,8 +237,7 @@ export default async function handler(
                     });
                   } else {
                     const uid = uuidv4();
-
-                    const notify: DeepPartial<Notifications> = {
+                    const notify = {
                       UID: uid,
                       recipient_uid: recipientUid,
                       sender_uid: senderUid,
@@ -292,12 +245,9 @@ export default async function handler(
                       create_date: new Date(),
                     };
 
-                    const newNotify = notificationsRepository.create(notify);
-                    const saveNotify = await notificationsRepository.save(
-                      newNotify
-                    );
+                    const { data: newNotify } = await supabase.from("notifications").insert([notify]);
 
-                    if (saveNotify) {
+                    if (newNotify) {
                       return res.status(200).json({
                         message: "스페이스를 추가 요청 완료하였습니다.",
                         data: { type: notifyType, uid: recipientUid },
@@ -312,13 +262,13 @@ export default async function handler(
                   }
                 }
               } else if (notifyType === "user") {
-                const existingNotify = await notificationsRepository.findOne({
-                  where: {
-                    recipient_uid: recipientUid,
-                    sender_uid: senderUid,
-                    notify_type: notifyType,
-                  },
-                });
+                const { data: existingNotify } = await supabase
+                  .from("notifications")
+                  .select("*")
+                  .eq("recipient_uid", recipientUid)
+                  .eq("sender_uid", senderUid)
+                  .eq("notify_type", notifyType)
+                  .single();
 
                 if (existingNotify) {
                   return res.status(200).json({
@@ -327,7 +277,7 @@ export default async function handler(
                   });
                 } else {
                   const uid = uuidv4();
-                  const notify: DeepPartial<Notifications> = {
+                  const notify = {
                     UID: uid,
                     recipient_uid: recipientUid,
                     sender_uid: senderUid,
@@ -335,12 +285,9 @@ export default async function handler(
                     create_date: new Date(),
                   };
 
-                  const newNotify = notificationsRepository.create(notify);
-                  const saveNotify = await notificationsRepository.save(
-                    newNotify
-                  );
+                  const { data: newNotify } = await supabase.from("notifications").insert([notify]);
 
-                  if (saveNotify) {
+                  if (newNotify) {
                     return res.status(200).json({
                       message: "초대 요청 완료하였습니다.",
                       data: { type: notifyType, uid: recipientUid },
@@ -362,9 +309,8 @@ export default async function handler(
             });
           }
         } catch (error) {
-          return res.status(500).json({
-            message:
-              typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          return res.status(200).json({
+            message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
             error: error,
             resultCode: false,
           });

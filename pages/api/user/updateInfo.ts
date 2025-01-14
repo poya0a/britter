@@ -1,16 +1,12 @@
 "use server";
 import { NextApiResponse, NextApiRequest } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import {
-  AuthenticatedRequest,
-  authenticateToken,
-} from "@server/utils/authenticateToken";
+import supabase from "@database/supabase.config";
+import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 import fs from "fs";
 import path from "path";
 import multer from "multer";
 import { handleFileUpload } from "@server/utils/fileUpload";
 import { handleFileDelete } from "@server/utils/fileDelete";
-import { Emps } from "@entities/Emps.entity";
 
 type NextApiRequestWithFormData = NextApiRequest &
   AuthenticatedRequest &
@@ -50,14 +46,9 @@ const runMiddleware = (req: NextApiRequest, res: NextApiResponse, fn: any) => {
   });
 };
 
-export default async function handler(
-  req: NextApiRequestWithFormData,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequestWithFormData, res: NextApiResponse) {
   if (req.method !== "POST") {
-    return res
-      .status(405)
-      .json({ message: "잘못된 메소드입니다.", resultCode: false });
+    return res.status(405).json({ message: "잘못된 메소드입니다.", resultCode: false });
   }
 
   authenticateToken(req, res, async () => {
@@ -67,20 +58,10 @@ export default async function handler(
 
       await runMiddleware(req, res, upload);
 
-      const {
-        userName,
-        userEmail,
-        userBirth,
-        statusEmoji,
-        statusMessage,
-        userPublic,
-      } = req.body;
+      const { userName, userEmail, userBirth, statusEmoji, statusMessage, userPublic } = req.body;
       const file: Express.Multer.File | undefined = req.file;
 
       try {
-        const dataSource = await getDataSource();
-        const empsRepository = dataSource.getRepository(Emps);
-
         if (!uid) {
           return res.status(200).json({
             message: "사용자 정보를 찾을 수 없습니다.",
@@ -88,9 +69,7 @@ export default async function handler(
           });
         }
 
-        const findUser = await empsRepository.findOne({
-          where: { UID: uid },
-        });
+        const { data: findUser } = await supabase.from("emps").select("*").eq("UID", uid).single();
 
         if (findUser) {
           if (userName) {
@@ -114,11 +93,6 @@ export default async function handler(
 
           if (file !== undefined) {
             if (findUser.user_profile_seq) {
-              await empsRepository.update(
-                { user_profile_seq: findUser.user_profile_seq },
-                { user_profile_seq: 0 }
-              );
-
               await handleFileDelete(findUser.user_profile_seq);
             }
             const saveFile = await handleFileUpload(file);
@@ -126,19 +100,19 @@ export default async function handler(
             findUser.user_profile_seq = saveFile.data?.seq || 0;
           }
 
-          const updateUser = await empsRepository.save(findUser);
+          const { error: updateError } = await supabase.from("emps").upsert(findUser);
 
-          if (updateUser) {
+          if (updateError) {
             return res.status(200).json({
-              message: "사용자 정보 수정되었습니다.",
-              resultCode: true,
-            });
-          } else {
-            return res.status(200).json({
-              message: "정보 수정에 실패하였습니니다.",
+              message: "정보 수정에 실패하였습니다.",
               resultCode: false,
             });
           }
+
+          return res.status(200).json({
+            message: "사용자 정보 수정되었습니다.",
+            resultCode: true,
+          });
         } else {
           return res.status(200).json({
             message: "사용자 정보를 찾을 수 없습니다.",
@@ -146,9 +120,8 @@ export default async function handler(
           });
         }
       } catch (error) {
-        return res.status(500).json({
-          message:
-            typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+        return res.status(200).json({
+          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

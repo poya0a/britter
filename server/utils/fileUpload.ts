@@ -2,7 +2,6 @@ import supabase from "@database/supabase.config";
 import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
-import { File } from "@entities/File.entity";
 
 export async function handleFileUpload(file: Express.Multer.File) {
   try {
@@ -40,12 +39,13 @@ export async function handleFileUpload(file: Express.Multer.File) {
 
     const fileBuffer = fs.readFileSync(savedFilePath);
 
-    const newFile = new File();
-    newFile.file = fileBuffer;
-    newFile.file_name = path.basename(savedFilePath);
-    newFile.file_path = `/files/${fileName}`;
-    newFile.file_size = fileSize.toString();
-    newFile.file_extension = fileExtension;
+    const newFile = {
+      file: fileBuffer,
+      file_name: path.basename(savedFilePath),
+      file_path: `/files/${fileName}`,
+      file_size: fileSize.toString(),
+      file_extension: fileExtension,
+    };
 
     const { error: uploadError } = await supabase.from("file").insert(newFile).single();
 
@@ -57,12 +57,14 @@ export async function handleFileUpload(file: Express.Multer.File) {
       };
     }
 
+    const { data } = await supabase.from("file").select("*").eq("file_path", newFile.file_path).single();
+
     return {
       resultCode: true,
       message: "파일 업로드가 완료되었습니다.",
       data: {
-        seq: newFile.seq,
-        path: newFile.file_path,
+        seq: data.seq,
+        path: data.file_path,
       },
     };
   } catch (error) {

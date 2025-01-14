@@ -25,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { data: existingUser, error } = await supabase
+    const { error } = await supabase
       .from("emps")
       .select("user_certification")
       .eq("user_id", user_id)
@@ -35,24 +35,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .single();
 
     if (error) {
-      if (error.code === "PGRST116") {
-        return res.status(200).json({ message: "회원 정보가 없습니다.", resultCode: false });
-      }
-      throw error;
-    }
-
-    // existingUser.
-
-    if (existingUser) {
-      return res.status(200).json({
-        message: `비밀번호를 재설정해 주세요.`,
-        resultCode: true,
-      });
-    } else {
       return res.status(200).json({ message: "회원 정보가 없습니다.", resultCode: false });
     }
+
+    return res.status(200).json({
+      message: `비밀번호를 재설정해 주세요.`,
+      resultCode: true,
+    });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(200).json({
       message: "서버 에러가 발생하였습니다.",
       error: error,
       resultCode: false,

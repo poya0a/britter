@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest & AuthenticatedRequest
         const { data, error } = await supabase.from("file").select("*").eq("seq", parseInt(seqParam, 10)).single();
 
         if (error) {
-          return res.status(500).json({
+          return res.status(200).json({
             message: "서버 에러가 발생하였습니다.",
             error: error.message,
             resultCode: false,
@@ -36,7 +36,7 @@ export default async function handler(req: NextApiRequest & AuthenticatedRequest
           });
         }
       } catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
           message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,

@@ -80,7 +80,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .eq("UID", user.UID);
 
     if (updateError) {
-      return res.status(500).json({
+      return res.status(200).json({
         message: "사용자 정보 업데이트 중 오류가 발생하였습니다.",
         resultCode: false,
       });
@@ -88,7 +88,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(200).json({ resultCode: true, accessToken, refreshToken });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(200).json({
       message: "서버 에러가 발생하였습니다.",
       error: error,
       resultCode: false,

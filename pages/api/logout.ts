@@ -47,7 +47,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
           const { error: updateUserError } = await supabase.from("emps").update({ private_seq: null }).eq("UID", uid);
 
           if (updateUserError) {
-            return res.status(500).json({
+            return res.status(200).json({
               message: "사용자 정보 업데이트 중 오류가 발생하였습니다.",
               resultCode: false,
             });
@@ -57,7 +57,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
           const { error: deletePrivateError } = await supabase.from("private").delete().eq("seq", user.private_seq);
 
           if (deletePrivateError) {
-            return res.status(500).json({
+            return res.status(200).json({
               message: "개인 키 삭제 중 오류가 발생하였습니다.",
               resultCode: false,
             });
@@ -74,7 +74,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
           });
         }
       } catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
           message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,

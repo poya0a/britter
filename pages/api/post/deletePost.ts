@@ -1,19 +1,11 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import { Post } from "@entities/Post.entity";
-import {
-  AuthenticatedRequest,
-  authenticateToken,
-} from "@server/utils/authenticateToken";
+import supabase from "@database/supabase.config";
+import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 import { extractImgDataSeq } from "@server/utils/extractImgDataSeq";
 import { handleFileDelete } from "@server/utils/fileDelete";
-import { Repository } from "typeorm";
 
-export default async function handler(
-  req: AuthenticatedRequest & NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: AuthenticatedRequest & NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "잘못된 메소드입니다." });
   }
@@ -25,9 +17,6 @@ export default async function handler(
       // 토큰 이용하여 UID GET
       const uid = req.user.claims.UID;
       try {
-        const dataSource = await getDataSource();
-        const postRepository = dataSource.getRepository(Post);
-
         if (!seq) {
           return res.status(200).json({
             message: "게시글 정보가 올바르지 않습니다.",
@@ -35,9 +24,21 @@ export default async function handler(
           });
         }
 
-        const currentPost = await postRepository.findOne({
-          where: { seq, UID: uid },
-        });
+        // 게시글 조회
+        const { data: currentPost, error: postError } = await supabase
+          .from("posts")
+          .select("*")
+          .eq("seq", seq)
+          .eq("UID", uid)
+          .single();
+
+        if (postError) {
+          return res.status(200).json({
+            message: "서버 에러가 발생하였습니다.",
+            error: postError,
+            resultCode: false,
+          });
+        }
 
         if (!currentPost) {
           return res.status(200).json({
@@ -49,7 +50,7 @@ export default async function handler(
         // 삭제한 파일 seq 배열
         let dataSeqList: number[] = [];
 
-        await deletePostAndChildren(seq, postRepository, uid, dataSeqList);
+        await deletePostAndChildren(seq, uid, dataSeqList);
 
         if (dataSeqList.length > 0) {
           for (const seq of dataSeqList) {
@@ -57,22 +58,33 @@ export default async function handler(
           }
         }
 
-        let pSeq: string = currentPost?.p_seq || "";
+        const pSeq: string = currentPost?.p_seq || "";
 
         // 남은 게시글 재정렬
-        const postsWithSamePSeq = await postRepository.find({
-          where: { p_seq: pSeq, UID: uid },
-        });
+        const { data: postsWithSamePSeq, error: postsError } = await supabase
+          .from("posts")
+          .select("*")
+          .eq("p_seq", pSeq)
+          .eq("UID", uid);
 
-        const postsToSort = postsWithSamePSeq.filter(
-          (post) => post.order_number
-        );
+        if (postsError) {
+          return res.status(200).json({
+            message: "서버 에러가 발생하였습니다.",
+            error: postsError,
+            resultCode: false,
+          });
+        }
+
+        const postsToSort = postsWithSamePSeq.filter((post) => post.order_number);
 
         postsToSort.sort((a, b) => a.order_number - b.order_number);
 
         for (let i = 0; i < postsToSort.length; i++) {
           postsToSort[i].order_number = i + 1;
-          await postRepository.save(postsToSort[i]);
+          await supabase
+            .from("posts")
+            .update({ order_number: postsToSort[i].order_number })
+            .eq("seq", postsToSort[i].seq);
         }
 
         return res.status(200).json({
@@ -81,9 +93,8 @@ export default async function handler(
           resultCode: true,
         });
       } catch (error) {
-        return res.status(500).json({
-          message:
-            typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+        return res.status(200).json({
+          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });
@@ -97,32 +108,44 @@ export default async function handler(
   });
 }
 
-async function deletePostAndChildren(
-  postSeq: string,
-  postRepository: Repository<Post>,
-  uid: string,
-  dataSeqList: number[]
-) {
-  const childPosts = await postRepository.find({
-    where: { p_seq: postSeq, UID: uid },
-  });
+async function deletePostAndChildren(postSeq: string, uid: string, dataSeqList: number[]) {
+  // 자식 게시글 조회
+  const { data: childPosts, error: childPostsError } = await supabase
+    .from("posts")
+    .select("*")
+    .eq("p_seq", postSeq)
+    .eq("UID", uid);
 
-  const currentPost = await postRepository.findOne({
-    where: { seq: postSeq, UID: uid },
-  });
+  if (childPostsError) {
+    throw new Error(childPostsError.message);
+  }
+
+  // 현재 게시글 삭제
+  const { data: currentPost, error: currentPostError } = await supabase
+    .from("posts")
+    .select("*")
+    .eq("seq", postSeq)
+    .eq("UID", uid)
+    .single();
+
+  if (currentPostError) {
+    throw new Error(currentPostError.message);
+  }
 
   if (currentPost) {
     const extractedSeqList = extractImgDataSeq(currentPost.content);
     dataSeqList.push(...extractedSeqList);
-    await postRepository.remove(currentPost);
+
+    // 게시글 삭제
+    const { error: deleteError } = await supabase.from("posts").delete().eq("seq", postSeq).eq("UID", uid);
+
+    if (deleteError) {
+      throw new Error(deleteError.message);
+    }
   }
 
+  // 자식 게시글에 대해 재귀적으로 삭제
   for (const childPost of childPosts) {
-    await deletePostAndChildren(
-      childPost.seq,
-      postRepository,
-      uid,
-      dataSeqList
-    );
+    await deletePostAndChildren(childPost.seq, uid, dataSeqList);
   }
 }
