@@ -23,7 +23,7 @@ export default async function handler(
   try {
     // Supabase에서 이메일 확인
     const { data: existingUser, error } = await supabase
-      .from("Emps")
+      .from("emps")
       .select("user_email")
       .eq("user_email", user_email)
       .single();
