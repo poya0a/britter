@@ -1,8 +1,6 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getDataSource } from "@database/typeorm.config";
 import supabase from "@database/supabase.config";
-import { Terms } from "@entities/Terms.entity";
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,21 +11,13 @@ export default async function handler(
   }
 
   try {
-    const dataSource = await getDataSource();
     const { data: terms, error } = await supabase
-    .from("emps")
-    .select("in_used")
-    .eq("in_used", true)
-    .single();
+    .from("terms")
+    .select("*")
+    .eq("in_used", true);
 
-
-    // const termsRepository = dataSource.getRepository(Terms);
-    // const terms = await termsRepository.find({
-    //   where: {
-    //     in_used: true,
-    //   },
-    // });
-
+    if (error) throw error;
+    
     return res.status(200).json({
       message: "이용약관 조회 완료했습니다.",
       data: terms,
