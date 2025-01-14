@@ -325,3 +325,28 @@ function generateRandomString(length = 8) {
 
   return result;
 }
+
+
+// SUPABASE 회원 가입 후 DB 접근 권한 부여
+// import { createClient } from '@supabase/supabase-js';
+
+// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+// const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+// const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// async function signUp(email: string, password: string) {
+//   const { user, error } = await supabase.auth.signUp({
+//     email,
+//     password,
+//   });
+
+//   if (error) {
+//     console.error('Error signing up:', error.message);
+//     return;
+//   }
+
+//   console.log('User signed up:', user);
+//   // 회원가입 후 권한 부여
+//   await assignPermissions(user.id);
+// }

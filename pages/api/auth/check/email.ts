@@ -1,7 +1,6 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getDataSource } from "@database/typeorm.config";
-import { Emps } from "@entities/Emps.entity";
+import supabase from "@database/supabase.config";
 
 export default async function handler(
   req: NextApiRequest,
@@ -22,17 +21,30 @@ export default async function handler(
   }
 
   try {
-    const dataSource = await getDataSource();
-    const empsRepository = dataSource.getRepository(Emps);
-    const existingUser = await empsRepository.findOne({
-      where: { user_email },
-    });
+    // Supabase에서 이메일 확인
+    const { data: existingUser, error } = await supabase
+      .from("Emps")
+      .select("user_email")
+      .eq("user_email", user_email)
+      .single();
+
+    if (error) {
+      // Supabase에서 발생한 에러 처리
+      if (error.code === "PGRST116") {
+        // 데이터가 없는 경우
+        return res
+          .status(200)
+          .json({ message: "사용 가능한 이메일입니다.", resultCode: true });
+      }
+      throw error;
+    }
 
     if (existingUser) {
       return res
         .status(200)
         .json({ message: "이미 사용 중인 이메일입니다.", resultCode: false });
     }
+
     return res
       .status(200)
       .json({ message: "사용 가능한 이메일입니다.", resultCode: true });
@@ -44,3 +56,4 @@ export default async function handler(
     });
   }
 }
+
