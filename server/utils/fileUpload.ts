@@ -1,8 +1,8 @@
-import { getDataSource } from "@database/typeorm.config";
-import { File } from "@entities/File.entity";
+import supabase from "@database/supabase.config";
 import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
+import { File } from "@entities/File.entity";
 
 export async function handleFileUpload(file: Express.Multer.File) {
   try {
@@ -21,9 +21,6 @@ export async function handleFileUpload(file: Express.Multer.File) {
         message: "파일 크기가 5MB를 초과합니다.",
       };
     }
-
-    const dataSource = await getDataSource();
-    const fileRepository = dataSource.getRepository(File);
 
     const fileSize = file.size;
     const fileExtension = path.extname(file.originalname).toLowerCase();
@@ -50,14 +47,22 @@ export async function handleFileUpload(file: Express.Multer.File) {
     newFile.file_size = fileSize.toString();
     newFile.file_extension = fileExtension;
 
-    const savedFile = await fileRepository.save(newFile);
+    const { error: uploadError } = await supabase.from("file").insert(newFile).single();
+
+    if (uploadError) {
+      return {
+        resultCode: false,
+        message: "파일 업로드 중 오류가 발생하였습니다.",
+        error: uploadError.message,
+      };
+    }
 
     return {
       resultCode: true,
       message: "파일 업로드가 완료되었습니다.",
       data: {
-        seq: savedFile.seq,
-        path: savedFile.file_path,
+        seq: newFile.seq,
+        path: newFile.file_path,
       },
     };
   } catch (error) {

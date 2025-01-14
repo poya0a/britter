@@ -1,21 +1,16 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
+import supabase from "@database/supabase.config";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import fs from "fs";
 import path from "path";
 import multer from "multer";
-import { getDataSource } from "@database/typeorm.config";
-import { Emps } from "@entities/Emps.entity";
 import { getErrorMassage } from "@utils/errorMessage";
 import { regexValue } from "@utils/regex";
 import { validationRules } from "@utils/errorMessage";
-import { DeepPartial } from "typeorm";
 import { EmpsInterface } from "@models/Emps.model";
 import { handleFileUpload } from "@server/utils/fileUpload";
-import { Space } from "@entities/Space.entity";
-import { Terms } from "@entities/Terms.entity";
-import { SpaceList } from "@entities/SpaceList.entity";
 
 type NextApiRequestWithFormData = NextApiRequest &
   Request & {
@@ -82,14 +77,11 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
   // 필수 이용 약관 동의 확인
   try {
-    const dataSource = await getDataSource();
-    const termsRepository = dataSource.getRepository(Terms);
-    const terms = await termsRepository.find({
-      where: {
-        in_used: true,
-        required: true,
-      },
-    });
+    const { data: terms, error } = await supabase.from("terms").select("seq").eq("in_used", true).eq("required", true);
+
+    if (error) {
+      throw new Error(error.message);
+    }
 
     const requiredTermsIds = terms.map((term) => term.seq);
     const agreedTermsIds: number[] | null[] | undefined = data.terms;
@@ -146,19 +138,9 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
 
   try {
-    const dataSource = await getDataSource();
-    const empsRepository = dataSource.getRepository(Emps);
-    const existingId = await empsRepository.findOne({
-      where: { user_id: data.user_id },
-    });
-
-    const existinghp = await empsRepository.findOne({
-      where: { user_hp: data.user_hp },
-    });
-
-    const existingEmail = await empsRepository.findOne({
-      where: { user_email: data.user_email },
-    });
+    const { data: existingId } = await supabase.from("emps").select("user_id").eq("user_id", data.user_id);
+    const { data: existinghp } = await supabase.from("emps").select("user_hp").eq("user_hp", data.user_hp);
+    const { data: existingEmail } = await supabase.from("emps").select("user_email").eq("user_email", data.user_email);
 
     if (existingId || existinghp || existingEmail) {
       let name = "";
@@ -180,7 +162,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
         : []
     );
 
-    const emp: DeepPartial<Emps> = {
+    const emp = {
       UID: uuidv4(),
       user_profile_seq: 0,
       user_id: data.user_id,
@@ -196,23 +178,27 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       terms: termsList,
     };
 
-    const newUser = empsRepository.create(emp);
-    const saveUser = await empsRepository.save(newUser);
+    const { error: userError } = await supabase.from("emps").insert(emp).single();
+
+    if (userError) {
+      return res.status(500).json({
+        message: "회원 가입에 실패하였습니다.",
+        error: userError.message,
+        resultCode: false,
+      });
+    }
 
     // 개인 스페이스 생성
-    const spaceRepository = dataSource.getRepository(Space);
     let randomString = generateRandomString();
 
-    const checkSameName = await spaceRepository.find({
-      where: { space_name: randomString },
-    });
+    const { data: checkSameName } = await supabase.from("space").select("space_name").eq("space_name", randomString);
 
     // 랜덤으로 스페이스명을 생성할 때 동일한 값이 있는지 확인
     if (checkSameName) {
       randomString = `${randomString}_${checkSameName.length}`;
     }
 
-    const space: DeepPartial<Space> = {
+    const space = {
       UID: uuidv4(),
       space_profile_seq: null,
       space_name: randomString,
@@ -222,67 +208,61 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       create_date: new Date(),
     };
 
-    const newSpace = spaceRepository.create(space);
-    const saveSpace = await spaceRepository.save(newSpace);
+    const { error: spaceError } = await supabase.from("space").insert(space).single();
 
-    if (saveUser && saveSpace) {
-      // 스페이스 리스트 생성
-      const spaceListRepository = dataSource.getRepository(SpaceList);
+    if (spaceError) {
+      await supabase.from("emps").delete().eq("UID", emp.UID);
 
-      const spaceList: DeepPartial<SpaceList> = {
-        UID: emp.UID,
-        space: [`${space.UID}`],
-      };
-
-      const newSpaceList = spaceListRepository.create(spaceList);
-      const saveSpaceList = await spaceListRepository.save(newSpaceList);
-
-      if (saveSpaceList) {
-        if (file !== undefined) {
-          const saveFile = await handleFileUpload(file);
-
-          // 프로필 업데이트
-          saveUser.user_profile_seq = saveFile.data?.seq || 0;
-          const updateUser = await empsRepository.save(saveUser);
-
-          if (updateUser) {
-            return res.status(200).json({
-              message: "회원 가입이 완료되었습니다.",
-              resultCode: true,
-            });
-          } else {
-            return res.status(200).json({
-              message: "프로필 이미지 저장에 실패하였습니다. 개인 정보 수정에서 다시 시도해 주세요.",
-              resultCode: false,
-            });
-          }
-        } else {
-          return res.status(200).json({
-            message: "회원 가입이 완료되었습니다.",
-            resultCode: true,
-          });
-        }
-      } else {
-        return res.status(200).json({
-          message: "회원 가입에 실패하였습니다. 다시 시도해 주세요.",
-          resultCode: false,
-        });
-      }
-    } else {
-      // 실패 시 정보 삭제 처리
-      if (saveUser) {
-        await empsRepository.delete(saveUser.UID);
-      }
-
-      if (saveSpace) {
-        await spaceRepository.delete(saveSpace.UID);
-      }
-
-      return res.status(200).json({
-        message: "회원 가입에 실패하였습니다. 다시 시도해 주세요.",
+      return res.status(500).json({
+        message: "스페이스 생성에 실패하였습니다.",
+        error: spaceError.message,
         resultCode: false,
       });
     }
+
+    // 스페이스 리스트 생성
+    const { error: spaceListError } = await supabase.from("spaceList").insert([
+      {
+        UID: emp.UID,
+        space: [space.UID],
+      },
+    ]);
+
+    if (spaceListError) {
+      await supabase.from("emps").delete().eq("UID", emp.UID);
+      await supabase.from("space").delete().eq("UID", space.UID);
+
+      return res.status(500).json({
+        message: "스페이스 리스트 생성에 실패하였습니다.",
+        error: spaceListError.message,
+        resultCode: false,
+      });
+    }
+
+    if (file) {
+      const saveFile = await handleFileUpload(file);
+
+      const { error: profileError } = await supabase
+        .from("emps")
+        .update({ user_profile_seq: saveFile.data?.seq || 0 })
+        .eq("UID", emp.UID);
+
+      if (profileError) {
+        await supabase.from("emps").delete().eq("UID", emp.UID);
+        await supabase.from("space").delete().eq("UID", space.UID);
+        await supabase.from("spaceList").delete().eq("UID", emp.UID);
+
+        return res.status(500).json({
+          message: "프로필 이미지 저장에 실패하였습니다.",
+          error: profileError.message,
+          resultCode: false,
+        });
+      }
+    }
+    return res.status(200).json({
+      message: "회원 가입이 완료되었습니다.",
+      resultCode: true,
+    });
   } catch (error) {
     return res.status(500).json({
       message: "서버 에러가 발생하였습니다.",
@@ -304,27 +284,3 @@ function generateRandomString(length = 8) {
 
   return result;
 }
-
-// SUPABASE 회원 가입 후 DB 접근 권한 부여
-// import { createClient } from '@supabase/supabase-js';
-
-// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-// const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-// const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-// async function signUp(email: string, password: string) {
-//   const { user, error } = await supabase.auth.signUp({
-//     email,
-//     password,
-//   });
-
-//   if (error) {
-//     console.error('Error signing up:', error.message);
-//     return;
-//   }
-
-//   console.log('User signed up:', user);
-//   // 회원가입 후 권한 부여
-//   await assignPermissions(user.id);
-// }

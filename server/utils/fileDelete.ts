@@ -1,16 +1,10 @@
-import { getDataSource } from "@database/typeorm.config";
-import { File } from "@entities/File.entity";
+import supabase from "@database/supabase.config";
 import fs from "fs";
 import path from "path";
 
 export async function handleFileDelete(fileSeq: number) {
   try {
-    const dataSource = await getDataSource();
-    const fileRepository = dataSource.getRepository(File);
-
-    const findFile = await fileRepository.findOne({
-      where: { seq: fileSeq },
-    });
+    const { data: findFile } = await supabase.from("file").select("file_path").eq("seq", fileSeq).single();
 
     if (findFile) {
       const filePath = path.join(process.cwd(), "public", findFile.file_path);
@@ -19,7 +13,7 @@ export async function handleFileDelete(fileSeq: number) {
         fs.unlinkSync(filePath);
       }
 
-      await fileRepository.remove(findFile);
+      await supabase.from("file").delete().eq("seq", fileSeq);
     }
     // else {
     //     throw new Error("삭제할 파일을 찾을 수 없습니다.");
