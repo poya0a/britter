@@ -21,7 +21,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
     if (req.user) {
       try {
         const { data: posts, error } = await supabase
-          .from("posts")
+          .from("post")
           .select("seq, p_seq, title")
           .eq("space_uid", postUid)
           .order("p_seq", { ascending: true })
