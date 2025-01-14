@@ -27,7 +27,7 @@ export default async function handler(
       .select("user_email")
       .eq("user_email", user_email)
       .single();
-
+alert(error)
     if (error) {
       // Supabase에서 발생한 에러 처리
       if (error.code === "PGRST116") {
