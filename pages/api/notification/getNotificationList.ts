@@ -51,11 +51,11 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .select("*", { count: "exact" })
           .in(
             "recipient_uid",
-            whereCondition.map((cond) => cond.recipient_uid)
+            whereCondition.map((cond) => cond)
           )
           .in(
             "sender_uid",
-            whereCondition.map((cond) => cond.sender_uid)
+            whereCondition.map((cond) => cond)
           )
           .range((pageNumber - 1) * 50, pageNumber * 50 - 1)
           .order("create_date", { ascending: false });

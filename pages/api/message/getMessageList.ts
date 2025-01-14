@@ -25,7 +25,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         } = await supabase
           .from("message")
           .select("*", { count: "exact" })
-          .ilike("message", searchWord ? `%${searchWord}%` : "")
+          // .ilike("message", searchWord ? `%${searchWord}%` : "")
           .eq(messageType === "receivedMessage" ? "recipient_uid" : "sender_uid", uid)
           .range((pageNumber - 1) * 20, pageNumber * 20 - 1)
           .order("create_date", { ascending: false });
