@@ -1,4 +1,5 @@
 import supabase from "@database/supabase.config";
+import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 
@@ -32,9 +33,11 @@ export async function handleFileUpload(file: Express.Multer.File) {
     // 고유 파일명 생성
     const uniqueId = uuidv4();
     const fileName = `${baseFileName}_${uniqueId}${fileExtension}`;
-    const { error: uploadError } = await supabase.storage.from("files").upload(`/files/${fileName}`, file.buffer, {
-      contentType: file.mimetype,
-    });
+    const filePath = path.join("/files/", fileName);
+
+    fs.writeFileSync(filePath, file.buffer);
+
+    const { error: uploadError } = await supabase.storage.from("files").upload(filePath, fs.readFileSync(filePath));
 
     if (uploadError) {
       return {
@@ -44,7 +47,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
       };
     }
 
-    const { data: publicUrlData } = supabase.storage.from("files").getPublicUrl(`/files/${fileName}`);
+    const { data: publicUrlData } = supabase.storage.from("files").getPublicUrl(filePath);
 
     const newFile = {
       file: file.buffer,
