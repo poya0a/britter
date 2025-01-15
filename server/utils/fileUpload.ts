@@ -24,36 +24,39 @@ export async function handleFileUpload(file: Express.Multer.File) {
     const fileSize = file.size;
     const fileExtension = path.extname(file.originalname).toLowerCase();
     const baseFileName = path.basename(file.originalname, fileExtension);
-    const uploadDirectory = path.join(process.cwd(), "public/files");
-
-    if (!fs.existsSync(uploadDirectory)) {
-      fs.mkdirSync(uploadDirectory, { recursive: true });
-    }
 
     // 고유 파일명 생성
     const uniqueId = uuidv4();
     const fileName = `${baseFileName}_${uniqueId}${fileExtension}`;
-    const savedFilePath = path.join(uploadDirectory, fileName);
-
-    fs.renameSync(file.path, savedFilePath);
-
-    const fileBuffer = fs.readFileSync(savedFilePath);
-
-    const newFile = {
-      file: fileBuffer,
-      file_name: path.basename(savedFilePath),
-      file_path: `/files/${fileName}`,
-      file_size: fileSize.toString(),
-      file_extension: fileExtension,
-    };
-
-    const { error: uploadError } = await supabase.from("file").insert(newFile).single();
+    const { error: uploadError } = await supabase.storage.from("files").upload(`/files/${fileName}`, file.buffer, {
+      contentType: file.mimetype,
+    });
 
     if (uploadError) {
       return {
         resultCode: false,
         message: "파일 업로드 중 오류가 발생하였습니다.",
         error: uploadError.message,
+      };
+    }
+
+    const { data: publicUrlData } = supabase.storage.from("files").getPublicUrl(`/files/${fileName}`);
+
+    const newFile = {
+      file: file.buffer,
+      file_name: fileName,
+      file_path: publicUrlData.publicUrl,
+      file_size: fileSize.toString(),
+      file_extension: fileExtension,
+    };
+
+    const { error: fileError } = await supabase.from("file").insert(newFile).single();
+
+    if (fileError) {
+      return {
+        resultCode: false,
+        message: "파일 업로드 중 오류가 발생하였습니다.",
+        error: fileError,
       };
     }
 

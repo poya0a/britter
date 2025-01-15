@@ -4,20 +4,31 @@ import path from "path";
 
 export async function handleFileDelete(fileSeq: number) {
   try {
-    const { data: findFile } = await supabase.from("file").select("file_path").eq("seq", fileSeq).single();
+    const { data: findFile, error: findError } = await supabase
+      .from("file")
+      .select("file_path")
+      .eq("seq", fileSeq)
+      .single();
 
-    if (findFile) {
-      const filePath = path.join(process.cwd(), "public", findFile.file_path);
-
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-
-      await supabase.from("file").delete().eq("seq", fileSeq);
+    if (findError) {
+      return {
+        resultCode: false,
+        message: "파일 정보를 가져오는 중 오류가 발생하였습니다.",
+        error: findError,
+      };
     }
-    // else {
-    //     throw new Error("삭제할 파일을 찾을 수 없습니다.");
-    //   }
+
+    const { error: storageError } = await supabase.storage.from("files").remove([findFile.file_path]);
+
+    if (storageError) {
+      return {
+        resultCode: false,
+        message: "파일 삭제 중 오류가 발생하였습니다.",
+        error: storageError.message,
+      };
+    }
+
+    await supabase.from("file").delete().eq("seq", fileSeq);
   } catch (error) {
     throw new Error("파일 삭제 중 오류가 발생하였습니다.");
   }

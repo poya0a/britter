@@ -165,7 +165,7 @@ $ko: "DungGeunMo", "VT323-Regular", "Open Sans";
 .tiptap {
   outline: none;
   padding: 0 15px;
-  height: calc(100% - 280px);
+  height: calc(100vh - 280px);
 
   P {
     color: $text;
