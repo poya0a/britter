@@ -104,7 +104,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           })
         );
 
-        const totalPages = Math.ceil(totalCount ?? 0 / 50);
+        const totalPages = Math.ceil(findNotifications.length / 50);
 
         const pageInfo = {
           currentPage: pageNumber,

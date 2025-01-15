@@ -25,11 +25,7 @@ interface MessageStore {
   lastPage: boolean;
   searchWord: string;
 
-  fetchMessageList: (params: {
-    typeName: string;
-    page: number;
-    searchWord?: string;
-  }) => Promise<void>;
+  fetchMessageList: (params: { typeName: string; page: number; searchWord?: string }) => Promise<void>;
   fetchMessage: (messageUid: string) => Promise<void>;
   handleReadMessage: (uid: string) => Promise<void>;
   handleDeleteMessage: (uid: string) => Promise<void>;
@@ -66,12 +62,9 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode && res.data) {
-        if (get().pageNo !== res.pageInfo?.currentPage) {
+        if (res.pageInfo && page !== res.pageInfo?.currentPage) {
           set({
-            useMessageListState:
-              get().pageNo === 0
-                ? res.data
-                : [...get().useMessageListState, ...res.data],
+            useMessageListState: get().pageNo === 0 ? res.data : [...get().useMessageListState, ...res.data],
             pageNo: res.pageInfo?.currentPage || 0,
             lastPage: res.pageInfo?.currentPage === res.pageInfo?.totalPages,
           });
@@ -146,9 +139,7 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
 
       if (res?.data) {
         set((state) => ({
-          useMessageListState: state.useMessageListState.filter(
-            (message) => message.UID !== uid
-          ),
+          useMessageListState: state.useMessageListState.filter((message) => message.UID !== uid),
         }));
         setToast(res?.data.message);
       } else {

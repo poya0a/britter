@@ -39,7 +39,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
             };
           });
 
-          const totalPages = Math.ceil(totalCount ?? 0 / 10);
+          const totalPages = Math.ceil(posts.length / 10);
 
           const pageInfo = {
             currentPage: page,

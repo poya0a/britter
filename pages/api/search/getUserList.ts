@@ -51,7 +51,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           );
 
           // 페이지 정보 계산
-          const totalPages = Math.ceil(totalCount ?? 0 / 10);
+          const totalPages = Math.ceil(findUser.length / 10);
 
           const pageInfo = {
             currentPage: pageNumber,

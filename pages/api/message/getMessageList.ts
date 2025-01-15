@@ -20,7 +20,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
         let query = supabase
           .from("message")
-          .select("*", { count: "exact" })
+          .select("*")
           .eq(messageType === "receivedMessage" ? "recipient_uid" : "sender_uid", uid)
           .range((pageNumber - 1) * 20, pageNumber * 20 - 1)
           .order("create_date", { ascending: false });
@@ -76,7 +76,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           })
         );
 
-        const totalPages = Math.ceil(totalCount ?? 0 / 20);
+        const totalPages = Math.ceil(findMessageList.length / 20);
 
         const pageInfo = {
           currentPage: pageNumber,

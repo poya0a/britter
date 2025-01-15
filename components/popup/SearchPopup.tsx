@@ -1,19 +1,7 @@
-import {
-  ChangeEvent,
-  KeyboardEvent,
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-} from "react";
+import { ChangeEvent, KeyboardEvent, useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchPopupStore } from "@stores/popup/useSearchPopupStore";
-import {
-  PostListData,
-  SpaceListData,
-  UserListData,
-  useSearchStore,
-} from "@stores/useSearchStore";
+import { PostListData, SpaceListData, UserListData, useSearchStore } from "@stores/useSearchStore";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
@@ -195,12 +183,7 @@ export default function SearchPopup() {
     } else if (popup.mode === "post") {
       setSearchLength(useSearchState.postList?.length ?? 0);
     }
-  }, [
-    popup.mode,
-    useSearchState.spaceList,
-    useSearchState.userList,
-    useSearchState.postList,
-  ]);
+  }, [popup.mode, useSearchState.spaceList, useSearchState.userList, useSearchState.postList]);
 
   // 속한 스페이스거나 공개인 경우 페이지 이동
   const handleGoToSpace = async (spaceUid: string) => {
@@ -281,12 +264,7 @@ export default function SearchPopup() {
     <div className={styles.popup}>
       <div className={styles.dim} />
       <div className={styles.popupWrapper}>
-        <button
-          type="button"
-          className={`button ${buttonStyles.closeButton}`}
-          title="닫 기"
-          onClick={handleClose}
-        >
+        <button type="button" className={`button ${buttonStyles.closeButton}`} title="닫 기" onClick={handleClose}>
           <img src="/images/icon/close.svg" alt="close" />
         </button>
 
@@ -309,18 +287,14 @@ export default function SearchPopup() {
           <ErrorMessage
             errors={errors}
             name="value"
-            render={({ message }) => (
-              <p className={inputStyles.errorMessage}>{message}</p>
-            )}
+            render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
           />
         </div>
 
         <div className={buttonStyles.tapLineButtonWrapper}>
           <button
             type="button"
-            className={`button ${buttonStyles.tapLineButton} ${
-              popup.mode === "space" ? buttonStyles.active : ""
-            }`}
+            className={`button ${buttonStyles.tapLineButton} ${popup.mode === "space" ? buttonStyles.active : ""}`}
             style={{ width: "33.333%" }}
             onClick={() => handleMode("space")}
           >
@@ -328,9 +302,7 @@ export default function SearchPopup() {
           </button>
           <button
             type="button"
-            className={`button ${buttonStyles.tapLineButton} ${
-              popup.mode === "user" ? buttonStyles.active : ""
-            }`}
+            className={`button ${buttonStyles.tapLineButton} ${popup.mode === "user" ? buttonStyles.active : ""}`}
             style={{ width: "33.333%" }}
             onClick={() => handleMode("user")}
           >
@@ -338,9 +310,7 @@ export default function SearchPopup() {
           </button>
           <button
             type="button"
-            className={`button ${buttonStyles.tapLineButton} ${
-              popup.mode === "post" ? buttonStyles.active : ""
-            }`}
+            className={`button ${buttonStyles.tapLineButton} ${popup.mode === "post" ? buttonStyles.active : ""}`}
             style={{ width: "33.333%" }}
             onClick={() => handleMode("post")}
           >
@@ -357,234 +327,50 @@ export default function SearchPopup() {
               <>
                 {popup.mode === "space" &&
                   useSearchState.spaceList &&
-                  useSearchState.spaceList.map(
-                    (space: SpaceListData, index: number) => {
-                      const spaceInfo = space.space_users.find((user) =>
-                        user.includes(useInfoState.UID)
-                      );
-                      const isSpaceInvited =
-                        space.notify && space.notify.notifyType === "invite";
-                      const isSpaceRequested =
-                        space.notify &&
-                        space.notify.notifyType === "participation";
-                      const requestData = (
-                        uid?: string,
-                        response?: boolean
-                      ) => {
-                        const data: RequestData = {
-                          uid: uid,
-                          recipient: space.UID,
-                          sender: useInfoState.UID,
-                          type: "space",
-                          response: response,
-                        };
-
-                        handleRequest(data);
+                  useSearchState.spaceList.map((space: SpaceListData, index: number) => {
+                    const spaceInfo = space.space_users?.find((user) => user.includes(useInfoState.UID));
+                    const isSpaceInvited = space.notify && space.notify.notifyType === "invite";
+                    const isSpaceRequested = space.notify && space.notify.notifyType === "participation";
+                    const requestData = (uid?: string, response?: boolean) => {
+                      const data: RequestData = {
+                        uid: uid,
+                        recipient: space.UID,
+                        sender: useInfoState.UID,
+                        type: "space",
+                        response: response,
                       };
-                      return (
-                        <div
-                          className={styles.searchResult}
-                          key={`search-space-${index}`}
+
+                      handleRequest(data);
+                    };
+                    return (
+                      <div className={styles.searchResult} key={`search-space-${index}`}>
+                        <button
+                          type="button"
+                          className={`button ${styles.goToSearchResult}`}
+                          title={`${space.space_name} 스페이스 이동`}
+                          onClick={() => handleGoToSpace(space.UID)}
                         >
-                          <button
-                            type="button"
-                            className={`button ${styles.goToSearchResult}`}
-                            title={`${space.space_name} 스페이스 이동`}
-                            onClick={() => handleGoToSpace(space.UID)}
-                          >
-                            {space.space_profile_path &&
-                            space.space_profile_path !== "" ? (
-                              <Image
-                                src={space.space_profile_path}
-                                alt="profile"
-                                width={30}
-                                height={30}
-                              />
-                            ) : (
-                              <i className="normal">
-                                {space.space_name.charAt(0)}
-                              </i>
-                            )}
-
-                            <em className="normal">{space.space_name}</em>
-                          </button>
-                          {space.UID && !spaceInfo ? (
-                            <>
-                              {isSpaceInvited ? (
-                                <>
-                                  <button
-                                    type="button"
-                                    style={{ width: "100px", height: "38px" }}
-                                    className={`button ${buttonStyles.buttonBlue}`}
-                                    onClick={() =>
-                                      requestData(
-                                        space.notify?.notifyUID,
-                                        false
-                                      )
-                                    }
-                                  >
-                                    초대거절
-                                  </button>
-
-                                  <button
-                                    type="button"
-                                    style={{
-                                      width: "100px",
-                                      height: "38px",
-                                      marginLeft: "10px",
-                                    }}
-                                    className={`button ${buttonStyles.buttonBorderBlue}`}
-                                    onClick={() =>
-                                      requestData(space.notify?.notifyUID, true)
-                                    }
-                                  >
-                                    초대수락
-                                  </button>
-                                </>
-                              ) : isSpaceRequested ? (
-                                <button
-                                  type="button"
-                                  style={{ width: "80px", height: "38px" }}
-                                  className={`button ${buttonStyles.buttonBlue}`}
-                                  onClick={() =>
-                                    requestData(space.notify?.notifyUID, false)
-                                  }
-                                >
-                                  참여취소
-                                </button>
-                              ) : (
-                                <button
-                                  type="button"
-                                  style={{ width: "80px", height: "38px" }}
-                                  className={`button ${buttonStyles.buttonBorderBlue}`}
-                                  onClick={() => requestData("", true)}
-                                >
-                                  참&nbsp;여
-                                </button>
-                              )}
-                            </>
+                          {space.space_profile_path && space.space_profile_path !== "" ? (
+                            <Image src={space.space_profile_path} alt="profile" width={30} height={30} />
                           ) : (
-                            useInfoState.UID !== space.space_manager && (
-                              <button
-                                type="button"
-                                style={{ width: "80px", height: "38px" }}
-                                className={`button ${buttonStyles.buttonBlue}`}
-                                onClick={() =>
-                                  handleExit(
-                                    space.UID,
-                                    useInfoState.UID,
-                                    "space"
-                                  )
-                                }
-                              >
-                                나가기
-                              </button>
-                            )
+                            <i className="normal">{space.space_name.charAt(0)}</i>
                           )}
-                        </div>
-                      );
-                    }
-                  )}
-                {popup.mode === "user" &&
-                  useSearchState.userList &&
-                  useSearchState.userList.map(
-                    (user: UserListData, index: number) => {
-                      const isSpaceMember = useSpaceMemeberState.find(
-                        (mem) => mem.UID === user.UID
-                      );
 
-                      const isUserInvited =
-                        user.notify && user.notify.notifyType === "invite";
-                      const isUserRequested =
-                        user.notify &&
-                        user.notify.notifyType === "participation";
-
-                      const requestData = (
-                        uid?: string,
-                        response?: boolean
-                      ) => {
-                        const data: RequestData = {
-                          uid: uid,
-                          recipient: user.UID,
-                          sender: useSelectedSpaceState.UID || "",
-                          type: "user",
-                          response: response,
-                        };
-
-                        handleRequest(data);
-                      };
-                      return (
-                        <div
-                          className={styles.searchResult}
-                          key={`search-space-${index}`}
-                        >
-                          <button
-                            type="button"
-                            key={`search-user-${index}`}
-                            className={`button ${styles.goToSearchResult}`}
-                            title={`${user.user_id} 님 정보`}
-                            onClick={() => handleViewUser(user.UID)}
-                          >
-                            {user.user_profile_path &&
-                            user.user_profile_path !== "" ? (
-                              <Image
-                                src={user.user_profile_path}
-                                alt="profile"
-                                width={30}
-                                height={30}
-                              />
-                            ) : (
-                              <i className="normal">
-                                {user.user_name.charAt(0)}
-                              </i>
-                            )}
-                            <div>
-                              <p className="normal">{user.user_id}</p>
-                              <p className="normal">{user.user_name}</p>
-                            </div>
-                          </button>
-                          {user.UID &&
-                            user.UID !== useInfoState.UID &&
-                            useInfoState.UID ===
-                              useSelectedSpaceState.space_manager &&
-                            (isSpaceMember ? (
-                              <button
-                                type="button"
-                                style={{ width: "80px", height: "38px" }}
-                                className={`button ${buttonStyles.buttonBlue}`}
-                                onClick={() =>
-                                  handleExit(
-                                    user.UID,
-                                    useSelectedSpaceState.UID,
-                                    "user"
-                                  )
-                                }
-                              >
-                                내보내기
-                              </button>
-                            ) : isUserInvited ? (
-                              <button
-                                type="button"
-                                style={{ width: "80px", height: "38px" }}
-                                className={`button ${buttonStyles.buttonBlue}`}
-                                onClick={() =>
-                                  requestData(user.notify?.notifyUID, false)
-                                }
-                              >
-                                초대취소
-                              </button>
-                            ) : isUserRequested ? (
+                          <em className="normal">{space.space_name}</em>
+                        </button>
+                        {space.UID && !spaceInfo ? (
+                          <>
+                            {isSpaceInvited ? (
                               <>
                                 <button
                                   type="button"
                                   style={{ width: "100px", height: "38px" }}
                                   className={`button ${buttonStyles.buttonBlue}`}
-                                  onClick={() =>
-                                    requestData(user.notify?.notifyUID, false)
-                                  }
+                                  onClick={() => requestData(space.notify?.notifyUID, false)}
                                 >
-                                  요청거절
+                                  초대거절
                                 </button>
+
                                 <button
                                   type="button"
                                   style={{
@@ -593,13 +379,20 @@ export default function SearchPopup() {
                                     marginLeft: "10px",
                                   }}
                                   className={`button ${buttonStyles.buttonBorderBlue}`}
-                                  onClick={() =>
-                                    requestData(user.notify?.notifyUID, true)
-                                  }
+                                  onClick={() => requestData(space.notify?.notifyUID, true)}
                                 >
-                                  요청수락
+                                  초대수락
                                 </button>
                               </>
+                            ) : isSpaceRequested ? (
+                              <button
+                                type="button"
+                                style={{ width: "80px", height: "38px" }}
+                                className={`button ${buttonStyles.buttonBlue}`}
+                                onClick={() => requestData(space.notify?.notifyUID, false)}
+                              >
+                                참여취소
+                              </button>
                             ) : (
                               <button
                                 type="button"
@@ -607,39 +400,136 @@ export default function SearchPopup() {
                                 className={`button ${buttonStyles.buttonBorderBlue}`}
                                 onClick={() => requestData("", true)}
                               >
-                                초&nbsp;대
+                                참&nbsp;여
                               </button>
-                            ))}
-                        </div>
-                      );
-                    }
-                  )}
-                {popup.mode === "post" &&
-                  useSearchState.postList &&
-                  useSearchState.postList.map(
-                    (post: PostListData, index: number) => (
-                      <div
-                        className={styles.searchPost}
-                        key={`search-post-${index}`}
-                      >
+                            )}
+                          </>
+                        ) : (
+                          useInfoState.UID !== space.space_manager && (
+                            <button
+                              type="button"
+                              style={{ width: "80px", height: "38px" }}
+                              className={`button ${buttonStyles.buttonBlue}`}
+                              onClick={() => handleExit(space.UID, useInfoState.UID, "space")}
+                            >
+                              나가기
+                            </button>
+                          )
+                        )}
+                      </div>
+                    );
+                  })}
+                {popup.mode === "user" &&
+                  useSearchState.userList &&
+                  useSearchState.userList.map((user: UserListData, index: number) => {
+                    const isSpaceMember = useSpaceMemeberState.find((mem) => mem.UID === user.UID);
+
+                    const isUserInvited = user.notify && user.notify.notifyType === "invite";
+                    const isUserRequested = user.notify && user.notify.notifyType === "participation";
+
+                    const requestData = (uid?: string, response?: boolean) => {
+                      const data: RequestData = {
+                        uid: uid,
+                        recipient: user.UID,
+                        sender: useSelectedSpaceState.UID || "",
+                        type: "user",
+                        response: response,
+                      };
+
+                      handleRequest(data);
+                    };
+                    return (
+                      <div className={styles.searchResult} key={`search-space-${index}`}>
                         <button
                           type="button"
                           key={`search-user-${index}`}
-                          className={`button ${styles.goToSearchPost}`}
-                          title={`${post.title} 포스트 이동`}
-                          onClick={() =>
-                            handleGoToPost(post.space_uid, post.seq)
-                          }
+                          className={`button ${styles.goToSearchResult}`}
+                          title={`${user.user_id} 님 정보`}
+                          onClick={() => handleViewUser(user.UID)}
                         >
-                          <p className={styles.postTitle}>{post.title}</p>
-                          <div
-                            className={styles.postContent}
-                            dangerouslySetInnerHTML={{ __html: post.content }}
-                          ></div>
+                          {user.user_profile_path && user.user_profile_path !== "" ? (
+                            <Image src={user.user_profile_path} alt="profile" width={30} height={30} />
+                          ) : (
+                            <i className="normal">{user.user_name.charAt(0)}</i>
+                          )}
+                          <div>
+                            <p className="normal">{user.user_id}</p>
+                            <p className="normal">{user.user_name}</p>
+                          </div>
                         </button>
+                        {user.UID &&
+                          user.UID !== useInfoState.UID &&
+                          useInfoState.UID === useSelectedSpaceState.space_manager &&
+                          (isSpaceMember ? (
+                            <button
+                              type="button"
+                              style={{ width: "80px", height: "38px" }}
+                              className={`button ${buttonStyles.buttonBlue}`}
+                              onClick={() => handleExit(user.UID, useSelectedSpaceState.UID, "user")}
+                            >
+                              내보내기
+                            </button>
+                          ) : isUserInvited ? (
+                            <button
+                              type="button"
+                              style={{ width: "80px", height: "38px" }}
+                              className={`button ${buttonStyles.buttonBlue}`}
+                              onClick={() => requestData(user.notify?.notifyUID, false)}
+                            >
+                              초대취소
+                            </button>
+                          ) : isUserRequested ? (
+                            <>
+                              <button
+                                type="button"
+                                style={{ width: "100px", height: "38px" }}
+                                className={`button ${buttonStyles.buttonBlue}`}
+                                onClick={() => requestData(user.notify?.notifyUID, false)}
+                              >
+                                요청거절
+                              </button>
+                              <button
+                                type="button"
+                                style={{
+                                  width: "100px",
+                                  height: "38px",
+                                  marginLeft: "10px",
+                                }}
+                                className={`button ${buttonStyles.buttonBorderBlue}`}
+                                onClick={() => requestData(user.notify?.notifyUID, true)}
+                              >
+                                요청수락
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              type="button"
+                              style={{ width: "80px", height: "38px" }}
+                              className={`button ${buttonStyles.buttonBorderBlue}`}
+                              onClick={() => requestData("", true)}
+                            >
+                              초&nbsp;대
+                            </button>
+                          ))}
                       </div>
-                    )
-                  )}
+                    );
+                  })}
+                {popup.mode === "post" &&
+                  useSearchState.postList &&
+                  useSearchState.postList.map((post: PostListData, index: number) => (
+                    <div className={styles.searchPost} key={`search-post-${index}`}>
+                      <button
+                        type="button"
+                        key={`search-user-${index}`}
+                        className={`button ${styles.goToSearchPost}`}
+                        title={`${post.title} 포스트 이동`}
+                        onClick={() => handleGoToPost(post.space_uid, post.seq)}
+                      >
+                        <p className={styles.postTitle}>{post.title}</p>
+                        <div className={styles.postContent} dangerouslySetInnerHTML={{ __html: post.content }}></div>
+                      </button>
+                    </div>
+                  ))}
               </>
             ) : (
               ""

@@ -34,33 +34,27 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   useNotificationState: [],
   pageNo: 0,
   lastPage: false,
-  setNotifications: (notifications) =>
-    set({ useNotificationState: notifications }),
+  setNotifications: (notifications) => set({ useNotificationState: notifications }),
   setPageNo: (pageNo) => set({ pageNo }),
   setLastPage: (lastPage) => set({ lastPage }),
 
   fetchNotification: async (page) => {
     const spaceUid = storage.getSpaceUid();
-    const { setNotifications, setPageNo, setLastPage, useNotificationState } =
-      get();
+    const { setNotifications, setPageNo, setLastPage, useNotificationState } = get();
     const { toggleAlert } = useAlertStore.getState();
     const { toggleRouteAlert } = useRouteAlertStore.getState();
 
     try {
       const res = await fetchApi({
         method: "GET",
-        url: `${requests.GET_NOTIFICATION_LIST}?spaceUid=${spaceUid}&page=${
-          page + 1
-        }`,
+        url: `${requests.GET_NOTIFICATION_LIST}?spaceUid=${spaceUid}&page=${page + 1}`,
       });
 
       if (!res.resultCode) {
         toggleAlert(res.message);
       } else if (res.resultCode && res.data) {
         if (res.pageInfo && page !== res.pageInfo.currentPage) {
-          setNotifications(
-            page === 0 ? res.data : [...useNotificationState, ...res.data]
-          );
+          setNotifications(page === 0 ? res.data : [...useNotificationState, ...res.data]);
           setPageNo(res.pageInfo?.currentPage || 0);
           setLastPage(res.pageInfo?.currentPage === res.pageInfo?.totalPages);
         }
@@ -154,9 +148,7 @@ const updateSpace = async (uid: string) => {
         useSearchState.spaceList?.map(async (space) => {
           if (space.UID === res.data.UID) {
             if (res.data.space_profile_seq !== null) {
-              const space_profile_path = await fetchFile(
-                res.data.space_profile_seq
-              );
+              const space_profile_path = await fetchFile(res.data.space_profile_seq);
               return { ...res.data, space_profile_path };
             }
             return res.data;
@@ -190,9 +182,7 @@ const updateUser = async (uid: string) => {
         useSearchState.userList?.map(async (user) => {
           if (user.UID === res.data.UID) {
             if (res.data.user_profile_seq !== null) {
-              const user_profile_path = await fetchFile(
-                res.data.user_profile_seq
-              );
+              const user_profile_path = await fetchFile(res.data.user_profile_seq);
               return { ...res.data, user_profile_path };
             }
             return res.data;
