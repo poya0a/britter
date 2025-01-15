@@ -2,8 +2,8 @@
 import { NextApiResponse, NextApiRequest } from "next";
 import supabase from "@database/supabase.config";
 import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
-import { extractImgDataSeq } from "@/server/utils/extractImgDataSeq";
-import { handleFileDelete } from "@/server/utils/fileDelete";
+import { extractImgDataSeq } from "@server/utils/extractImgDataSeq";
+import { handleFileDelete } from "@server/utils/fileDelete";
 
 export default async function handler(req: AuthenticatedRequest & NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -17,14 +17,14 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
       const uid = req.user.claims.UID;
 
       try {
-        const { data: space, error: spaceError } = await supabase
+        const { error: spaceError } = await supabase
           .from("space")
           .select("*")
           .eq("UID", spaceUid)
           .eq("space_manager", uid)
           .single();
 
-        if (spaceError || !space) {
+        if (spaceError) {
           return res.status(200).json({
             message: "삭제할 스페이스를 찾을 수 없습니다.",
             resultCode: false,
@@ -37,7 +37,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .eq("UID", uid)
           .single();
 
-        if (spaceListError || !spaceList) {
+        if (spaceListError) {
           return res.status(200).json({
             message: "사용자의 스페이스 리스트를 찾을 수 없습니다.",
             resultCode: false,
@@ -55,41 +55,25 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
         await supabase.from("spaceList").update({ space: updatedSpaceList }).eq("UID", uid);
 
-        const { data: spaceUsers, error: spaceUsersError } = await supabase
-          .from("space")
-          .select("space_users")
-          .eq("UID", spaceUid)
-          .single();
+        const { data: spaceUsers } = await supabase.from("space").select("space_users").eq("UID", spaceUid).single();
 
-        if (spaceUsersError || !spaceUsers) {
-          return res.status(200).json({
-            message: "스페이스 사용자 정보를 찾을 수 없습니다.",
-            resultCode: false,
-          });
+        if (spaceUsers && spaceUsers.space_users.length > 0) {
+          for (const userUid of spaceUsers.space_users) {
+            const { data: userSpaceList, error: userSpaceListError } = await supabase
+              .from("spaceList")
+              .select("space")
+              .eq("UID", userUid)
+              .single();
+
+            if (userSpaceListError) throw userSpaceListError;
+
+            const updatedUserSpaceList = userSpaceList.space.filter((spaceId: string) => spaceId !== spaceUid);
+
+            await supabase.from("spaceList").update({ space: updatedUserSpaceList }).eq("UID", userUid);
+          }
         }
 
-        for (const userUid of spaceUsers.space_users || []) {
-          const { data: userSpaceList, error: userSpaceListError } = await supabase
-            .from("spaceList")
-            .select("space")
-            .eq("UID", userUid)
-            .single();
-
-          if (userSpaceListError || !userSpaceList) continue;
-
-          const updatedUserSpaceList = userSpaceList.space.filter((spaceId: string) => spaceId !== spaceUid);
-
-          await supabase.from("spaceList").update({ space: updatedUserSpaceList }).eq("UID", userUid);
-        }
-
-        const { data: posts, error: postsError } = await supabase.from("post").select("*").eq("space_uid", spaceUid);
-
-        if (postsError) {
-          return res.status(200).json({
-            message: "게시글을 찾을 수 없습니다.",
-            resultCode: false,
-          });
-        }
+        const { data: posts } = await supabase.from("post").select("*").eq("space_uid", spaceUid);
 
         if (posts && posts.length > 0) {
           for (const post of posts) {
@@ -112,7 +96,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           resultCode: true,
         });
       } catch (error) {
-        return res.status(200).json({
+        return res.status(500).json({
           message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,

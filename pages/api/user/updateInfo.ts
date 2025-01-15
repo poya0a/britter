@@ -119,7 +119,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
           resultCode: true,
         });
       } catch (error) {
-        return res.status(200).json({
+        return res.status(500).json({
           message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,

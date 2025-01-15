@@ -69,7 +69,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         }
 
         if (userData.user_level === 1 && spaceList.space.length >= 3) {
-          return res.status(400).json({
+          return res.status(200).json({
             message: "참여할 수 있는 스페이스는 최대 3개입니다.",
             resultCode: false,
           });
@@ -96,7 +96,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           resultCode: true,
         });
       } catch (error) {
-        return res.status(200).json({
+        return res.status(500).json({
           message: "서버 에러가 발생하였습니다.",
           resultCode: false,
           error: error,

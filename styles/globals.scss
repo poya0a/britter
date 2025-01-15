@@ -1,41 +1,42 @@
 @charset "UTF-8";
 
 /* variables */
-$main-color: #89A8FF;
-$sub-color: #ABBDFF;
-$red-color: #DC143C;
-$yellow-color: #F7E600;
-$orange-color: #F89B00;
+$main-color: #89a8ff;
+$sub-color: #abbdff;
+$red-color: #dc143c;
+$yellow-color: #f7e600;
+$orange-color: #f89b00;
 $blue-color: #070080;
-$green-color: #008D62;
-$purple-color: #483D8B;
+$green-color: #008d62;
+$purple-color: #483d8b;
 $border-color: #e2e2e2;
-$background-color: #FFFFFF;
-$chat-background: #EAEDF0;
-$text: #1F1F1F;
+$background-color: #ffffff;
+$chat-background: #eaedf0;
+$text: #1f1f1f;
 $text-sub: #555555;
 $text-sub2: #999999;
-$facebook-color: #3B5999;
-$google-color: #DE4B39;
+$facebook-color: #3b5999;
+$google-color: #de4b39;
 
 @font-face {
-  font-family: 'DungGeunMo';
-  src: url('/fonts/DungGeunMo.ttf') format('truetype');
+  font-family: "DungGeunMo";
+  src: url("/fonts/DungGeunMo.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'VT323-Regular';
-  src: url('/fonts/VT323-Regular.ttf') format('truetype');
+  font-family: "VT323-Regular";
+  src: url("/fonts/VT323-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
-$en: 'DungGeunMo', "VT323-Regular", "Open Sans";
-$ko: 'DungGeunMo', "VT323-Regular", "Open Sans";
+$en: "DungGeunMo", "VT323-Regular", "Open Sans";
+$ko: "DungGeunMo", "VT323-Regular", "Open Sans";
 
-#html, #body {
+#html,
+#body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -43,20 +44,63 @@ $ko: 'DungGeunMo', "VT323-Regular", "Open Sans";
   border: 0;
   vertical-align: baseline;
   box-sizing: border-box;
-  h1, h2, h3, h4, h5, h6,
-  p, em, button, input, label, a, 
-  table, tbody, thead, tr,th, td, ul, li, ol,
-  nav, img, ins, ins, kbd, small, strong,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  em,
+  button,
+  input,
+  label,
+  a,
+  table,
+  tbody,
+  thead,
+  tr,
+  th,
+  td,
+  ul,
+  li,
+  ol,
+  nav,
+  img,
+  ins,
+  ins,
+  kbd,
+  small,
+  strong,
   blockquote,
-  div, span, address, 
-  cite, code, del,
-  b, u, dl, dt, dd,
-  fieldset, form, label,
-  legend, caption, article,
-  aside, figure,
-  footer, header, menu, section,
-  time, mark, audio, video, option
-   {
+  div,
+  span,
+  address,
+  cite,
+  code,
+  del,
+  b,
+  u,
+  dl,
+  dt,
+  dd,
+  fieldset,
+  form,
+  label,
+  legend,
+  caption,
+  article,
+  aside,
+  figure,
+  footer,
+  header,
+  menu,
+  section,
+  time,
+  mark,
+  audio,
+  video,
+  option {
     font-family: $ko;
     font-style: normal;
   }
@@ -97,8 +141,8 @@ $ko: 'DungGeunMo', "VT323-Regular", "Open Sans";
   background: none;
   outline-style: none;
   white-space: nowrap;
-  overflow: hidden; 
-  text-overflow: ellipsis; 
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .input {
@@ -121,7 +165,7 @@ $ko: 'DungGeunMo', "VT323-Regular", "Open Sans";
 .tiptap {
   outline: none;
   padding: 0 15px;
-  height: calc( 100vh - 280px );
+  height: calc(100% - 280px);
 
   P {
     color: $text;
@@ -178,7 +222,7 @@ $ko: 'DungGeunMo', "VT323-Regular", "Open Sans";
       background-repeat: no-repeat;
       background-color: $blue-color;
       border-radius: 5px;
-      background-image: url('/images/check.svg');
+      background-image: url("/images/check.svg");
     }
   }
 
@@ -199,7 +243,7 @@ $ko: 'DungGeunMo', "VT323-Regular", "Open Sans";
   background: $text;
   border-radius: 0.5rem;
   color: $background-color;
-  font-family: 'JetBrainsMono', monospace;
+  font-family: "JetBrainsMono", monospace;
   margin: 1.5rem 0;
   padding: 0.75rem 1rem;
 }
@@ -233,7 +277,7 @@ $ko: 'DungGeunMo', "VT323-Regular", "Open Sans";
     overflow: hidden;
     table-layout: fixed;
     width: 100%;
-  
+
     td,
     th {
       border: 1px solid $border-color;
@@ -242,27 +286,30 @@ $ko: 'DungGeunMo', "VT323-Regular", "Open Sans";
       padding: 6px 8px;
       position: relative;
       vertical-align: top;
-  
+
       > * {
         margin-bottom: 0;
       }
     }
-  
+
     th {
-      background-color: #F5F5F5;
+      background-color: #f5f5f5;
       font-weight: bold;
       text-align: left;
     }
-  
+
     .selectedCell:after {
-      background: rgba(171,189,255, .3);
+      background: rgba(171, 189, 255, 0.3);
       content: "";
-      left: 0; right: 0; top: 0; bottom: 0;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
       pointer-events: none;
       position: absolute;
       z-index: 2;
     }
-  
+
     .column-resize-handle {
       background-color: $text-sub2;
       bottom: -2px;

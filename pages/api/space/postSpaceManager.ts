@@ -21,7 +21,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .eq("UID", spaceUid)
           .single();
 
-        if (spaceError || !space) {
+        if (spaceError) {
           return res.status(200).json({
             message: "스페이스 정보가 올바르지 않습니다.",
             resultCode: false,
@@ -40,16 +40,18 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .select("*")
           .eq("space_manager", uid);
 
-        if (managerSpacesError || !spacesManagedByUser || spacesManagedByUser.length < 2) {
+        if (managerSpacesError) throw managerSpacesError;
+
+        if (spacesManagedByUser.length < 2) {
           return res.status(200).json({
             message: "하나 이상의 스페이스에 매니저 권한은 필수입니다.",
             resultCode: false,
           });
         }
 
-        const { data: user, error: userError } = await supabase.from("emps").select("*").eq("UID", userUid).single();
+        const { error: userError } = await supabase.from("emps").select("*").eq("UID", userUid).single();
 
-        if (userError || !user) {
+        if (userError) {
           return res.status(200).json({
             message: "사용자 정보가 올바르지 않습니다.",
             resultCode: false,
@@ -81,7 +83,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           resultCode: true,
         });
       } catch (error) {
-        return res.status(200).json({
+        return res.status(500).json({
           message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,

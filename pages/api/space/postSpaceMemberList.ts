@@ -20,7 +20,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .eq("UID", spaceUid)
           .single();
 
-        if (spaceError || !space) {
+        if (spaceError) {
           return res.status(200).json({
             message: "스페이스 정보가 올바르지 않습니다.",
             resultCode: false,
@@ -35,7 +35,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .eq("UID", space.space_manager)
           .single();
 
-        if (managerError || !manager) {
+        if (managerError) {
           return res.status(200).json({
             message: "매니저 정보를 찾을 수 없습니다.",
             resultCode: false,
@@ -57,7 +57,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
                 .eq("UID", user)
                 .single();
 
-              if (userError || !userInfo) {
+              if (userError) {
                 return null;
               }
 
@@ -86,7 +86,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           resultCode: true,
         });
       } catch (error) {
-        return res.status(200).json({
+        return res.status(500).json({
           message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,

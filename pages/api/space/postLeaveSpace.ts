@@ -32,12 +32,12 @@ export default async function handler(req: any, res: NextApiResponse) {
 
         try {
           const { data: findUser, error: userError } = await supabase
-            .from("Emps")
+            .from("emps")
             .select("*")
             .eq("UID", userUid)
             .single();
 
-          if (userError || !findUser) {
+          if (userError) {
             return res.status(200).json({
               message: "사용자 정보를 찾을 수 없습니다.",
               resultCode: false,
@@ -50,18 +50,18 @@ export default async function handler(req: any, res: NextApiResponse) {
             const exitUid: string = fields.exitUid[0];
 
             const { data: findSpace, error: spaceError } = await supabase
-              .from("Space")
+              .from("space")
               .select("*")
               .eq("UID", exitType === "space" ? exitUid : senderUid)
               .single();
 
             const { data: findSpaceList, error: spaceListError } = await supabase
-              .from("SpaceList")
+              .from("spaceList")
               .select("*")
               .eq("UID", exitType === "space" ? senderUid : exitUid)
               .single();
 
-            if (spaceError || spaceListError || !findSpace || !findSpaceList) {
+            if (spaceError || spaceListError) {
               return res.status(200).json({
                 message: "스페이스 정보를 찾을 수 없습니다. 다시 시도해 주세요.",
                 resultCode: false,
@@ -91,7 +91,7 @@ export default async function handler(req: any, res: NextApiResponse) {
               findSpaceList.space = findSpaceList.space.filter((user: string) => user !== exitUid);
 
               const uid = uuidv4();
-              const { error: notifyError } = await supabase.from("Notifications").insert([
+              const { error: notifyError } = await supabase.from("notifications").insert([
                 {
                   UID: uid,
                   recipient_uid: exitUid,
@@ -108,9 +108,9 @@ export default async function handler(req: any, res: NextApiResponse) {
                 });
               }
 
-              const { error: spaceUpdateError } = await supabase.from("Space").upsert([findSpace]);
+              const { error: spaceUpdateError } = await supabase.from("space").upsert([findSpace]);
 
-              const { error: spaceListUpdateError } = await supabase.from("SpaceList").upsert([findSpaceList]);
+              const { error: spaceListUpdateError } = await supabase.from("spaceList").upsert([findSpaceList]);
 
               if (spaceUpdateError || spaceListUpdateError) {
                 return res.status(200).json({
@@ -147,7 +147,7 @@ export default async function handler(req: any, res: NextApiResponse) {
               findSpaceList.space = findSpaceList.space.filter((user: string) => user !== senderUid);
 
               const uid = uuidv4();
-              const { error: notifyError } = await supabase.from("Notifications").insert([
+              const { error: notifyError } = await supabase.from("notifications").insert([
                 {
                   UID: uid,
                   recipient_uid: exitUid,
@@ -164,9 +164,9 @@ export default async function handler(req: any, res: NextApiResponse) {
                 });
               }
 
-              const { error: spaceUpdateError } = await supabase.from("Space").upsert([findSpace]);
+              const { error: spaceUpdateError } = await supabase.from("space").upsert([findSpace]);
 
-              const { error: spaceListUpdateError } = await supabase.from("SpaceList").upsert([findSpaceList]);
+              const { error: spaceListUpdateError } = await supabase.from("spaceList").upsert([findSpaceList]);
 
               if (spaceUpdateError || spaceListUpdateError) {
                 return res.status(200).json({
