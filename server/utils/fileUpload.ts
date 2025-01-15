@@ -38,13 +38,13 @@ export async function handleFileUpload(file: Express.Multer.File) {
     // 고유 파일명 생성
     const uniqueId = uuidv4();
     const fileName = `${baseFileName}_${uniqueId}${fileExtension}`;
-    const filePath = path.join("/tmp", fileName);
+    const filePath = path.join("/files/", fileName);
 
     fs.writeFileSync(filePath, file.buffer);
 
     const { error: uploadError } = await supabase.storage
       .from(NEXT_PUBLIC_STORAGE_BUCKET || "")
-      .upload(filePath, fs.readFileSync(filePath));
+      .upload(fileName, fs.readFileSync(filePath), { upsert: true });
 
     if (uploadError) {
       return {
