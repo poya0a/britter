@@ -1,10 +1,10 @@
 export interface SpaceInterface {
-  "UID": string;
+  UID: string;
   space_profile_seq: number | null;
   space_name: string;
   space_manager: string;
   space_public: boolean;
-  space_users: string[] | null[];
+  space_users: string[] | null;
   space_content: string | null;
   create_date: Date;
 }
@@ -15,7 +15,7 @@ export class SpaceModel implements SpaceInterface {
   space_name: string;
   space_manager: string;
   space_public: boolean;
-  space_users: string[] | null[];
+  space_users: string[] | null;
   space_content: string | null;
   create_date: Date;
 

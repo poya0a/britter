@@ -32,7 +32,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         const { data: findMessageList, error: messageError, count: totalCount } = await query;
 
         if (messageError) {
-          if (messageError.code === "PGRST116") {
+          if (messageError.code === "PGRST116" || messageError.code === "PGRST103") {
             return res.status(200).json({
               message: "메시지 목록 조회 완료했습니다.",
               data: [],

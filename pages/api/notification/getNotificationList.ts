@@ -56,7 +56,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .order("create_date", { ascending: false });
 
         if (notificationError) {
-          if (notificationError.code === "PGRST116") {
+          if (notificationError.code === "PGRST116" || notificationError.code === "PGRST103") {
             return res.status(200).json({
               message: "사용자 알림 목록 조회 완료했습니다.",
               data: [],

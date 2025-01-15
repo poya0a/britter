@@ -26,7 +26,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .range((page - 1) * 10, page * 10 - 1)
           .limit(10);
 
-        if (error && error.code !== "PGRST116") throw error;
+        if (error && error.code !== "PGRST116" && error.code !== "PGRST103") throw error;
 
         if (posts && posts.length > 0) {
           const result = posts.map((post) => {

@@ -26,7 +26,7 @@ export interface SpaceData {
   space_name: string;
   space_manager: string;
   space_public: boolean;
-  space_users: string[];
+  space_users: string[] | null;
   space_content?: string;
   notify?: {
     notifyUID: string;

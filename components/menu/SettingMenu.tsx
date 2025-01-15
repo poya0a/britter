@@ -65,7 +65,7 @@ export default function SettingMenu() {
             </div>
             <div className={styles.spaceInfo}>
               {space.space_name}
-              <i className="normal">{space.space_users.length + 1} 명의 멤버</i>
+              <i className="normal">{space.space_users ? space.space_users.length + 1 : 1} 명의 멤버</i>
               {space.UID === useSelectedSpaceState.UID && <img src="/images/check.svg" alt="connect space" />}
             </div>
           </button>
