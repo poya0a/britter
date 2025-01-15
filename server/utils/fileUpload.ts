@@ -1,12 +1,17 @@
 import supabase from "@database/supabase.config";
+import { config } from "dotenv";
 import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
+
+config();
 
 /**
  * @param file
  * @returns
  */
+
+const { NEXT_PUBLIC_STORAGE_BUCKET } = process.env;
 
 export async function handleFileUpload(file: Express.Multer.File) {
   try {
@@ -37,7 +42,9 @@ export async function handleFileUpload(file: Express.Multer.File) {
 
     fs.writeFileSync(filePath, file.buffer);
 
-    const { error: uploadError } = await supabase.storage.from("files").upload(filePath, fs.readFileSync(filePath));
+    const { error: uploadError } = await supabase.storage
+      .from(NEXT_PUBLIC_STORAGE_BUCKET || "")
+      .upload(filePath, fs.readFileSync(filePath));
 
     if (uploadError) {
       return {
@@ -47,7 +54,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
       };
     }
 
-    const { data: publicUrlData } = supabase.storage.from("files").getPublicUrl(filePath);
+    const { data: publicUrlData } = supabase.storage.from(NEXT_PUBLIC_STORAGE_BUCKET || "").getPublicUrl(filePath);
 
     const newFile = {
       file: file.buffer,
