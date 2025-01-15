@@ -38,6 +38,12 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           whereCondition.push({ recipient_uid: findSpace.UID }, { sender_uid: findSpace.UID });
         }
 
+        const orCondition = whereCondition
+          .map((cond) =>
+            cond.recipient_uid ? `recipient_uid.eq.${cond.recipient_uid}` : `sender_uid.eq.${cond.sender_uid}`
+          )
+          .join(",");
+
         const {
           data: findNotifications,
           count: totalCount,
@@ -45,14 +51,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         } = await supabase
           .from("notifications")
           .select("*", { count: "exact" })
-          .in(
-            "recipient_uid",
-            whereCondition.map((cond) => cond.recipient_uid)
-          )
-          .in(
-            "sender_uid",
-            whereCondition.map((cond) => cond.sender_uid)
-          )
+          .or(orCondition)
           .range((pageNumber - 1) * 50, pageNumber * 50 - 1)
           .order("create_date", { ascending: false });
 
@@ -65,11 +64,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
               resultCode: true,
             });
           }
-          return res.status(200).json({
-            message: "알림 조회에 실패하였습니다.",
-            resultCode: false,
-            error: notificationError,
-          });
+          throw notificationError;
         }
 
         const findName = async (type: string, uid: string) => {

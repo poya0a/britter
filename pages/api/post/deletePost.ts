@@ -26,7 +26,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
         // 게시글 조회
         const { data: currentPost, error: postError } = await supabase
-          .from("posts")
+          .from("post")
           .select("*")
           .eq("seq", seq)
           .eq("UID", uid)
@@ -57,7 +57,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
         // 남은 게시글 재정렬
         const { data: postsWithSamePSeq, error: postsError } = await supabase
-          .from("posts")
+          .from("post")
           .select("*")
           .eq("p_seq", pSeq)
           .eq("UID", uid);
@@ -71,7 +71,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         for (let i = 0; i < postsToSort.length; i++) {
           postsToSort[i].order_number = i + 1;
           await supabase
-            .from("posts")
+            .from("post")
             .update({ order_number: postsToSort[i].order_number })
             .eq("seq", postsToSort[i].seq);
         }
@@ -100,7 +100,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 async function deletePostAndChildren(postSeq: string, uid: string, dataSeqList: number[]) {
   // 자식 게시글 조회
   const { data: childPosts, error: childPostsError } = await supabase
-    .from("posts")
+    .from("post")
     .select("*")
     .eq("p_seq", postSeq)
     .eq("UID", uid);
@@ -111,7 +111,7 @@ async function deletePostAndChildren(postSeq: string, uid: string, dataSeqList: 
 
   // 현재 게시글 삭제
   const { data: currentPost, error: currentPostError } = await supabase
-    .from("posts")
+    .from("post")
     .select("*")
     .eq("seq", postSeq)
     .eq("UID", uid)
@@ -126,7 +126,7 @@ async function deletePostAndChildren(postSeq: string, uid: string, dataSeqList: 
     dataSeqList.push(...extractedSeqList);
 
     // 게시글 삭제
-    const { error: deleteError } = await supabase.from("posts").delete().eq("seq", postSeq).eq("UID", uid);
+    const { error: deleteError } = await supabase.from("post").delete().eq("seq", postSeq).eq("UID", uid);
 
     if (deleteError) {
       throw new Error(deleteError.message);

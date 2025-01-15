@@ -15,7 +15,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
       try {
         // 게시글 조회
         const { data: findPost, error: postError } = await supabase
-          .from("posts")
+          .from("post")
           .select("*")
           .eq("seq", postSeq)
           .single();

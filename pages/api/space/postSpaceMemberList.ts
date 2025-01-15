@@ -15,7 +15,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
     if (req.user) {
       try {
         const { data: space, error: spaceError } = await supabase
-          .from("spaces")
+          .from("space")
           .select("*")
           .eq("UID", spaceUid)
           .single();
@@ -28,7 +28,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         }
 
         const { data: manager, error: managerError } = await supabase
-          .from("employees")
+          .from("emps")
           .select(
             "UID, user_profile_seq, user_id, user_name, user_hp, user_email, user_birth, user_public, status_emoji, status_message"
           )
@@ -50,7 +50,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           spaceUsers.map(async (user) => {
             if (typeof user === "string") {
               const { data: userInfo, error: userError } = await supabase
-                .from("employees")
+                .from("emps")
                 .select(
                   "UID, user_profile_seq, user_id, user_name, user_hp, user_email, user_birth, user_public, status_emoji, status_message"
                 )

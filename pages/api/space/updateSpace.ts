@@ -61,7 +61,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
       try {
         const { data: space, error: spaceError } = await supabase
-          .from("spaces")
+          .from("space")
           .select("*")
           .eq("UID", spaceUid)
           .eq("space_manager", uid)
@@ -76,7 +76,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
         if (spaceName) {
           const { data: existingSpaces, error: nameCheckError } = await supabase
-            .from("spaces")
+            .from("space")
             .select("*")
             .eq("space_name", spaceName);
 
@@ -111,7 +111,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
         }
 
         const { error: updateError } = await supabase
-          .from("spaces")
+          .from("space")
           .update(space)
           .eq("UID", spaceUid)
           .eq("space_manager", uid);

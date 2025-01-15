@@ -19,7 +19,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         const uid = uuidv4();
 
         const { error: spaceError } = await supabase
-          .from("spaces")
+          .from("space")
           .insert([
             {
               UID: uid,
@@ -41,7 +41,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         }
 
         const { data: spaceList, error: spaceListError } = await supabase
-          .from("space_list")
+          .from("spaceList")
           .select("*")
           .eq("UID", userUid)
           .single();
@@ -77,12 +77,12 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
         const updatedSpaceList = [...spaceList.space, uid];
         const { error: updateError } = await supabase
-          .from("space_list")
+          .from("spaceList")
           .update({ space: updatedSpaceList })
           .eq("UID", userUid);
 
         if (updateError) {
-          await supabase.from("spaces").delete().eq("UID", uid);
+          await supabase.from("space").delete().eq("UID", uid);
           return res.status(200).json({
             message: "스페이스 리스트 업데이트에 실패하였습니다.",
             resultCode: false,

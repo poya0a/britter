@@ -18,7 +18,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
       try {
         const { data: space, error: spaceError } = await supabase
-          .from("spaces")
+          .from("space")
           .select("*")
           .eq("UID", spaceUid)
           .eq("space_manager", uid)
@@ -32,7 +32,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         }
 
         const { data: spaceList, error: spaceListError } = await supabase
-          .from("space_lists")
+          .from("spaceList")
           .select("space")
           .eq("UID", uid)
           .single();
@@ -53,10 +53,10 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
         const updatedSpaceList = spaceList.space.filter((spaceId: string) => spaceId !== spaceUid);
 
-        await supabase.from("space_lists").update({ space: updatedSpaceList }).eq("UID", uid);
+        await supabase.from("spaceList").update({ space: updatedSpaceList }).eq("UID", uid);
 
         const { data: spaceUsers, error: spaceUsersError } = await supabase
-          .from("spaces")
+          .from("space")
           .select("space_users")
           .eq("UID", spaceUid)
           .single();
@@ -70,7 +70,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
         for (const userUid of spaceUsers.space_users || []) {
           const { data: userSpaceList, error: userSpaceListError } = await supabase
-            .from("space_lists")
+            .from("spaceList")
             .select("space")
             .eq("UID", userUid)
             .single();
@@ -79,10 +79,10 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
           const updatedUserSpaceList = userSpaceList.space.filter((spaceId: string) => spaceId !== spaceUid);
 
-          await supabase.from("space_lists").update({ space: updatedUserSpaceList }).eq("UID", userUid);
+          await supabase.from("spaceList").update({ space: updatedUserSpaceList }).eq("UID", userUid);
         }
 
-        const { data: posts, error: postsError } = await supabase.from("posts").select("*").eq("space_uid", spaceUid);
+        const { data: posts, error: postsError } = await supabase.from("post").select("*").eq("space_uid", spaceUid);
 
         if (postsError) {
           return res.status(200).json({
@@ -101,11 +101,11 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
               }
             }
 
-            await supabase.from("posts").delete().eq("seq", post.seq);
+            await supabase.from("post").delete().eq("seq", post.seq);
           }
         }
 
-        await supabase.from("spaces").delete().eq("UID", spaceUid);
+        await supabase.from("space").delete().eq("UID", spaceUid);
 
         return res.status(200).json({
           message: "스페이스가 성공적으로 삭제되었습니다.",

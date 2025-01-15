@@ -131,7 +131,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
             });
           } else {
             const newPostSeq = uuidv4();
-            const { error: insertError } = await supabase.from("posts").insert([
+            const { error: insertError } = await supabase.from("post").insert([
               {
                 seq: newPostSeq,
                 p_seq: pSeq,

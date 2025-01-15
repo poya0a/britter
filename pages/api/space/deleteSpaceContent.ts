@@ -22,7 +22,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         }
 
         const { data: space, error: spaceError } = await supabase
-          .from("spaces")
+          .from("space")
           .select("*")
           .eq("UID", spaceUid)
           .single();
@@ -36,7 +36,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
         if (space.space_manager === uid || space.space_users.includes(uid)) {
           const { error: updateError } = await supabase
-            .from("spaces")
+            .from("space")
             .update({ space_content: null })
             .eq("UID", spaceUid);
 
