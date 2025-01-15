@@ -25,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ message: "사용 가능한 아이디입니다.", resultCode: true });
     }
   } catch (error) {
-    return res.status(200).json({
+    return res.status(500).json({
       message: "서버 에러가 발생하였습니다.",
       error: error,
       resultCode: false,

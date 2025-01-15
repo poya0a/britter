@@ -15,8 +15,7 @@ export default function SettingMenu() {
   const { useSettingMenuState, toggleSettingMenu } = useSettingMenuStore();
   const { toggleUserSettingPopup } = useUserSettingPopupStore();
   const { useInfoState } = useInfoStore();
-  const { useSpaceState, useSelectedSpaceState, setUseSelectedSpaceState } =
-    useSpaceStore();
+  const { useSpaceState, useSelectedSpaceState, setUseSelectedSpaceState } = useSpaceStore();
   const { setPageSeq } = usePostStore();
   const { toggleAlert } = useAlertStore();
   const { toggleCreatePopup } = useCreatePopupStore();
@@ -53,40 +52,26 @@ export default function SettingMenu() {
         {useSpaceState.map((space: SpaceData, idx: number) => (
           <button
             type="button"
-            className={`button ${styles.space} ${
-              space.UID === useSelectedSpaceState.UID && styles.active
-            }`}
+            className={`button ${styles.space} ${space.UID === useSelectedSpaceState.UID && styles.active}`}
             key={`space-${idx}`}
             onClick={() => handleSetSpace(space)}
           >
             <div className={styles.spaceProfile}>
               {space.space_profile_path ? (
-                <Image
-                  src={space.space_profile_path}
-                  alt="profile"
-                  width={30}
-                  height={30}
-                />
+                <Image src={space.space_profile_path} alt="profile" width={30} height={30} />
               ) : (
-                // <img src={space.space_profile_path} alt="" />
                 <i className="normal">{space.space_name.charAt(0)}</i>
               )}
             </div>
             <div className={styles.spaceInfo}>
               {space.space_name}
               <i className="normal">{space.space_users.length + 1} 명의 멤버</i>
-              {space.UID === useSelectedSpaceState.UID && (
-                <img src="/images/check.svg" alt="connect space" />
-              )}
+              {space.UID === useSelectedSpaceState.UID && <img src="/images/check.svg" alt="connect space" />}
             </div>
           </button>
         ))}
       </div>
-      <button
-        type="button"
-        className="button"
-        onClick={() => toggleUserSettingPopup(true)}
-      >
+      <button type="button" className="button" onClick={() => toggleUserSettingPopup(true)}>
         개인 정보 수정
       </button>
       <button type="button" className="button" onClick={handleCreate}>

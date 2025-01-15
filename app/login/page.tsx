@@ -25,10 +25,7 @@ export default function Login() {
 
   const login = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (
-      typeof window !== "undefined" &&
-      document.activeElement instanceof HTMLElement
-    ) {
+    if (typeof window !== "undefined" && document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
     const idValue = getValues("user_id");
@@ -58,15 +55,9 @@ export default function Login() {
         if (getKey.ok) {
           const getKeyRes = await getKey.json();
           if (getKeyRes.resultCode) {
-            const userIdEncrypted = await encryptRSA(
-              getKeyRes.message,
-              idValue
-            );
+            const userIdEncrypted = await encryptRSA(getKeyRes.message, idValue);
 
-            const userPwEncrypted = await encryptRSA(
-              getKeyRes.message,
-              pwValue
-            );
+            const userPwEncrypted = await encryptRSA(getKeyRes.message, pwValue);
 
             const encryptedLoginFormData = {
               user_id: userIdEncrypted,
@@ -127,9 +118,7 @@ export default function Login() {
           <ErrorMessage
             errors={errors}
             name="user_id"
-            render={({ message }) => (
-              <p className={inputStyles.errorMessage}>{message}</p>
-            )}
+            render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
           />
           <PasswordInput
             id="userPw"
@@ -144,16 +133,10 @@ export default function Login() {
           <ErrorMessage
             errors={errors}
             name="user_pw"
-            render={({ message }) => (
-              <p className={inputStyles.errorMessage}>{message}</p>
-            )}
+            render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
           />
         </div>
-        <button
-          type="submit"
-          className={`button ${buttonStyles.buttonBlue}`}
-          onClick={login}
-        >
+        <button type="submit" className={`button ${buttonStyles.buttonBlue}`} onClick={login}>
           로그인
         </button>
       </form>
@@ -162,25 +145,13 @@ export default function Login() {
       </div>
 
       <div className={styles.social}>
-        <button
-          type="button"
-          className={`button ${buttonStyles.buttonCircleLine}`}
-          onClick={notService}
-        >
+        <button type="button" className={`button ${buttonStyles.buttonCircleLine}`} onClick={notService}>
           <img src="images/icon/kakao.png" alt="kakao" />
         </button>
-        <button
-          type="button"
-          className={`button ${buttonStyles.buttonCircleLine}`}
-          onClick={notService}
-        >
+        <button type="button" className={`button ${buttonStyles.buttonCircleLine}`} onClick={notService}>
           <img src="images/icon/naver.png" alt="naver" />
         </button>
-        <button
-          type="button"
-          className={`button ${buttonStyles.buttonCircleLine}`}
-          onClick={notService}
-        >
+        <button type="button" className={`button ${buttonStyles.buttonCircleLine}`} onClick={notService}>
           <img src="images/icon/apple.png" alt="apple" />
         </button>
       </div>

@@ -64,11 +64,7 @@ interface SpaceStore {
   setUseSpaceState: (spaces: SpaceData[]) => void;
   setUseSelectedSpaceState: (space: SpaceData) => void;
   setSpacePageInfo: (pageInfo: PageInfo) => void;
-  setUseSpaceMemeberState: (
-    spaceUid: string,
-    page: number,
-    searchWord?: string
-  ) => Promise<void>;
+  setUseSpaceMemeberState: (spaceUid: string, page: number, searchWord?: string) => Promise<void>;
   setSpaceMemeberPageInfo: (pageInfo: PageInfo) => void;
 }
 
@@ -102,8 +98,7 @@ export const useSpaceStore = create<SpaceStore>((set) => ({
     useSpaceStore.getState().setUseSpaceMemeberState(space.UID, 0);
   },
   setSpacePageInfo: (pageInfo) => set({ spacePageInfo: pageInfo }),
-  setSpaceMemeberPageInfo: (pageInfo) =>
-    set({ spaceMemeberPageInfo: pageInfo }),
+  setSpaceMemeberPageInfo: (pageInfo) => set({ spaceMemeberPageInfo: pageInfo }),
 
   fetchSpace: async () => {
     const { toggleRouteAlert } = useRouteAlertStore.getState();
@@ -121,35 +116,31 @@ export const useSpaceStore = create<SpaceStore>((set) => ({
       }
 
       if (res.pageInfo) {
-        set({ spacePageInfo: res.pageInfo });
+        useSpaceStore.getState().setSpacePageInfo(res.pageInfo);
       }
 
       const updatedList = await Promise.all(
         res.data.map(async (space: SpaceData) => {
           const space_profile_path =
-            (!space.space_profile_path || space.space_profile_path !== "") &&
-            space.space_profile_seq
+            (!space.space_profile_path || space.space_profile_path !== "") && space.space_profile_seq
               ? await fetchFile(space.space_profile_seq)
               : space.space_profile_path;
           return { ...space, space_profile_path };
         })
       );
-      set({ useSpaceState: updatedList });
+      useSpaceStore.getState().setUseSpaceState(updatedList);
 
       if (!selectedSpaceUid) {
         storage.setSpaceUid(res.data[0].UID);
-        const findSpace =
-          updatedList.find((item) => item.UID === res.data[0].UID) || {};
+        const findSpace = updatedList.find((item) => item.UID === res.data[0].UID) || {};
 
-        set({ useSelectedSpaceState: findSpace });
+        useSpaceStore.getState().setUseSelectedSpaceState(findSpace);
         fetchPostList(res.data[0].UID);
         useSpaceStore.getState().setUseSpaceMemeberState(res.data[0].UID, 0);
       } else {
-        const findSpace = updatedList.find(
-          (item) => item.UID === selectedSpaceUid
-        );
+        const findSpace = updatedList.find((item) => item.UID === selectedSpaceUid);
         if (findSpace) {
-          set({ useSelectedSpaceState: findSpace });
+          useSpaceStore.getState().setUseSelectedSpaceState(findSpace);
         } else {
           handleSearchSpace(selectedSpaceUid);
         }
@@ -182,14 +173,13 @@ export const useSpaceStore = create<SpaceStore>((set) => ({
       }
 
       if (res.pageInfo) {
-        set({ spaceMemeberPageInfo: res.pageInfo });
+        useSpaceStore.getState().setSpaceMemeberPageInfo(res.pageInfo);
       }
 
       const updatedList = await Promise.all(
         res.data.map(async (mem: SpaceMemberData) => {
           const user_profile_path =
-            (!mem.user_profile_path || mem.user_profile_path !== "") &&
-            mem.user_profile_seq
+            (!mem.user_profile_path || mem.user_profile_path !== "") && mem.user_profile_seq
               ? await fetchFile(mem.user_profile_seq)
               : mem.user_profile_path;
           return { ...mem, user_profile_path };

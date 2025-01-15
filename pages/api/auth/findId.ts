@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(200).json({ message: "회원 정보가 없습니다.", resultCode: false });
   } catch (error) {
-    return res.status(200).json({
+    return res.status(500).json({
       message: "서버 에러가 발생하였습니다.",
       error: error,
       resultCode: false,
