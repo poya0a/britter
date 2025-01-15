@@ -1,7 +1,11 @@
 import supabase from "@database/supabase.config";
-import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
+
+/**
+ * @param file
+ * @returns
+ */
 
 export async function handleFileUpload(file: Express.Multer.File) {
   try {

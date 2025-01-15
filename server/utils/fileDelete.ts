@@ -1,6 +1,9 @@
 import supabase from "@database/supabase.config";
-import fs from "fs";
-import path from "path";
+
+/**
+ * @param fileSeq
+ * @returns
+ */
 
 export async function handleFileDelete(fileSeq: number) {
   try {
