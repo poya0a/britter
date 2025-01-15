@@ -21,28 +21,23 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .single();
 
         if (postError) {
-          return res.status(200).json({
-            message: "서버 에러가 발생하였습니다.",
-            error: postError,
-            resultCode: false,
-          });
+          if (postError.code === "PGRST116") {
+            return res.status(200).json({
+              message: "게시글을 찾을 수 없습니다.",
+              resultCode: false,
+            });
+          }
+          throw postError;
         }
 
-        if (findPost) {
-          return res.status(200).json({
-            message: "게시글 조회 완료했습니다.",
-            data: findPost,
-            resultCode: true,
-          });
-        } else {
-          return res.status(200).json({
-            message: "게시글을 찾을 수 없습니다.",
-            resultCode: false,
-          });
-        }
+        return res.status(200).json({
+          message: "게시글 조회 완료했습니다.",
+          data: findPost,
+          resultCode: true,
+        });
       } catch (error) {
         return res.status(200).json({
-          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

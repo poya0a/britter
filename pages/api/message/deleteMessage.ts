@@ -19,8 +19,14 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
         if (findMessage) {
           if (findMessage.sender_uid === uid) {
-            supabase.from("message").delete().eq("UID", findMessage.UID);
+            const { error } = await supabase.from("message").delete().eq("UID", findMessage.UID);
 
+            if (error) {
+              return res.status(200).json({
+                message: "메시지 삭제 실패하였습니다.",
+                resultCode: false,
+              });
+            }
             return res.status(200).json({
               message: "메시지가 삭제되었습니다.",
               data: { uid: findMessage.UID },
@@ -40,7 +46,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         }
       } catch (error) {
         return res.status(200).json({
-          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

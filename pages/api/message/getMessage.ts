@@ -17,31 +17,41 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         const messageUid = req.query.messageUid;
 
         if (messageUid && typeof messageUid === "string" && messageUid !== "") {
-          const { data: findMessage } = await supabase.from("message").select("*").eq("UID", messageUid).single();
+          const { data: findMessage, error } = await supabase
+            .from("message")
+            .select("*")
+            .eq("UID", messageUid)
+            .single();
 
-          if (findMessage) {
-            const { data: findName } = await supabase
-              .from("emps")
-              .select("user_name")
-              .eq("UID", findMessage.sender_uid === uid ? findMessage.recipient_uid : findMessage.sender_uid)
-              .single();
-
-            const messageListWithName = {
-              ...findMessage,
-              name: findName?.user_name,
-            };
-
+          if (error) {
             return res.status(200).json({
-              message: "메시지 조회 완료했습니다.",
-              data: messageListWithName,
-              resultCode: true,
-            });
-          } else {
-            return res.status(200).json({
-              message: "삭제된 메시지입니다.",
+              message: "메시지 조회 실패하였습니다.",
               resultCode: false,
             });
           }
+
+          const { data: findName } = await supabase
+            .from("emps")
+            .select("user_name")
+            .eq("UID", findMessage.sender_uid === uid ? findMessage.recipient_uid : findMessage.sender_uid)
+            .single();
+
+          let userName = null;
+
+          if (findName) {
+            userName = findName.user_name;
+          }
+
+          const messageListWithName = {
+            ...findMessage,
+            name: userName,
+          };
+
+          return res.status(200).json({
+            message: "메시지 조회 완료했습니다.",
+            data: messageListWithName,
+            resultCode: true,
+          });
         } else {
           return res.status(200).json({
             message: "메시지 정보가 올바르지 않습니다.",
@@ -50,7 +60,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         }
       } catch (error) {
         return res.status(200).json({
-          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

@@ -33,18 +33,13 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .single();
 
         if (postError) {
-          return res.status(200).json({
-            message: "서버 에러가 발생하였습니다.",
-            error: postError,
-            resultCode: false,
-          });
-        }
-
-        if (!currentPost) {
-          return res.status(200).json({
-            message: "삭제할 게시글을 찾을 수 없습니다.",
-            resultCode: false,
-          });
+          if (postError.code === "PGRST116") {
+            return res.status(200).json({
+              message: "삭제할 게시글을 찾을 수 없습니다.",
+              resultCode: false,
+            });
+          }
+          throw postError;
         }
 
         // 삭제한 파일 seq 배열
@@ -67,13 +62,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .eq("p_seq", pSeq)
           .eq("UID", uid);
 
-        if (postsError) {
-          return res.status(200).json({
-            message: "서버 에러가 발생하였습니다.",
-            error: postsError,
-            resultCode: false,
-          });
-        }
+        if (postsError) throw postsError;
 
         const postsToSort = postsWithSamePSeq.filter((post) => post.order_number);
 
@@ -94,7 +83,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         });
       } catch (error) {
         return res.status(200).json({
-          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

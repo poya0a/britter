@@ -34,12 +34,12 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
 
           let spaceUid = fields.space ? fields.space[0] : "";
           const { data: space, error: spaceError } = await supabase
-            .from("spaces")
+            .from("space")
             .select("*")
             .eq("UID", spaceUid)
             .single();
 
-          if (spaceError || !space) {
+          if (spaceError) {
             return res.status(200).json({
               message: "스페이스 정보를 찾을 수 없습니다. 다시 시도해 주세요.",
               resultCode: false,
@@ -57,10 +57,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
           let orderNumber = 0;
 
           if (pSeq) {
-            const { data: parentPosts, error: parentError } = await supabase
-              .from("posts")
-              .select("*")
-              .eq("p_seq", pSeq);
+            const { data: parentPosts, error: parentError } = await supabase.from("post").select("*").eq("p_seq", pSeq);
 
             if (parentError) {
               return res.status(200).json({
@@ -71,16 +68,16 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
 
             orderNumber = parentPosts.length;
           } else {
-            const { data: topPosts, error: topError } = await supabase.from("posts").select("*").eq("p_seq", "");
+            const { data: topPosts, error: topError } = await supabase.from("post").select("*").eq("p_seq", "");
 
-            if (topError) {
+            if (topError && topError.code !== "PGRST116") {
               return res.status(200).json({
-                message: "최상위 게시글을 찾을 수 없습니다.",
+                message: "게시글 목록을 찾을 수 없습니다.",
                 resultCode: false,
               });
             }
 
-            orderNumber = topPosts.length;
+            orderNumber = topPosts ? topPosts.length : 0;
           }
 
           const title = fields.title ? fields.title[0] : "";
@@ -88,14 +85,14 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
 
           if (fields.seq) {
             const { data: existingPost, error: existingPostError } = await supabase
-              .from("posts")
+              .from("post")
               .select("*")
               .eq("seq", fields.seq[0])
               .single();
 
-            if (existingPostError || !existingPost) {
+            if (existingPostError) {
               return res.status(200).json({
-                message: "일치하는 게시글을 찾을 수 없습니다.",
+                message: "게시글을 찾을 수 없습니다.",
                 resultCode: false,
               });
             }
@@ -111,7 +108,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
             }
 
             const { error: updateError } = await supabase
-              .from("posts")
+              .from("post")
               .update({
                 UID: uid,
                 title,
@@ -162,7 +159,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
           }
         } catch (error) {
           return res.status(200).json({
-            message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+            message: "서버 에러가 발생하였습니다.",
             error,
             resultCode: false,
           });

@@ -10,7 +10,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const { data: terms, error } = await supabase.from("terms").select("*").eq("in_used", true);
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === "PGRST116") {
+        return res.status(200).json({
+          message: "이용약관 조회 완료했습니다.",
+          data: [],
+          resultCode: true,
+        });
+      }
+      throw error;
+    }
 
     return res.status(200).json({
       message: "이용약관 조회 완료했습니다.",

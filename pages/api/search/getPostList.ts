@@ -22,14 +22,11 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         } = await supabase
           .from("post")
           .select("UID, seq, title, content, space_uid")
-          .ilike("title", `%${searchWord}%`)
-          .or(`content.ilike.%${searchWord}%,content.is.null`)
+          .or(`title.ilike.%${searchWord}%,content.ilike.%${searchWord}%`)
           .range((page - 1) * 10, page * 10 - 1)
           .limit(10);
 
-        if (error) {
-          throw new Error(error.message);
-        }
+        if (error && error.code !== "PGRST116") throw error;
 
         if (posts && posts.length > 0) {
           const result = posts.map((post) => {
@@ -60,12 +57,14 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         } else {
           return res.status(200).json({
             message: "검색 결과가 없습니다.",
+            data: [],
+            pageInfo: 0,
             resultCode: true,
           });
         }
       } catch (error) {
         return res.status(200).json({
-          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

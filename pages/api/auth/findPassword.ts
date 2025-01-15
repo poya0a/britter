@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     return res.status(200).json({
-      message: `비밀번호를 재설정해 주세요.`,
+      message: "비밀번호를 재설정해 주세요.",
       resultCode: true,
     });
   } catch (error) {

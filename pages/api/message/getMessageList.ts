@@ -32,6 +32,15 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         const { data: findMessageList, error: messageError, count: totalCount } = await query;
 
         if (messageError) {
+          if (messageError.code === "PGRST116") {
+            return res.status(200).json({
+              message: "메시지 목록 조회 완료했습니다.",
+              data: [],
+              pageInfo: 0,
+              unreadMessageCount: null,
+              resultCode: true,
+            });
+          }
           return res.status(200).json({
             message: "메시지 조회에 실패하였습니다.",
             resultCode: false,
@@ -49,18 +58,20 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
               .eq("UID", recipientUid)
               .single();
 
-            if (empError) {
-              return res.status(200).json({
-                message: "사용자 이름 조회에 실패하였습니다.",
-                resultCode: false,
-                error: empError,
-              });
+            let userName = null;
+
+            if (empError && empError.code !== "PGRST116") {
+              throw empError;
+            }
+
+            if (empData) {
+              userName = empData.user_name;
             }
 
             return {
               ...message,
               message: message.message.length <= 100 ? message.message : message.message.slice(0, 100) + "...",
-              name: empData?.user_name,
+              name: userName,
             };
           })
         );
@@ -82,14 +93,14 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
         return res.status(200).json({
           message: "메시지 목록 조회 완료했습니다.",
-          data: messageListWithName ? messageListWithName : [],
+          data: messageListWithName,
           pageInfo: pageInfo,
           unreadMessageCount: unreadMessageTotalCount && unreadMessageTotalCount > 0 ? unreadMessageTotalCount : null,
           resultCode: true,
         });
       } catch (error) {
         return res.status(200).json({
-          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

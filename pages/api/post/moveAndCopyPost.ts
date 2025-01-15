@@ -38,7 +38,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
 
             // 저장하는 스페이스에 권한이 있는지 체크
             const { data: findSpace, error: spaceError } = await supabase
-              .from("spaces")
+              .from("space")
               .select("*")
               .eq("UID", spaceUid)
               .single();
@@ -50,87 +50,87 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
               });
             }
 
-            if (findSpace.space_manager === uid || findSpace.space_users.includes(uid)) {
-              const { data: currentPost, error: postError } = await supabase
-                .from("posts")
-                .select("*")
-                .eq("seq", seq)
-                .eq("space_uid", spaceUid)
-                .single();
+            if (findSpace.space_manager !== uid && !findSpace.space_users.includes(uid)) {
+              return res.status(200).json({
+                message: "게시글 작성 권한이 없습니다.",
+                resultCode: false,
+              });
+            }
 
-              if (postError || !currentPost) {
-                return res.status(200).json({
-                  message: `${type === "move" ? "이동" : "복사"}할 게시글을 찾을 수 없습니다.`,
-                  resultCode: false,
-                });
-              }
+            const { data: currentPost, error: postError } = await supabase
+              .from("post")
+              .select("*")
+              .eq("seq", seq)
+              .eq("space_uid", spaceUid)
+              .single();
 
-              // 이동
-              if (type === "move") {
-                const currentPSeq = currentPost.p_seq;
-                currentPost.p_seq = pSeq;
+            if (postError || !currentPost) {
+              return res.status(200).json({
+                message: `${type === "move" ? "이동" : "복사"}할 게시글을 찾을 수 없습니다.`,
+                resultCode: false,
+              });
+            }
 
-                // 기존 부모 시퀀스의 게시글 정렬
-                if (currentPSeq !== "") {
-                  const { data: postsWithSamePSeq, error: postsError } = await supabase
-                    .from("posts")
-                    .select("*")
-                    .eq("p_seq", currentPSeq)
-                    .eq("space_uid", spaceUid);
+            // 이동
+            if (type === "move") {
+              const currentPSeq = currentPost.p_seq;
+              currentPost.p_seq = pSeq;
 
-                  if (postsError) {
-                    return res.status(200).json({
-                      message: "서버 에러가 발생하였습니다.",
-                      resultCode: false,
-                    });
-                  }
-
-                  const postsToSort = postsWithSamePSeq.filter((post) => post.order_number);
-
-                  postsToSort.sort((a, b) => a.order_number - b.order_number);
-
-                  for (let i = 0; i < postsToSort.length; i++) {
-                    postsToSort[i].order_number = i + 1;
-                    await supabase.from("posts").upsert(postsToSort[i]);
-                  }
-                }
-
-                // 새 부모 시퀀스에서 마지막 순번으로 업데이트
-                const { data: newParentPosts, error: parentPostsError } = await supabase
-                  .from("posts")
+              // 기존 부모 시퀀스의 게시글 정렬
+              if (currentPSeq !== "") {
+                const { data: postsWithSamePSeq, error: postsError } = await supabase
+                  .from("post")
                   .select("*")
-                  .eq("p_seq", pSeq);
+                  .eq("p_seq", currentPSeq)
+                  .eq("space_uid", spaceUid);
 
-                if (parentPostsError) {
+                if (postsError) {
                   return res.status(200).json({
                     message: "서버 에러가 발생하였습니다.",
                     resultCode: false,
                   });
                 }
 
-                const maxOrderNumber = Math.max(...newParentPosts.map((post) => post.order_number || 0), 0) + 1;
-                currentPost.order_number = maxOrderNumber;
+                const postsToSort = postsWithSamePSeq.filter((post) => post.order_number);
 
-                await supabase.from("posts").upsert(currentPost);
+                postsToSort.sort((a, b) => a.order_number - b.order_number);
 
+                for (let i = 0; i < postsToSort.length; i++) {
+                  postsToSort[i].order_number = i + 1;
+                  await supabase.from("post").upsert(postsToSort[i]);
+                }
+              }
+
+              // 새 부모 시퀀스에서 마지막 순번으로 업데이트
+              const { data: newParentPosts, error: parentPostsError } = await supabase
+                .from("post")
+                .select("*")
+                .eq("p_seq", pSeq);
+
+              if (parentPostsError) {
                 return res.status(200).json({
-                  message: "게시글이 이동되었습니다.",
-                  data: { seq: seq },
-                  resultCode: true,
-                });
-              } else {
-                const copiedPost = await copyPostAndChildren(currentPost, pSeq, spaceUid);
-
-                return res.status(200).json({
-                  message: "게시글이 복사되었습니다.",
-                  data: { seq: copiedPost.seq },
-                  resultCode: true,
+                  message: "서버 에러가 발생하였습니다.",
+                  resultCode: false,
                 });
               }
-            } else {
+
+              const maxOrderNumber = Math.max(...newParentPosts.map((post) => post.order_number || 0), 0) + 1;
+              currentPost.order_number = maxOrderNumber;
+
+              await supabase.from("post").upsert(currentPost);
+
               return res.status(200).json({
-                message: "게시글 작성 권한이 없습니다.",
-                resultCode: false,
+                message: "게시글이 이동되었습니다.",
+                data: { seq: seq },
+                resultCode: true,
+              });
+            } else {
+              const copiedPost = await copyPostAndChildren(currentPost, pSeq, spaceUid);
+
+              return res.status(200).json({
+                message: "게시글이 복사되었습니다.",
+                data: { seq: copiedPost.seq },
+                resultCode: true,
               });
             }
           } else {
@@ -141,7 +141,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
           }
         } catch (error) {
           return res.status(200).json({
-            message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+            message: "서버 에러가 발생하였습니다.",
             error: error,
             resultCode: false,
           });
@@ -170,22 +170,20 @@ async function copyPostAndChildren(
   copiedPost.space_uid = spaceUid; // 동일한 스페이스 UID
   copiedPost.order_number = await getNextOrderNumber(newPSeq); // 새 순서
 
-  // Save copied post
-  await supabase.from("posts").upsert(copiedPost);
+  await supabase.from("post").upsert(copiedPost);
 
-  // Copy child posts recursively
   const { data: childPosts, error: childPostsError } = await supabase
-    .from("posts")
+    .from("post")
     .select("*")
     .eq("p_seq", parentPost.seq)
     .eq("space_uid", spaceUid);
 
-  if (childPostsError) {
-    throw new Error("Error fetching child posts");
-  }
+  if (childPostsError && childPostsError.code !== "PGRST116") throw childPostsError;
 
-  for (const childPost of childPosts) {
-    await copyPostAndChildren(childPost, newSeq, spaceUid);
+  if (childPosts) {
+    for (const childPost of childPosts) {
+      await copyPostAndChildren(childPost, newSeq, spaceUid);
+    }
   }
 
   return copiedPost;
@@ -193,13 +191,15 @@ async function copyPostAndChildren(
 
 // 새로운 부모 시퀀스에서 다음 순서를 가져오는 함수
 async function getNextOrderNumber(pSeq: string): Promise<number> {
-  const { data: posts, error: postsError } = await supabase.from("posts").select("*").eq("p_seq", pSeq);
+  const { data: posts, error: postsError } = await supabase.from("post").select("*").eq("p_seq", pSeq);
 
-  if (postsError) {
-    throw new Error("Error fetching posts");
+  if (postsError && postsError.code !== "PGRST116") throw postsError;
+
+  let maxOrderNumber = 0;
+
+  if (posts) {
+    maxOrderNumber = Math.max(...posts.map((post) => post.order_number), 0);
   }
-
-  const maxOrderNumber = Math.max(...posts.map((post) => post.order_number || 0), 0);
 
   return maxOrderNumber + 1;
 }

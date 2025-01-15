@@ -4,7 +4,7 @@ import supabase from "@database/supabase.config";
 import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 import bcrypt from "bcrypt";
 import { handleFileDelete } from "@server/utils/fileDelete";
-import { extractImgDataSeq } from "@/server/utils/extractImgDataSeq";
+import { extractImgDataSeq } from "@server/utils/extractImgDataSeq";
 
 // 비밀번호 일치 여부 확인
 async function checkPassword(userWithdrawPw: string, userPwHash: string): Promise<boolean> {
@@ -13,15 +13,9 @@ async function checkPassword(userWithdrawPw: string, userPwHash: string): Promis
 
 // 스페이스 사용자 제거
 async function removeUserFromSpace(spaceUID: string, uid: string) {
-  const { data: space, error: spaceError } = await supabase
-    .from("space")
-    .select("space_users")
-    .eq("UID", spaceUID)
-    .single();
+  const { data: space } = await supabase.from("space").select("space_users").eq("UID", spaceUID).single();
 
-  if (spaceError || !space) return;
-
-  if (space.space_users.includes(uid)) {
+  if (space && space.space_users.includes(uid)) {
     const updatedUsers = space.space_users.filter((user: string) => user !== uid);
 
     await supabase.from("space").update({ space_users: updatedUsers }).eq("UID", spaceUID);
@@ -30,13 +24,9 @@ async function removeUserFromSpace(spaceUID: string, uid: string) {
 
 // 매니저일 경우 스페이스 및 게시글 삭제
 async function deleteSpaceAndUsers(spaceUID: string, uid: string) {
-  const { data: space, error: spaceError } = await supabase
-    .from("space")
-    .select("space_manager, space_profile_seq")
-    .eq("UID", spaceUID)
-    .single();
+  const { data: space, error: spaceError } = await supabase.from("space").select("*").eq("UID", spaceUID).single();
 
-  if (spaceError || !space) return;
+  if (spaceError) throw spaceError;
 
   // 매니저인 경우 스페이스 삭제
   if (space.space_manager === uid) {
@@ -46,37 +36,30 @@ async function deleteSpaceAndUsers(spaceUID: string, uid: string) {
     }
 
     // 게시글 목록 삭제
-    const { data: posts, error: postError } = await supabase
-      .from("post")
-      .select("UID, content")
-      .eq("space_uid", spaceUID);
+    const { data: posts } = await supabase.from("post").select("UID, content").eq("space_uid", spaceUID);
 
-    if (postError || !posts) return;
-
-    for (const post of posts) {
-      const extractedSeqList = extractImgDataSeq(post.content);
-      // 게시글에 이미지 파일이 있는 경우 반복문으로 데이터 및 물리 파일 삭제
-      if (extractedSeqList.length > 0) {
-        for (const seq of extractedSeqList) {
-          await handleFileDelete(seq);
+    if (posts) {
+      for (const post of posts) {
+        const extractedSeqList = extractImgDataSeq(post.content);
+        // 게시글에 이미지 파일이 있는 경우 반복문으로 데이터 및 물리 파일 삭제
+        if (extractedSeqList.length > 0) {
+          for (const seq of extractedSeqList) {
+            await handleFileDelete(seq);
+          }
         }
+        // 게시글 삭제
+        await supabase.from("post").delete().eq("UID", post.UID);
       }
-      // 게시글 삭제
-      await supabase.from("post").delete().eq("UID", post.UID);
     }
 
     // 사용자 목록 업데이트
-    const { data: userSpaceList, error: userSpaceListError } = await supabase
-      .from("spaceList")
-      .select("space")
-      .eq("UID", uid)
-      .single();
-
-    if (userSpaceListError || !userSpaceList) return;
-
-    const updatedSpaceList = userSpaceList.space.filter((spaceItem: string) => spaceItem !== spaceUID);
-
-    await supabase.from("space").update({ space: updatedSpaceList }).eq("UID", uid);
+    for (const user of space.space_users) {
+      const { data: userSpaceList } = await supabase.from("spaceList").select("space").eq("UID", user).single();
+      if (userSpaceList && userSpaceList.space.includes(space.UID)) {
+        const updatedSpaceList = userSpaceList.space.filter((spaceItem: string) => spaceItem !== space.UID);
+        await supabase.from("space").update({ space: updatedSpaceList }).eq("UID", user);
+      }
+    }
 
     // 스페이스 삭제
     await supabase.from("space").delete().eq("UID", spaceUID);
@@ -116,7 +99,7 @@ async function deleteEntities(uid: string, findUser: any) {
     .eq("UID", uid)
     .single();
 
-  if (findSpaceListError || !findSpaceList) return;
+  if (findSpaceListError) throw findSpaceListError;
 
   for (const spaceUID of findSpaceList.space) {
     await removeUserFromSpace(spaceUID, uid);
@@ -149,7 +132,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .eq("UID", uid)
           .single();
 
-        if (findUserError || !findUser) {
+        if (findUserError) {
           return res.status(200).json({
             message: "사용자 정보를 찾을 수 없습니다.",
             resultCode: false,

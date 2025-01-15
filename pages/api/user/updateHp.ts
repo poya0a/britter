@@ -21,7 +21,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
     form.parse(req, async (err, fields) => {
       if (err) {
         return res.status(200).json({
-          message: "폼 데이터를 처리하는 중 오류가 발생했습니다.",
+          message: "데이터를 처리하는 중 오류가 발생했습니다.",
           resultCode: false,
         });
       }
@@ -49,7 +49,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
       try {
         const { data: findUser, error: userError } = await supabase.from("emps").select("*").eq("UID", uid).single();
 
-        if (userError || !findUser) {
+        if (userError) {
           return res.status(404).json({
             message: "사용자 정보를 찾을 수 없습니다.",
             resultCode: false,
@@ -135,7 +135,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
         }
 
         return res.status(200).json({
-          message: "전화번호가 성공적으로 변경되었습니다.",
+          message: "전화번호가 변경되었습니다.",
           resultCode: true,
         });
       } catch (error) {

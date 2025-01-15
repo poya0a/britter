@@ -15,10 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const { data: existingUser, error } = await supabase.from("emps").select("user_id").eq("user_id", user_id).single();
 
-    if (error) {
-      if (error.code === "PGRST116") {
-        return res.status(200).json({ message: "사용 가능한 아이디입니다.", resultCode: true });
-      }
+    if (error && error.code !== "PGRST116") {
       throw error;
     }
 

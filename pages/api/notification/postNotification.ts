@@ -33,19 +33,19 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
             const senderUid: string = fields.senderUid[0];
             const recipientUid: string = fields.recipientUid[0];
 
-            const { data: findUser } = await supabase
+            const { data: findUser, error: userError } = await supabase
               .from("emps")
               .select("*")
               .eq("UID", notifyType === "space" ? senderUid : recipientUid)
               .single();
 
-            const { data: findSpaceList } = await supabase
+            const { data: findSpaceList, error: spaceListError } = await supabase
               .from("spaceList")
               .select("*")
               .eq("UID", notifyType === "space" ? senderUid : recipientUid)
               .single();
 
-            if (!findUser || !findSpaceList) {
+            if (userError || spaceListError) {
               return res.status(200).json({
                 message: "사용자 정보를 찾을 수 없습니다.",
                 resultCode: false,
@@ -310,7 +310,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
           }
         } catch (error) {
           return res.status(200).json({
-            message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+            message: "서버 에러가 발생하였습니다.",
             error: error,
             resultCode: false,
           });

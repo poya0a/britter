@@ -28,11 +28,14 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .order("order_number", { ascending: true });
 
         if (error) {
-          return res.status(200).json({
-            message: "서버 에러가 발생하였습니다.",
-            error: error.message,
-            resultCode: false,
-          });
+          if (error.code === "PGRST116") {
+            return res.status(200).json({
+              message: "게시글 목록 조회 완료했습니다.",
+              data: [],
+              resultCode: true,
+            });
+          }
+          throw error;
         }
 
         const groupedPosts = groupPosts(posts);
@@ -44,7 +47,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         });
       } catch (error) {
         return res.status(200).json({
-          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

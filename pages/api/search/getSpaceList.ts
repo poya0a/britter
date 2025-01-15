@@ -18,43 +18,23 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
       try {
         // Space와 Notifications 테이블에서 데이터 조회
-        const {
-          data: findSpace,
-          error: spaceError,
-          count: totalCount,
-        } = await supabase
+        const { data: findSpace, count: totalCount } = await supabase
           .from("space")
           .select("UID, space_profile_seq, space_name, space_public, space_manager, space_users", { count: "exact" })
           .ilike("space_name", `%${searchWord}%`)
           .range((pageNumber - 1) * 10, pageNumber * 10 - 1);
 
-        if (spaceError) {
-          return res.status(200).json({
-            message: "서버 에러가 발생하였습니다.",
-            error: spaceError,
-            resultCode: false,
-          });
-        }
-
-        if (findSpace && totalCount !== undefined) {
+        if (findSpace) {
           // 알림 정보 조회
           const spaceWithNotification = await Promise.all(
             findSpace.map(async (space) => {
-              const { data: userNotification, error: notifyError } = await supabase
+              const { data: userNotification } = await supabase
                 .from("notifications")
                 .select("UID, notify_type")
                 .or(
                   `and(notify_type.eq.user,sender_uid.eq.${space.UID},recipient_uid.eq.${uid}),and(notify_type.eq.space,sender_uid.eq.${uid},recipient_uid.eq.${space.UID})`
                 )
                 .single();
-
-              if (notifyError) {
-                return res.status(200).json({
-                  message: "서버 에러가 발생하였습니다.",
-                  error: notifyError,
-                  resultCode: false,
-                });
-              }
 
               if (userNotification) {
                 const notify = {
@@ -90,12 +70,14 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         } else {
           return res.status(200).json({
             message: "검색 결과가 없습니다.",
+            data: [],
+            pageInfo: 0,
             resultCode: true,
           });
         }
       } catch (error) {
         return res.status(200).json({
-          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

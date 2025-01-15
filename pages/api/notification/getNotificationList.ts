@@ -17,11 +17,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         const spaceUid = req.query.spaceUid as string;
         const pageNumber = parseInt(req.query.page as string);
 
-        const { data: findSpaceList, error: spaceListError } = await supabase
-          .from("spaceList")
-          .select("*")
-          .eq("UID", uid)
-          .single();
+        const { error: spaceListError } = await supabase.from("spaceList").select("*").eq("UID", uid).single();
 
         const { data: findSpace, error: spaceError } = await supabase
           .from("space")
@@ -29,7 +25,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .eq("UID", spaceUid)
           .single();
 
-        if (spaceListError || spaceError || !findSpaceList || !findSpace || findSpaceList.space.length === 0) {
+        if (spaceListError || spaceError) {
           return res.status(200).json({
             message: "사용자 정보를 찾을 수 없습니다.",
             resultCode: false,
@@ -51,16 +47,24 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .select("*", { count: "exact" })
           .in(
             "recipient_uid",
-            whereCondition.map((cond) => cond)
+            whereCondition.map((cond) => cond.recipient_uid)
           )
           .in(
             "sender_uid",
-            whereCondition.map((cond) => cond)
+            whereCondition.map((cond) => cond.sender_uid)
           )
           .range((pageNumber - 1) * 50, pageNumber * 50 - 1)
           .order("create_date", { ascending: false });
 
         if (notificationError) {
+          if (notificationError.code === "PGRST116") {
+            return res.status(200).json({
+              message: "사용자 알림 목록 조회 완료했습니다.",
+              data: [],
+              pageInfo: 0,
+              resultCode: true,
+            });
+          }
           return res.status(200).json({
             message: "알림 조회에 실패하였습니다.",
             resultCode: false,
@@ -116,7 +120,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
         return res.status(200).json({
           message: "사용자 알림 목록 조회 완료했습니다.",
-          data: notificationsWithName ? notificationsWithName : [],
+          data: notificationsWithName,
           pageInfo: pageInfo,
           resultCode: true,
         });

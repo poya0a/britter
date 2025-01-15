@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { data: existingUser, error } = await supabase
+    const { data: existingUser } = await supabase
       .from("emps")
       .select("user_id")
       .eq("user_name", user_name)
@@ -29,22 +29,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .eq("user_certification", user_certification)
       .single();
 
-    if (error) {
-      if (error.code === "PGRST116") {
-        return res.status(200).json({ message: "회원 정보가 없습니다.", resultCode: false });
-      }
-      throw error;
-    }
-
     if (existingUser) {
       const id = maskId(existingUser.user_id);
       return res.status(200).json({
         message: `아이디는 ${id} 입니다.`,
         resultCode: true,
       });
-    } else {
-      return res.status(200).json({ message: "회원 정보가 없습니다.", resultCode: false });
     }
+
+    return res.status(200).json({ message: "회원 정보가 없습니다.", resultCode: false });
   } catch (error) {
     return res.status(200).json({
       message: "서버 에러가 발생하였습니다.",

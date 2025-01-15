@@ -25,15 +25,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .eq("user_hp", user_hp)
       .single();
 
-    if (findError && findError.code !== "PGRST116") {
+    if (findError) {
+      if (findError.code === "PGRST116") {
+        return res.status(200).json({
+          message: "인증 번호 받기 버튼을 눌러주세요.",
+          resultCode: false,
+        });
+      }
       throw findError;
-    }
-
-    if (!existingCertification) {
-      return res.status(200).json({
-        message: "인증 번호 받기 버튼을 눌러주세요.",
-        resultCode: false,
-      });
     }
 
     const passedThreeMinutes = isThreeMinutesPassed(existingCertification.create_date);

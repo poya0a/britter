@@ -37,7 +37,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
         });
       } catch (error) {
         return res.status(200).json({
-          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

@@ -14,23 +14,11 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
     if (req.user) {
       try {
         // 사용자 검색
-        const {
-          data: findUser,
-          error: userError,
-          count: totalCount,
-        } = await supabase
+        const { data: findUser, count: totalCount } = await supabase
           .from("emps")
           .select("UID, user_profile_seq, user_id, user_name, user_public", { count: "exact" })
-          .ilike("user_id", `%${searchWord}%`) // ILike와 동일한 기능
-          .range((pageNumber - 1) * 10, pageNumber * 10 - 1); // 페이지네이션
-
-        if (userError) {
-          return res.status(200).json({
-            message: "서버 에러가 발생하였습니다.",
-            error: userError,
-            resultCode: false,
-          });
-        }
+          .or(`user_id.ilike.%${searchWord}%,user_name.ilike.%${searchWord}%`)
+          .range((pageNumber - 1) * 10, pageNumber * 10 - 1);
 
         if (findUser) {
           // 알림 조회 및 사용자와 결합
@@ -38,21 +26,13 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
             findUser.map(async (user) => {
               const uid = spaceUid;
 
-              const { data: userNotification, error: notifyError } = await supabase
+              const { data: userNotification } = await supabase
                 .from("notifications")
                 .select("UID, notify_type")
                 .or(
                   `and(notify_type.eq.space,sender_uid.eq.${user.UID},recipient_uid.eq.${uid}),and(notify_type.eq.user,sender_uid.eq.${uid},recipient_uid.eq.${user.UID})`
                 )
-                .single(); // 단일 결과만 조회
-
-              if (notifyError) {
-                return res.status(200).json({
-                  message: "서버 에러가 발생하였습니다.",
-                  error: notifyError,
-                  resultCode: false,
-                });
-              }
+                .single();
 
               if (userNotification) {
                 const notify = {
@@ -89,12 +69,14 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
         } else {
           return res.status(200).json({
             message: "검색 결과가 없습니다.",
+            data: [],
+            pageInfo: 0,
             resultCode: true,
           });
         }
       } catch (error) {
         return res.status(200).json({
-          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });

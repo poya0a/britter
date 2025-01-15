@@ -27,36 +27,23 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           .single();
 
         if (userError) {
-          return res.status(200).json({
-            message: "서버 에러가 발생하였습니다.",
-            error: userError,
-            resultCode: false,
-          });
-        }
-
-        if (!findUser) {
-          return res.status(200).json({
-            message: "검색 결과가 없습니다.",
-            resultCode: true,
-          });
+          if (userError.code === "PGRST116") {
+            return res.status(200).json({
+              message: "사용자를 찾을 수 없습니다.",
+              resultCode: true,
+            });
+          }
+          throw userError;
         }
 
         if (spaceUid) {
-          const { data: notify, error: notifyError } = await supabase
+          const { data: notify } = await supabase
             .from("notifications")
             .select("UID, notify_type")
             .or(
               `and(notify_type.eq.space,sender_uid.eq.${findUser.UID},recipient_uid.eq.${spaceUid}),and(notify_type.eq.user,sender_uid.eq.${spaceUid},recipient_uid.eq.${findUser.UID})`
             )
             .single();
-
-          if (notifyError) {
-            return res.status(200).json({
-              message: "서버 에러가 발생하였습니다.",
-              error: notifyError,
-              resultCode: false,
-            });
-          }
 
           if (notify) {
             const userWithNotification = {
@@ -71,23 +58,16 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
               data: userWithNotification,
               resultCode: true,
             });
-          } else {
-            return res.status(200).json({
-              message: "검색 완료했습니다.",
-              data: findUser,
-              resultCode: true,
-            });
           }
-        } else {
-          return res.status(200).json({
-            message: "검색 완료했습니다.",
-            data: findUser,
-            resultCode: true,
-          });
         }
+        return res.status(200).json({
+          message: "검색 완료했습니다.",
+          data: findUser,
+          resultCode: true,
+        });
       } catch (error) {
         return res.status(200).json({
-          message: typeof error === "string" ? error : "서버 에러가 발생하였습니다.",
+          message: "서버 에러가 발생하였습니다.",
           error: error,
           resultCode: false,
         });
