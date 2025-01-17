@@ -51,7 +51,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
         const { data: space, error: spaceError } = await supabase
           .from("space")
           .select("*")
-          .eq("UID", spaceUid)
+          .eq("UID", JSON.parse(spaceUid))
           .eq("space_manager", uid)
           .single();
 
@@ -59,8 +59,6 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
           return res.status(200).json({
             message: "스페이스 정보를 찾을 수 없습니다. 다시 시도해 주세요.",
             error: spaceError,
-            spaceUid: spaceUid,
-            uid: uid,
             resultCode: false,
           });
         }
@@ -69,7 +67,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
           const { data: existingSpaces, error: nameCheckError } = await supabase
             .from("space")
             .select("*")
-            .eq("space_name", spaceName);
+            .eq("space_name", JSON.parse(spaceName));
 
           if (nameCheckError) {
             return res.status(200).json({
@@ -84,7 +82,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
               resultCode: false,
             });
           }
-          space.space_name = spaceName;
+          space.space_name = JSON.parse(spaceName);
         }
 
         if (spacePublic !== undefined) {
@@ -106,7 +104,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
         const { error: updateError } = await supabase
           .from("space")
           .update(space)
-          .eq("UID", spaceUid)
+          .eq("UID", JSON.parse(spaceUid))
           .eq("space_manager", uid);
 
         if (updateError) {
