@@ -33,7 +33,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
     if (!NEXT_PUBLIC_STORAGE_BUCKET) {
       return {
         resultCode: false,
-        message: "파일 업로드 중 오류가 발생하였습니다.3",
+        message: "파일 업로드 중 오류가 발생하였습니다.",
       };
     }
 
@@ -52,7 +52,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
     if (uploadError) {
       return {
         resultCode: false,
-        message: "파일 업로드 중 오류가 발생하였습니다.1",
+        message: "파일 업로드 중 오류가 발생하였습니다.",
         error: uploadError,
       };
     }
@@ -71,7 +71,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
     if (fileError) {
       return {
         resultCode: false,
-        message: "파일 업로드 중 오류가 발생하였습니다.2",
+        message: "파일 업로드 중 오류가 발생하였습니다.",
         error: fileError,
       };
     }
