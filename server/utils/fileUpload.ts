@@ -45,20 +45,14 @@ export async function handleFileUpload(file: Express.Multer.File) {
     // 고유 파일명 생성
     const uniqueId = uuidv4();
     const fileName = `${baseFileName}_${uniqueId}${fileExtension}`;
-    // const filePath = path.join("/tmp", fileName);
 
-    // fs.writeFileSync(filePath, file.buffer);
-
-    const { data: uploadFile, error: uploadError } = await supabase.storage
-      .from("files")
-      // .upload(fileName, fs.createReadStream(filePath));
-      .upload(fileName, file.buffer);
+    const { data: uploadFile, error: uploadError } = await supabase.storage.from("files").upload(fileName, file.buffer);
 
     if (uploadError) {
       return {
         resultCode: false,
         message: "파일 업로드 중 오류가 발생하였습니다.",
-        error: uploadError.message,
+        error: uploadError,
       };
     }
 
