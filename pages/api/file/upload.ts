@@ -39,6 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await runMiddleware(req, res, upload);
 
       const reqWithFile = req as NextApiRequestWithFile;
+
       if (!reqWithFile.file) {
         return res.status(200).json({
           message: "파일을 찾을 수 없습니다.",
@@ -47,12 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       const saveFile = await handleFileUpload(reqWithFile.file);
 
-      if (!reqWithFile.file) {
-        return res.status(200).json({
-          message: saveFile.message,
-          resultCode: false,
-        });
-      }
+      if (!saveFile) throw saveFile;
 
       if (saveFile.data) {
         return res.status(200).json({
@@ -70,6 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
       }
     } catch (error) {
+      console.log(error);
       return res.status(200).json({
         message: "서버 에러가 발생하였습니다.",
         error: error,
