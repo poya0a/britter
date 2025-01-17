@@ -64,7 +64,6 @@ export async function handleFileUpload(file: Express.Multer.File) {
     const { data: publicUrlData } = supabase.storage.from(NEXT_PUBLIC_STORAGE_BUCKET).getPublicUrl(filePath);
 
     const newFile = {
-      file: file.buffer,
       file_name: fileName,
       file_path: publicUrlData.publicUrl,
       file_size: fileSize.toString(),

@@ -3,7 +3,6 @@ import { CommentModel } from "./Comment.model";
 
 export interface FileInterface {
   seq: number;
-  file: Buffer;
   file_name: string;
   file_path: string;
   file_size: string;
@@ -14,7 +13,6 @@ export interface FileInterface {
 
 export class FileModel implements FileInterface {
   seq: number;
-  file: Buffer;
   file_name: string;
   file_path: string;
   file_size: string;
@@ -24,7 +22,6 @@ export class FileModel implements FileInterface {
 
   constructor(file: FileInterface) {
     this.seq = file.seq;
-    this.file = file.file;
     this.file_name = file.file_name;
     this.file_path = file.file_path;
     this.file_size = file.file_size;
