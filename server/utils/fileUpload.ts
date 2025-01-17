@@ -65,15 +65,15 @@ export async function handleFileUpload(file: Express.Multer.File) {
       file_extension: fileExtension,
     };
 
-    await supabase.from("file").insert(newFile).single();
+    const { error: fileError } = await supabase.from("file").insert(newFile).single();
 
-    // if (fileError) {
-    //   return {
-    //     resultCode: false,
-    //     message: "파일 업로드 중 오류가 발생하였습니다.",
-    //     error: fileError,
-    //   };
-    // }
+    if (fileError) {
+      return {
+        resultCode: false,
+        message: "파일 업로드 중 오류가 발생하였습니다.",
+        error: fileError,
+      };
+    }
 
     const { data } = await supabase.from("file").select("*").eq("file_path", newFile.file_path).single();
 
@@ -86,6 +86,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
       },
     };
   } catch (error) {
+    console.log(error);
     throw new Error("파일 업로드 중 오류가 발생하였습니다.");
   }
 }
