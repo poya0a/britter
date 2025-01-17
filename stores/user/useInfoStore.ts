@@ -30,11 +30,7 @@ interface InfoStore {
   fetchDataAndUpdateState: (seq: number) => Promise<void>;
   updateInfo: (formData: FormData) => Promise<void>;
   toggleAlert: (message: string) => void;
-  toggleRouteAlert: (props: {
-    isActOpen: boolean;
-    content: string;
-    route: string;
-  }) => void;
+  toggleRouteAlert: (props: { isActOpen: boolean; content: string; route: string }) => void;
   setToast: (message: string) => void;
 }
 
@@ -113,6 +109,8 @@ export const useInfoStore = create<InfoStore>((set, get) => ({
         body: formData,
       });
 
+      console.log(res);
+      alert(res);
       if (!res.resultCode) {
         get().toggleAlert(res.message);
       } else {

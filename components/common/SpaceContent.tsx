@@ -115,8 +115,6 @@ export default function SpaceContent() {
   const [type, setType] = useState<string>("");
   const { useMainMenuWidthState } = useMainMenuWidthStore();
   const { useToolBarHeightState } = useToolBarHeightStore();
-  const [createHeight, setCreateHeight] = useState<string>("");
-  const [createTop, setCreateTop] = useState<string>("");
   const { setHasTableTag } = useEditorStore();
   const [editorContent, setEditorContent] = useState<string>("");
   const { toggleAlert } = useAlertStore();
