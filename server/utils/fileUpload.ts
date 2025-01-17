@@ -88,6 +88,10 @@ export async function handleFileUpload(file: Express.Multer.File) {
       },
     };
   } catch (error) {
-    throw new Error("파일 업로드 중 오류가 발생하였습니다.");
+    return {
+      resultCode: false,
+      message: "파일 업로드 중 오류가 발생하였습니다.",
+      error: error,
+    };
   }
 }

@@ -109,8 +109,6 @@ export const useInfoStore = create<InfoStore>((set, get) => ({
         body: formData,
       });
 
-      console.log(res);
-      alert(res);
       if (!res.resultCode) {
         get().toggleAlert(res.message);
       } else {
