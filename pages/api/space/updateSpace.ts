@@ -52,13 +52,19 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
           .from("space")
           .select("*")
           .eq("UID", spaceUid)
-          .eq("space_manager", uid)
           .single();
 
         if (spaceError) {
           return res.status(200).json({
             message: "스페이스 정보를 찾을 수 없습니다. 다시 시도해 주세요.",
             error: spaceError,
+            resultCode: false,
+          });
+        }
+
+        if (space.space_manager !== uid) {
+          return res.status(200).json({
+            message: "스페이스 수정 권한이 없습니다.",
             resultCode: false,
           });
         }
