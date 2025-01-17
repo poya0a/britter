@@ -13,7 +13,11 @@ export default async function handler(req: NextApiRequest & AuthenticatedRequest
 
     if (seqParam) {
       try {
-        const { data, error } = await supabase.from("file").select("*").eq("seq", parseInt(seqParam, 10)).single();
+        const { data, error } = await supabase
+          .from("file")
+          .select("file_name")
+          .eq("seq", parseInt(seqParam, 10))
+          .single();
 
         if (error) {
           if (error.code === "PGRST116") {
@@ -27,7 +31,7 @@ export default async function handler(req: NextApiRequest & AuthenticatedRequest
 
         return res.status(200).json({
           message: "파일 조회 완료했습니다.",
-          data: data,
+          data: `/${data.file_name}`,
           resultCode: true,
         });
       } catch (error) {
