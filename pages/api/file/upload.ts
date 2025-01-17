@@ -1,8 +1,6 @@
 "use server";
 import { NextApiRequest, NextApiResponse } from "next";
 import multer from "multer";
-import fs from "fs";
-import path from "path";
 import { authenticateToken } from "@server/utils/authenticateToken";
 import { handleFileUpload } from "@server/utils/fileUpload";
 
@@ -10,20 +8,9 @@ export interface NextApiRequestWithFile extends NextApiRequest {
   file: Express.Multer.File;
 }
 
-// const upload = multer({
-//   storage: multer.diskStorage({
-//     destination: (req, file, cb) => {
-//       const uploadDirectory = path.join(process.cwd(), "public/files");
-//       if (!fs.existsSync(uploadDirectory)) {
-//         fs.mkdirSync(uploadDirectory, { recursive: true });
-//       }
-//       cb(null, uploadDirectory);
-//     },
-//     filename: (req, file, cb) => {
-//       cb(null, `${Date.now()}-${file.originalname}`);
-//     },
-//   }),
-// }).single("file");
+const upload = multer({
+  storage: multer.memoryStorage(),
+}).single("file");
 
 export const config = {
   api: {
@@ -49,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   authenticateToken(req, res, async () => {
     try {
-      // await runMiddleware(req, res, upload);
+      await runMiddleware(req, res, upload);
 
       const reqWithFile = req as NextApiRequestWithFile;
       const saveFile = await handleFileUpload(reqWithFile.file);

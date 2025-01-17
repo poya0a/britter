@@ -3,8 +3,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import supabase from "@database/supabase.config";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
-import fs from "fs";
-import path from "path";
 import multer from "multer";
 import { getErrorMassage } from "@utils/errorMessage";
 import { regexValue } from "@utils/regex";
@@ -24,18 +22,7 @@ export const config = {
 };
 
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      const uploadDirectory = path.join(process.cwd(), "public/files");
-      if (!fs.existsSync(uploadDirectory)) {
-        fs.mkdirSync(uploadDirectory, { recursive: true });
-      }
-      cb(null, uploadDirectory);
-    },
-    filename: (req, file, cb) => {
-      cb(null, `${Date.now()}-${file.originalname}`);
-    },
-  }),
+  storage: multer.memoryStorage(),
 }).single("user_profile");
 
 const runMiddleware = (req: NextApiRequest, res: NextApiResponse, fn: any) => {
