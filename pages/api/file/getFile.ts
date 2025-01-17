@@ -31,7 +31,9 @@ export default async function handler(req: NextApiRequest & AuthenticatedRequest
 
         return res.status(200).json({
           message: "파일 조회 완료했습니다.",
-          data: `/${data.file_name}`,
+          data: {
+            file_name: `/storage/v1/s3/${data.file_name}`,
+          },
           resultCode: true,
         });
       } catch (error) {
