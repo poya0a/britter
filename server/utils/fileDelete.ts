@@ -25,9 +25,7 @@ export async function handleFileDelete(fileSeq: number) {
       };
     }
 
-    const { error: storageError } = await supabase.storage
-      .from(NEXT_PUBLIC_STORAGE_BUCKET)
-      .remove([findFile.file_path]);
+    const { error: storageError } = await supabase.storage.from(NEXT_PUBLIC_STORAGE_BUCKET).remove(findFile.file_path);
 
     if (storageError) {
       return {

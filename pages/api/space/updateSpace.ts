@@ -19,7 +19,7 @@ export const config = {
 
 const upload = multer({
   storage: multer.memoryStorage(),
-}).single("space_profile");
+}).single("spaceProfile");
 
 const runMiddleware = (req: NextApiRequest, res: NextApiResponse, fn: any) => {
   return new Promise((resolve, reject) => {

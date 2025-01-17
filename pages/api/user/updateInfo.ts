@@ -20,7 +20,7 @@ export const config = {
 
 const upload = multer({
   storage: multer.memoryStorage(),
-}).single("user_profile");
+}).single("userProfile");
 
 const runMiddleware = (req: NextApiRequest, res: NextApiResponse, fn: any) => {
   return new Promise((resolve, reject) => {
