@@ -39,8 +39,7 @@ const CustomTextStyle = TextStyle.extend({
     return {
       fontSize: {
         default: null,
-        parseHTML: (element) =>
-          element.style.fontSize.replace("px", "") || null,
+        parseHTML: (element) => element.style.fontSize.replace("px", "") || null,
         renderHTML: (attributes) => {
           return {
             style: `font-size: ${attributes.fontSize || "14"}px;`,
@@ -102,10 +101,7 @@ const focusTableTag = (element: HTMLElement): boolean => {
   let current: HTMLElement | null = element;
 
   while (current !== null) {
-    if (
-      current.tagName === "TABLE" ||
-      current.parentElement?.tagName === "TABLE"
-    ) {
+    if (current.tagName === "TABLE" || current.parentElement?.tagName === "TABLE") {
       return true;
     }
     current = current.parentElement;
@@ -115,12 +111,7 @@ const focusTableTag = (element: HTMLElement): boolean => {
 };
 
 export default function SpaceContent() {
-  const {
-    useSpaceState,
-    useSelectedSpaceState,
-    saveSpaceContent,
-    deleteSpaceContent,
-  } = useSpaceStore();
+  const { useSpaceState, useSelectedSpaceState, saveSpaceContent, deleteSpaceContent } = useSpaceStore();
   const [type, setType] = useState<string>("");
   const { useMainMenuWidthState } = useMainMenuWidthStore();
   const { useToolBarHeightState } = useToolBarHeightStore();
@@ -140,28 +131,6 @@ export default function SpaceContent() {
       }
     }
   }, [useSelectedSpaceState]);
-
-  useEffect(() => {
-    if (useSelectedSpaceState) {
-      if (
-        useSpaceState.find((space) => space.UID === useSelectedSpaceState.UID)
-      ) {
-        if (type === "create") {
-          setCreateHeight(`calc(100vh - ${useToolBarHeightState + 146}px)`);
-          setCreateTop(`${useToolBarHeightState + 86}px`);
-        } else if (type === "view") {
-          setCreateHeight("calc(100vh - 130px)");
-          setCreateTop("70px");
-        } else {
-          setCreateHeight("calc(100vh - 40px)");
-          setCreateTop("40px");
-        }
-      } else {
-        setCreateHeight("calc(100vh - 40px)");
-        setCreateTop("40px");
-      }
-    }
-  }, [useSelectedSpaceState, type]);
 
   const handleSavePost = async () => {
     try {
@@ -190,9 +159,7 @@ export default function SpaceContent() {
         .get();
       const imagesUpdate = await Promise.all(imagePromises);
 
-      const errorMessage = imagesUpdate.find(
-        (result) => typeof result === "string"
-      ) as string | undefined;
+      const errorMessage = imagesUpdate.find((result) => typeof result === "string") as string | undefined;
 
       if (errorMessage) {
         return toggleAlert(errorMessage);
@@ -200,9 +167,7 @@ export default function SpaceContent() {
       setEditorContent($.html());
 
       if (!useSelectedSpaceState) {
-        return toggleAlert(
-          "스페이스 정보를 찾을 수 없습니다. 다시 시도해 주세요."
-        );
+        return toggleAlert("스페이스 정보를 찾을 수 없습니다. 다시 시도해 주세요.");
       }
 
       const formData = new FormData();
@@ -219,9 +184,7 @@ export default function SpaceContent() {
     }
   };
 
-  const uploadImageAndGetSequence = async (
-    src: string
-  ): Promise<{ seq: number; path: string } | string> => {
+  const uploadImageAndGetSequence = async (src: string): Promise<{ seq: number; path: string } | string> => {
     let blob: Blob;
     if (src.startsWith("data:image/")) {
       // data:image 형식 처리
@@ -287,9 +250,9 @@ export default function SpaceContent() {
       className={styles.create}
       style={{
         width: `calc(100% - ${useMainMenuWidthState}px)`,
-        height: createHeight,
+        height: `calc(100vh - ${type === "create" ? useToolBarHeightState + 146 : type === "view" ? 130 : 40}px)`,
         left: `${useMainMenuWidthState}px`,
-        marginTop: createTop,
+        marginTop: `${type === "create" ? useToolBarHeightState + 86 : type === "view" ? 70 : 40}px`,
       }}
       onClick={handleClick}
       onTouchStart={handleClick}
@@ -300,12 +263,7 @@ export default function SpaceContent() {
             {type === "create" ? (
               <EditorProvider
                 extensions={extensions}
-                slotBefore={
-                  <ToolBar
-                    titile={false}
-                    content={useSelectedSpaceState.space_content}
-                  />
-                }
+                slotBefore={<ToolBar titile={false} content={useSelectedSpaceState.space_content} />}
                 onUpdate={({ editor }) => {
                   setEditorContent(editor.getHTML());
                 }}
@@ -359,16 +317,10 @@ export default function SpaceContent() {
           <p>스페이스 콘텐츠가 없습니다.</p>
           {useSpaceState &&
             useSelectedSpaceState &&
-            useSpaceState.find(
-              (space) => space.UID === useSelectedSpaceState.UID
-            ) && (
+            useSpaceState.find((space) => space.UID === useSelectedSpaceState.UID) && (
               <>
                 <p>생성하시겠습니까?</p>
-                <button
-                  type="button"
-                  className={`button ${buttonStyles.buttonBlue}`}
-                  onClick={() => setType("create")}
-                >
+                <button type="button" className={`button ${buttonStyles.buttonBlue}`} onClick={() => setType("create")}>
                   생&nbsp;성
                 </button>
               </>
