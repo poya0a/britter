@@ -86,6 +86,10 @@ export async function handleFileUpload(file: Express.Multer.File) {
       },
     };
   } catch (error) {
+    if (error) {
+      throw new Error(error.toString());
+    }
+
     throw new Error("파일 업로드 중 오류가 발생하였습니다.");
   }
 }
