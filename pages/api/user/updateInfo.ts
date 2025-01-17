@@ -20,7 +20,7 @@ export const config = {
 
 const upload = multer({
   storage: multer.memoryStorage(),
-}).single("space_profile");
+}).single("user_profile");
 
 const runMiddleware = (req: NextApiRequest, res: NextApiResponse, fn: any) => {
   return new Promise((resolve, reject) => {
@@ -87,7 +87,10 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
           if (findUser.user_profile_seq) {
             await handleFileDelete(findUser.user_profile_seq);
           }
+
           const saveFile = await handleFileUpload(file);
+
+          if (!saveFile) throw saveFile;
 
           findUser.user_profile_seq = saveFile.data?.seq || 0;
         }

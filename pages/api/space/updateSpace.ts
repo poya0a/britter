@@ -94,6 +94,8 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
           const saveFile = await handleFileUpload(file);
 
+          if (!saveFile) throw saveFile;
+
           space.space_profile_seq = saveFile.data?.seq || 0;
         }
 

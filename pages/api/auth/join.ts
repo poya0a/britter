@@ -229,6 +229,8 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     if (file) {
       const saveFile = await handleFileUpload(file);
 
+      if (!saveFile) throw saveFile;
+
       const { error: profileError } = await supabase
         .from("emps")
         .update({ user_profile_seq: saveFile.data?.seq || 0 })
