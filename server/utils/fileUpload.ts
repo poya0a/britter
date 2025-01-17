@@ -31,6 +31,13 @@ export async function handleFileUpload(file: Express.Multer.File) {
       };
     }
 
+    if (!NEXT_PUBLIC_STORAGE_BUCKET) {
+      return {
+        resultCode: false,
+        message: "파일 업로드 중 오류가 발생하였습니다.",
+      };
+    }
+
     const fileSize = file.size;
     const fileExtension = path.extname(file.originalname).toLowerCase();
     const baseFileName = path.basename(file.originalname, fileExtension);
@@ -43,7 +50,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
     fs.writeFileSync(filePath, file.buffer);
 
     const { error: uploadError } = await supabase.storage
-      .from(NEXT_PUBLIC_STORAGE_BUCKET || "")
+      .from(NEXT_PUBLIC_STORAGE_BUCKET)
       .upload(fileName, fs.readFileSync(filePath), { upsert: true });
 
     if (uploadError) {
@@ -54,7 +61,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
       };
     }
 
-    const { data: publicUrlData } = supabase.storage.from(NEXT_PUBLIC_STORAGE_BUCKET || "").getPublicUrl(filePath);
+    const { data: publicUrlData } = supabase.storage.from(NEXT_PUBLIC_STORAGE_BUCKET).getPublicUrl(filePath);
 
     const newFile = {
       file: file.buffer,

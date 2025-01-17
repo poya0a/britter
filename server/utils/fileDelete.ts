@@ -18,7 +18,7 @@ export async function handleFileDelete(fileSeq: number) {
       .eq("seq", fileSeq)
       .single();
 
-    if (findError) {
+    if (findError || !NEXT_PUBLIC_STORAGE_BUCKET) {
       return {
         resultCode: false,
         message: "파일 정보를 가져오는 중 오류가 발생하였습니다.",
@@ -27,7 +27,7 @@ export async function handleFileDelete(fileSeq: number) {
     }
 
     const { error: storageError } = await supabase.storage
-      .from(NEXT_PUBLIC_STORAGE_BUCKET || "")
+      .from(NEXT_PUBLIC_STORAGE_BUCKET)
       .remove([findFile.file_path]);
 
     if (storageError) {
