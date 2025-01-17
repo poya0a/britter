@@ -40,6 +40,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
     const fileSize = file.size;
     const fileExtension = path.extname(file.originalname).toLowerCase();
     const baseFileName = path.basename(file.originalname, fileExtension);
+    const fileMimeType = file.mimetype;
 
     // 고유 파일명 생성
     const uniqueId = uuidv4();
@@ -47,7 +48,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
 
     const { data: uploadFile, error: uploadError } = await supabase.storage
       .from(NEXT_PUBLIC_STORAGE_BUCKET)
-      .upload(fileName, file.buffer);
+      .upload(fileName, file.buffer, { cacheControl: "3600", contentType: fileMimeType });
 
     if (uploadError) {
       return {

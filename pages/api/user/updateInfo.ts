@@ -18,19 +18,8 @@ export const config = {
   },
 };
 
-// const upload = multer({
-//   storage: multer.memoryStorage(),
-// }).single("space_profile");
-
 const upload = multer({
   storage: multer.memoryStorage(),
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-    } else {
-      cb(null, false);
-    }
-  },
 }).single("space_profile");
 
 const runMiddleware = (req: NextApiRequest, res: NextApiResponse, fn: any) => {

@@ -8,19 +8,8 @@ export interface NextApiRequestWithFile extends NextApiRequest {
   file: Express.Multer.File;
 }
 
-// const upload = multer({
-//   storage: multer.memoryStorage(),
-// }).single("file");
-
 const upload = multer({
   storage: multer.memoryStorage(),
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-    } else {
-      cb(null, false);
-    }
-  },
 }).single("file");
 
 export const config = {
