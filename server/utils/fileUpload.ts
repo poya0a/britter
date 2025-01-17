@@ -50,8 +50,9 @@ export async function handleFileUpload(file: Express.Multer.File) {
     fs.writeFileSync(filePath, file.buffer);
 
     const { data: uploadFile, error: uploadError } = await supabase.storage
-      .from(NEXT_PUBLIC_STORAGE_BUCKET)
-      .upload(fileName, fs.createReadStream(filePath));
+      .from("files")
+      // .upload(fileName, fs.createReadStream(filePath));
+      .upload(fileName, fs.createReadStream(file.buffer));
 
     if (uploadError) {
       return {
@@ -61,7 +62,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
       };
     }
 
-    const { data: publicUrlData } = supabase.storage.from(NEXT_PUBLIC_STORAGE_BUCKET).getPublicUrl(uploadFile.path);
+    const { data: publicUrlData } = supabase.storage.from("files").getPublicUrl(uploadFile.path);
 
     const newFile = {
       file_name: fileName,
