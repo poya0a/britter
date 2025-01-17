@@ -33,7 +33,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
     if (!NEXT_PUBLIC_STORAGE_BUCKET) {
       return {
         resultCode: false,
-        message: "파일 업로드 중 오류가 발생하였습니다.",
+        message: "파일 업로드 중 오류가 발생하였습니다.3",
       };
     }
 
@@ -45,17 +45,19 @@ export async function handleFileUpload(file: Express.Multer.File) {
     const uniqueId = uuidv4();
     const fileName = `${baseFileName}_${uniqueId}${fileExtension}`;
 
-    const { data: uploadFile, error: uploadError } = await supabase.storage.from("files").upload(fileName, file.buffer);
+    const { data: uploadFile, error: uploadError } = await supabase.storage
+      .from(NEXT_PUBLIC_STORAGE_BUCKET)
+      .upload(fileName, file.buffer);
 
     if (uploadError) {
       return {
         resultCode: false,
-        message: "파일 업로드 중 오류가 발생하였습니다.",
+        message: "파일 업로드 중 오류가 발생하였습니다.1",
         error: uploadError,
       };
     }
 
-    const { data: publicUrlData } = supabase.storage.from("files").getPublicUrl(uploadFile.path);
+    const { data: publicUrlData } = supabase.storage.from(NEXT_PUBLIC_STORAGE_BUCKET).getPublicUrl(uploadFile.path);
 
     const newFile = {
       file_name: fileName,
@@ -69,7 +71,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
     if (fileError) {
       return {
         resultCode: false,
-        message: "파일 업로드 중 오류가 발생하였습니다.",
+        message: "파일 업로드 중 오류가 발생하였습니다.2",
         error: fileError,
       };
     }
