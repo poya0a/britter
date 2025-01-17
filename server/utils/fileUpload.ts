@@ -47,7 +47,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
     const fileName = `${baseFileName}_${uniqueId}${fileExtension}`;
     const filePath = path.join("/files/", fileName);
 
-    fs.writeFileSync(filePath, file.buffer);
+    // fs.writeFileSync(filePath, file.buffer);
 
     const { data: uploadFile, error: uploadError } = await supabase.storage
       .from(NEXT_PUBLIC_STORAGE_BUCKET)
@@ -60,9 +60,9 @@ export async function handleFileUpload(file: Express.Multer.File) {
         error: uploadError.message,
       };
     }
-    alert(uploadError);
+
     const { data: publicUrlData } = supabase.storage.from(NEXT_PUBLIC_STORAGE_BUCKET).getPublicUrl(uploadFile.path);
-    alert(publicUrlData);
+
     const newFile = {
       file_name: fileName,
       file_path: publicUrlData.publicUrl,
