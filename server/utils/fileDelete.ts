@@ -1,13 +1,12 @@
 import supabase from "@database/supabase.config";
 import { config } from "dotenv";
 
-config();
-
 /**
  * @param fileSeq
  * @returns
  */
 
+config();
 const { NEXT_PUBLIC_STORAGE_BUCKET } = process.env;
 
 export async function handleFileDelete(fileSeq: number) {
