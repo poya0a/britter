@@ -1,15 +1,14 @@
 import supabase from "@database/supabase.config";
 import { config } from "dotenv";
-import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
-
-config();
 
 /**
  * @param file
  * @returns
  */
+
+config();
 
 const { NEXT_PUBLIC_STORAGE_BUCKET } = process.env;
 
@@ -30,13 +29,13 @@ export async function handleFileUpload(file: Express.Multer.File) {
         message: "파일 크기가 5MB를 초과합니다.",
       };
     }
-    // console.log(NEXT_PUBLIC_STORAGE_BUCKET);
-    // if (!NEXT_PUBLIC_STORAGE_BUCKET) {
-    //   return {
-    //     resultCode: false,
-    //     message: "파일 업로드 중 오류가 발생하였습니다.",
-    //   };
-    // }
+
+    if (!NEXT_PUBLIC_STORAGE_BUCKET) {
+      return {
+        resultCode: false,
+        message: "파일 업로드 중 오류가 발생하였습니다.",
+      };
+    }
 
     const fileSize = file.size;
     const fileExtension = path.extname(file.originalname).toLowerCase();
@@ -86,7 +85,6 @@ export async function handleFileUpload(file: Express.Multer.File) {
       },
     };
   } catch (error) {
-    console.log(error);
     throw new Error("파일 업로드 중 오류가 발생하였습니다.");
   }
 }
