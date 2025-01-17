@@ -7,7 +7,8 @@ import { handleFileUpload } from "@server/utils/fileUpload";
 import { handleFileDelete } from "@server/utils/fileDelete";
 
 type NextApiRequestWithFormData = NextApiRequest &
-  AuthenticatedRequest & {
+  AuthenticatedRequest &
+  Request & {
     file: Express.Multer.File;
   };
 
