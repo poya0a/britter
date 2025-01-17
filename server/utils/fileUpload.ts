@@ -30,13 +30,13 @@ export async function handleFileUpload(file: Express.Multer.File) {
         message: "파일 크기가 5MB를 초과합니다.",
       };
     }
-
-    if (!NEXT_PUBLIC_STORAGE_BUCKET) {
-      return {
-        resultCode: false,
-        message: "파일 업로드 중 오류가 발생하였습니다.",
-      };
-    }
+    // console.log(NEXT_PUBLIC_STORAGE_BUCKET);
+    // if (!NEXT_PUBLIC_STORAGE_BUCKET) {
+    //   return {
+    //     resultCode: false,
+    //     message: "파일 업로드 중 오류가 발생하였습니다.",
+    //   };
+    // }
 
     const fileSize = file.size;
     const fileExtension = path.extname(file.originalname).toLowerCase();
