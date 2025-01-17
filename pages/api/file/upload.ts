@@ -39,7 +39,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await runMiddleware(req, res, upload);
 
       const reqWithFile = req as NextApiRequestWithFile;
+      if (!reqWithFile.file) {
+        return res.status(200).json({
+          message: "파일을 찾을 수 없습니다.",
+          resultCode: false,
+        });
+      }
       const saveFile = await handleFileUpload(reqWithFile.file);
+
+      if (!reqWithFile.file) {
+        return res.status(200).json({
+          message: saveFile.message,
+          resultCode: false,
+        });
+      }
 
       if (saveFile.data) {
         return res.status(200).json({
