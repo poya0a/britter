@@ -351,7 +351,7 @@ export default function SearchPopup() {
                           onClick={() => handleGoToSpace(space.UID)}
                         >
                           {space.space_profile_path && space.space_profile_path !== "" ? (
-                            <Image src={space.space_profile_path} alt="profile" width={30} height={30} />
+                            <img src={space.space_profile_path} alt="profile" width={30} height={30} />
                           ) : (
                             <i className="normal">{space.space_name.charAt(0)}</i>
                           )}
@@ -448,7 +448,7 @@ export default function SearchPopup() {
                           onClick={() => handleViewUser(user.UID)}
                         >
                           {user.user_profile_path && user.user_profile_path !== "" ? (
-                            <Image src={user.user_profile_path} alt="profile" width={30} height={30} />
+                            <img src={user.user_profile_path} alt="profile" width={30} height={30} />
                           ) : (
                             <i className="normal">{user.user_name.charAt(0)}</i>
                           )}

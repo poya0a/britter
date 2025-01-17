@@ -19,8 +19,7 @@ import { usePostFolderPopupStore } from "@stores/popup/usePostFolderPopupStore";
 import Image from "next/image";
 
 export default function MainMenu() {
-  const { useMainMenuWidthState, handleMainMenuWidth } =
-    useMainMenuWidthStore();
+  const { useMainMenuWidthState, handleMainMenuWidth } = useMainMenuWidthStore();
   const nodeRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const router = useRouter();
@@ -28,12 +27,10 @@ export default function MainMenu() {
   const { toggleRouteAlert } = useRouteAlertStore();
   const { toggleFnAndCancelAlert } = useFnAndCancelAlertStore();
   const { toggleSearchPopup } = useSearchPopupStore();
-  const { usePostFolderPopupState, togglePostFolderPopup } =
-    usePostFolderPopupStore();
+  const { usePostFolderPopupState, togglePostFolderPopup } = usePostFolderPopupStore();
   const { useInfoState } = useInfoStore();
   const { useSpaceState, useSelectedSpaceState, fetchSpace } = useSpaceStore();
-  const { usePostListState, pageSeq, setPageSeq, setType, deletePost } =
-    usePostStore();
+  const { usePostListState, pageSeq, setPageSeq, setType, deletePost } = usePostStore();
   const { postNotification, postLeaveNotification } = useNotificationStore();
   const { unreadMessageCount } = useMessageStore();
   const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
@@ -52,9 +49,7 @@ export default function MainMenu() {
   const { toggleSpaceSettingPopup } = useSpaceSettingPopupStore();
   let startX: number, startWidth: number;
 
-  const handleMouseDown = (
-    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
-  ) => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     e.preventDefault();
     startX = "clientX" in e ? e.clientX : e.touches[0].clientX;
     startWidth = nodeRef.current!.offsetWidth;
@@ -71,9 +66,7 @@ export default function MainMenu() {
     const currentX = "clientX" in e ? e.clientX : e.touches[0].clientX;
     const dx = currentX - startX + 230;
     const newWidth = startWidth + dx;
-    handleMainMenuWidth(
-      Math.min(Math.max(newWidth, 200), window.innerWidth / 2)
-    );
+    handleMainMenuWidth(Math.min(Math.max(newWidth, 200), window.innerWidth / 2));
   };
 
   const handleMouseUp = () => {
@@ -91,9 +84,7 @@ export default function MainMenu() {
 
   // 기타 메뉴 클릭 이벤트
   const handleToggleOtherMenu = (
-    e:
-      | React.MouseEvent<HTMLButtonElement>
-      | React.TouchEvent<HTMLButtonElement>,
+    e: React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>,
     seq: string
   ) => {
     const target = e.target as HTMLElement;
@@ -135,24 +126,14 @@ export default function MainMenu() {
       <div style={{ paddingLeft: depth * 5 + "px" }}>
         <ul className={`list ${styles.pageList}`}>
           {subPages.map((post: PostListData, idx: number) => (
-            <li
-              className={`list ${styles.pageItem}`}
-              key={`post-sub${depth}-${idx}`}
-            >
-              <div
-                className={`button ${styles.pageWrapper} ${
-                  otherMenuPopup.seq === post.seq ? styles.active : ""
-                }`}
-              >
+            <li className={`list ${styles.pageItem}`} key={`post-sub${depth}-${idx}`}>
+              <div className={`button ${styles.pageWrapper} ${otherMenuPopup.seq === post.seq ? styles.active : ""}`}>
                 <button
                   type="button"
                   className={`button ${styles.pageButton} 
                   ${
                     pageSeq.seq === post.seq ||
-                    (pageSeq.seq === "" &&
-                      post.subPost?.find(
-                        (sub: PostListData) => sub.p_seq === pageSeq.pSeq
-                      )) ||
+                    (pageSeq.seq === "" && post.subPost?.find((sub: PostListData) => sub.p_seq === pageSeq.pSeq)) ||
                     otherMenuPopup.seq === post.seq
                       ? styles.active
                       : ""
@@ -160,39 +141,25 @@ export default function MainMenu() {
                   onClick={() => handleView(post.seq)}
                 >
                   <img
-                    src={
-                      post.subPost && post.subPost.length > 0
-                        ? "/images/icon/folder.svg"
-                        : "/images/icon/file.svg"
-                    }
+                    src={post.subPost && post.subPost.length > 0 ? "/images/icon/folder.svg" : "/images/icon/file.svg"}
                     alt=""
                   />
                   <em className="normal">{post.title}</em>
                 </button>
                 <button
                   type="button"
-                  className={`button ${styles.pageMoreButton}${
-                    otherMenuPopup.seq === post.seq ? styles.active : ""
-                  }`}
+                  className={`button ${styles.pageMoreButton}${otherMenuPopup.seq === post.seq ? styles.active : ""}`}
                   ref={otherMenuRef}
                   onClick={(e) => handleToggleOtherMenu(e, post.seq)}
                 >
-                  <img
-                    src="/images/icon/more.svg"
-                    alt="이동, 복사, 삭제 등"
-                    title="이동, 복사, 삭제 등"
-                  />
+                  <img src="/images/icon/more.svg" alt="이동, 복사, 삭제 등" title="이동, 복사, 삭제 등" />
                 </button>
                 <button
                   type="button"
                   className={`button ${styles.pageAddOneDepth}`}
                   onClick={() => handleCreate(post.seq)}
                 >
-                  <img
-                    src="/images/icon/add.svg"
-                    alt="하위 페이지 추가"
-                    title="하위 페이지 추가"
-                  />
+                  <img src="/images/icon/add.svg" alt="하위 페이지 추가" title="하위 페이지 추가" />
                 </button>
               </div>
               {post.subPost &&
@@ -252,11 +219,7 @@ export default function MainMenu() {
     }
   };
 
-  const handleRequest = async (
-    spaceUid: string,
-    notifyUID?: string,
-    response?: boolean
-  ) => {
+  const handleRequest = async (spaceUid: string, notifyUID?: string, response?: boolean) => {
     const maxSpace = useInfoState.user_level === 1 && useSpaceState.length > 2;
     if (maxSpace) {
       return toggleAlert("최대 참여할 수 있는 스페이스는 3개입니다.");
@@ -287,9 +250,7 @@ export default function MainMenu() {
   const handleDeletePost = () => {
     let content = "삭제하시겠습니까?";
 
-    const subPost = usePostListState.find(
-      (post) => post.seq === otherMenuPopup.seq
-    )?.subPost;
+    const subPost = usePostListState.find((post) => post.seq === otherMenuPopup.seq)?.subPost;
     if (subPost && subPost.length > 0) {
       content = "하위 게시글도 함께 삭제됩니다. 삭제하시겠습니까?";
     }
@@ -308,16 +269,12 @@ export default function MainMenu() {
     const handleClickOutsideSettingMenu = (e: MouseEvent | TouchEvent) => {
       const target = e.target as HTMLElement;
       if (!target.closest) return;
-      const closestIgnoreElement = target.closest(
-        "[data-ignore-outside-click]"
-      );
+      const closestIgnoreElement = target.closest("[data-ignore-outside-click]");
 
       if (
         settingMenuRef.current &&
         !settingMenuRef.current.contains(target) &&
-        (!closestIgnoreElement ||
-          closestIgnoreElement.getAttribute("data-ignore-outside-click") !==
-            "true")
+        (!closestIgnoreElement || closestIgnoreElement.getAttribute("data-ignore-outside-click") !== "true")
       ) {
         toggleSettingMenu(false);
       }
@@ -335,16 +292,12 @@ export default function MainMenu() {
     const handleClickOutsideOtherMenu = (e: MouseEvent | TouchEvent) => {
       const target = e.target as HTMLElement;
       if (!target.closest) return;
-      const closestIgnoreElement = target.closest(
-        "[data-ignore-outside-click]"
-      );
+      const closestIgnoreElement = target.closest("[data-ignore-outside-click]");
 
       if (
         otherMenuRef.current &&
         !otherMenuRef.current.contains(target) &&
-        (!closestIgnoreElement ||
-          closestIgnoreElement.getAttribute("data-ignore-outside-click") !==
-            "true") &&
+        (!closestIgnoreElement || closestIgnoreElement.getAttribute("data-ignore-outside-click") !== "true") &&
         !usePostFolderPopupState.isActOpen
       ) {
         setOtherMenuPopup({ top: 0, left: 0, seq: null });
@@ -359,77 +312,45 @@ export default function MainMenu() {
   }, [usePostFolderPopupState]);
 
   return (
-    <div
-      style={{ width: `${useMainMenuWidthState}px` }}
-      className={styles.mainMenu}
-    >
+    <div style={{ width: `${useMainMenuWidthState}px` }} className={styles.mainMenu}>
       <div className={styles.mainMenuWrapper}>
         <div className={styles.mainMenuFixed}>
           <div className={styles.pageNameButtonWrapper}>
             <button
               type="button"
-              className={`button ${styles.pageNameButton} ${
-                useSettingMenuState.isActOpen ? styles.active : ""
-              }`}
+              className={`button ${styles.pageNameButton} ${useSettingMenuState.isActOpen ? styles.active : ""}`}
               ref={settingMenuRef}
               onClick={handleSetting}
             >
               {useInfoState.user_profile_path ? (
-                <Image
-                  src={useInfoState.user_profile_path}
-                  alt="profile"
-                  width={30}
-                  height={30}
-                />
+                <img src={useInfoState.user_profile_path} alt="profile" width={30} height={30} />
               ) : (
                 <i className="normal">{useInfoState.user_name.charAt(0)}</i>
               )}
 
               <em className="normal">{useInfoState.user_name}</em>
             </button>
-            {useSpaceState.find(
-              (space) => space.UID === useSelectedSpaceState.UID
-            ) && (
-              <button
-                type="button"
-                className={`button ${styles.pageAddButton}`}
-                onClick={() => handleCreate()}
-              >
+            {useSpaceState.find((space) => space.UID === useSelectedSpaceState.UID) && (
+              <button type="button" className={`button ${styles.pageAddButton}`} onClick={() => handleCreate()}>
                 <img src="/images/icon/write.svg" alt="" />
               </button>
             )}
           </div>
-          <button
-            type="button"
-            className={`button ${styles.mainMenuDefault}`}
-            onClick={() => router.push("/")}
-          >
+          <button type="button" className={`button ${styles.mainMenuDefault}`} onClick={() => router.push("/")}>
             <img src="/images/icon/home.svg" alt="" />
             <em className="normal">홈</em>
           </button>
-          <button
-            type="button"
-            className={`button ${styles.mainMenuDefault}`}
-            onClick={handleSearch}
-          >
+          <button type="button" className={`button ${styles.mainMenuDefault}`} onClick={handleSearch}>
             <img src="/images/icon/search.svg" alt="" />
             <em className="normal">검색</em>
           </button>
-          <button
-            type="button"
-            className={`button ${styles.mainMenuDefault}`}
-            onClick={() => router.push("/inbox")}
-          >
+          <button type="button" className={`button ${styles.mainMenuDefault}`} onClick={() => router.push("/inbox")}>
             <img src="/images/icon/inbox.svg" alt="" />
             <em className="normal">수신함</em>
-            {unreadMessageCount && (
-              <i className={styles.messageCount}>{unreadMessageCount}</i>
-            )}
+            {unreadMessageCount && <i className={styles.messageCount}>{unreadMessageCount}</i>}
           </button>
           {useSelectedSpaceState &&
-            (useSpaceState
-              .map((space) => space.UID)
-              .includes(useSelectedSpaceState.UID) ? (
+            (useSpaceState.map((space) => space.UID).includes(useSelectedSpaceState.UID) ? (
               useSelectedSpaceState.space_manager === useInfoState.UID ? (
                 <button
                   type="button"
@@ -445,49 +366,31 @@ export default function MainMenu() {
                   <em className="normal">설정과 멤버</em>
                 </button>
               ) : (
-                <button
-                  type="button"
-                  className={`button ${styles.mainMenuDefault}`}
-                >
+                <button type="button" className={`button ${styles.mainMenuDefault}`}>
                   <img src="/images/icon/exit.svg" alt="" />
-                  <em
-                    className="normal"
-                    onClick={() => handleExit(useSelectedSpaceState.UID)}
-                  >
+                  <em className="normal" onClick={() => handleExit(useSelectedSpaceState.UID)}>
                     스페이스 나가기
                   </em>
                 </button>
               )
-            ) : useSelectedSpaceState.notify &&
-              useSelectedSpaceState.notify.notifyType === "participation" ? (
+            ) : useSelectedSpaceState.notify && useSelectedSpaceState.notify.notifyType === "participation" ? (
               <button
                 type="button"
                 className={`button ${styles.mainMenuDefault}`}
                 style={{ lineHeight: "20px" }}
-                onClick={() =>
-                  handleRequest(
-                    useSelectedSpaceState.UID,
-                    useSelectedSpaceState.notify?.notifyUID,
-                    false
-                  )
-                }
+                onClick={() => handleRequest(useSelectedSpaceState.UID, useSelectedSpaceState.notify?.notifyUID, false)}
               >
                 <img src="/images/icon/emoji_sad.svg" alt="" />
                 <em className="normal">스페이스 참여 취소</em>
               </button>
-            ) : useSelectedSpaceState.notify &&
-              useSelectedSpaceState.notify.notifyType === "invite" ? (
+            ) : useSelectedSpaceState.notify && useSelectedSpaceState.notify.notifyType === "invite" ? (
               <>
                 <button
                   type="button"
                   className={`button ${styles.mainMenuDefault}`}
                   style={{ lineHeight: "20px" }}
                   onClick={() =>
-                    handleRequest(
-                      useSelectedSpaceState.UID,
-                      useSelectedSpaceState.notify?.notifyUID,
-                      true
-                    )
+                    handleRequest(useSelectedSpaceState.UID, useSelectedSpaceState.notify?.notifyUID, true)
                   }
                 >
                   <img src="/images/icon/emoji_smile.svg" alt="" />
@@ -498,11 +401,7 @@ export default function MainMenu() {
                   className={`button ${styles.mainMenuDefault}`}
                   style={{ lineHeight: "20px" }}
                   onClick={() =>
-                    handleRequest(
-                      useSelectedSpaceState.UID,
-                      useSelectedSpaceState.notify?.notifyUID,
-                      false
-                    )
+                    handleRequest(useSelectedSpaceState.UID, useSelectedSpaceState.notify?.notifyUID, false)
                   }
                 >
                   <img src="/images/icon/emoji_sad.svg" alt="" />
@@ -533,8 +432,7 @@ export default function MainMenu() {
                   <button
                     type="button"
                     className={`button ${styles.pageButton} ${
-                      (pageSeq.seq === post.seq && pageSeq.pSeq === "") ||
-                      otherMenuPopup.seq === post.seq
+                      (pageSeq.seq === post.seq && pageSeq.pSeq === "") || otherMenuPopup.seq === post.seq
                         ? styles.active
                         : ""
                     }`}
@@ -542,9 +440,7 @@ export default function MainMenu() {
                   >
                     <img
                       src={
-                        post.subPost && post.subPost.length > 0
-                          ? "/images/icon/folder.svg"
-                          : "/images/icon/file.svg"
+                        post.subPost && post.subPost.length > 0 ? "/images/icon/folder.svg" : "/images/icon/file.svg"
                       }
                       alt=""
                     />
@@ -558,22 +454,14 @@ export default function MainMenu() {
                     ref={otherMenuRef}
                     onClick={(e) => handleToggleOtherMenu(e, post.seq)}
                   >
-                    <img
-                      src="/images/icon/more.svg"
-                      alt="이동, 복사, 삭제 등"
-                      title="이동, 복사, 삭제 등"
-                    />
+                    <img src="/images/icon/more.svg" alt="이동, 복사, 삭제 등" title="이동, 복사, 삭제 등" />
                   </button>
                   <button
                     type="button"
                     className={`button ${styles.pageAddOneDepth}`}
                     onClick={() => handleCreate(post.seq)}
                   >
-                    <img
-                      src="/images/icon/add.svg"
-                      alt="하위 페이지 추가"
-                      title="하위 페이지 추가"
-                    />
+                    <img src="/images/icon/add.svg" alt="하위 페이지 추가" title="하위 페이지 추가" />
                   </button>
                 </div>
                 {post.subPost &&
@@ -601,18 +489,10 @@ export default function MainMenu() {
           }}
           data-ignore-outside-click
         >
-          <button
-            type="button"
-            className="button"
-            onClick={() => handleMoveAndCopyPost("move")}
-          >
+          <button type="button" className="button" onClick={() => handleMoveAndCopyPost("move")}>
             이동
           </button>
-          <button
-            type="button"
-            className="button"
-            onClick={() => handleMoveAndCopyPost("copy")}
-          >
+          <button type="button" className="button" onClick={() => handleMoveAndCopyPost("copy")}>
             복사
           </button>
           <button type="button" className="button" onClick={handleDeletePost}>

@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest & AuthenticatedRequest
       try {
         const { data, error } = await supabase
           .from("file")
-          .select("file_name")
+          .select("file_path")
           .eq("seq", parseInt(seqParam, 10))
           .single();
 
@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest & AuthenticatedRequest
         return res.status(200).json({
           message: "파일 조회 완료했습니다.",
           data: {
-            file_name: `/storage/v1/s3/${data.file_name}`,
+            file_path: data.file_path,
           },
           resultCode: true,
         });

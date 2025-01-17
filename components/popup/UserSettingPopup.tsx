@@ -15,14 +15,7 @@ import { useFnAlertStore } from "@stores/popup/useFnAlertStore";
 import { useAlertStore } from "@stores/popup/useAlertStore";
 import { useRouteAlertStore } from "@stores/popup/useRouteAlertStore";
 import PhoneNumberInput from "../input/PhoneNumberInput";
-import {
-  regexValue,
-  birthPattern,
-  onlyNumPattern,
-  phonePattern,
-  emailPattern,
-  passwordPattern,
-} from "@utils/regex";
+import { regexValue, birthPattern, onlyNumPattern, phonePattern, emailPattern, passwordPattern } from "@utils/regex";
 import { getErrorMassage, getValidMassage } from "@utils/errorMessage";
 import { useVerifyStore } from "@stores/auth/useVerifyStore";
 import { ErrorMessage } from "@hookform/error-message";
@@ -48,12 +41,7 @@ export default function UserSettingPopup() {
   const userProfileRef = useRef<HTMLDivElement>(null);
   const { toggleUserSettingPopup } = useUserSettingPopupStore();
   const { useInfoState, updateInfo, fetchInfo } = useInfoStore();
-  const {
-    useImageCropState,
-    setImageCustom,
-    setImageSource,
-    reset: imageReset,
-  } = useImageCropStore();
+  const { useImageCropState, setImageCustom, setImageSource, reset: imageReset } = useImageCropStore();
   const imgUploadInput = useRef<HTMLInputElement | null>(null);
   const { isLocked, toggleScrollLock } = useScrollLockStore();
   const { useVerifyState, toggleVerify } = useVerifyStore();
@@ -231,10 +219,7 @@ export default function UserSettingPopup() {
   }, [watch("user_hp"), trigger]);
 
   useEffect(() => {
-    setValue(
-      "verify_number",
-      regexValue(onlyNumPattern, watch("verify_number"))
-    );
+    setValue("verify_number", regexValue(onlyNumPattern, watch("verify_number")));
   }, [watch("verify_number"), trigger]);
 
   useEffect(() => {
@@ -271,9 +256,7 @@ export default function UserSettingPopup() {
             clearErrors("user_email");
           } else {
             const errorData = await res.json();
-            toggleAlert(
-              errorData.message || "서버와의 통신에 문제가 발생했습니다."
-            );
+            toggleAlert(errorData.message || "서버와의 통신에 문제가 발생했습니다.");
           }
         } catch (error) {
           toggleAlert("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
@@ -287,16 +270,12 @@ export default function UserSettingPopup() {
     const handleClickOutsideEmojiPopup = (e: MouseEvent | TouchEvent) => {
       const target = e.target as HTMLElement;
       if (!target.closest) return;
-      const closestIgnoreElement = target.closest(
-        "[data-ignore-outside-click]"
-      );
+      const closestIgnoreElement = target.closest("[data-ignore-outside-click]");
 
       if (
         emojiPickerRef.current &&
         !emojiPickerRef.current.contains(target) &&
-        (!closestIgnoreElement ||
-          closestIgnoreElement.getAttribute("data-ignore-outside-click") !==
-            "true")
+        (!closestIgnoreElement || closestIgnoreElement.getAttribute("data-ignore-outside-click") !== "true")
       ) {
         setEmojiPopup({
           isActOpen: false,
@@ -317,15 +296,11 @@ export default function UserSettingPopup() {
     if (!emojiPickerRef.current) return;
 
     const target = e.target as HTMLElement;
-    const closestIgnoreElement = target.closest?.(
-      "[data-ignore-outside-click]"
-    );
+    const closestIgnoreElement = target.closest?.("[data-ignore-outside-click]");
 
     if (
       !emojiPickerRef.current.contains(target) &&
-      (!closestIgnoreElement ||
-        closestIgnoreElement.getAttribute("data-ignore-outside-click") !==
-          "true")
+      (!closestIgnoreElement || closestIgnoreElement.getAttribute("data-ignore-outside-click") !== "true")
     ) {
       setEmojiPopup({
         isActOpen: false,
@@ -352,11 +327,7 @@ export default function UserSettingPopup() {
     const userPwConfirm = getValues("user_pw_check");
     const passwordField = ["user_original_pw", "user_pw", "user_pw_check"];
 
-    if (
-      Object.keys(errors).filter((fieldName) =>
-        passwordField.includes(fieldName)
-      ).length > 0
-    ) {
+    if (Object.keys(errors).filter((fieldName) => passwordField.includes(fieldName)).length > 0) {
       Object.keys(errors)
         .filter((fieldName) => passwordField.includes(fieldName))
         .forEach((fieldName) => {
@@ -427,10 +398,7 @@ export default function UserSettingPopup() {
     const userHp = getValues("user_hp");
     const hpField = ["user_hp", "verify_number"];
 
-    if (
-      Object.keys(errors).filter((fieldName) => hpField.includes(fieldName))
-        .length > 0
-    ) {
+    if (Object.keys(errors).filter((fieldName) => hpField.includes(fieldName)).length > 0) {
       Object.keys(errors)
         .filter((fieldName) => hpField.includes(fieldName))
         .forEach((fieldName) => {
@@ -546,17 +514,12 @@ export default function UserSettingPopup() {
   const handleWithdraw = () => {
     const userWithdrawPw = getValues("user_withdraw_pw");
 
-    if (
-      !userWithdrawPw ||
-      userWithdrawPw === "" ||
-      userWithdrawPw === undefined
-    ) {
+    if (!userWithdrawPw || userWithdrawPw === "" || userWithdrawPw === undefined) {
       toggleAlert("회원 탈퇴를 위해 비밀번호를 입력해 주세요.");
     } else {
       toggleFnAndCancelAlert({
         isActOpen: true,
-        content:
-          "매니저 권한의 스페이스와 작성한 게시글 및 모든 정보가 삭제됩니다. 탈퇴하시겠습니까?",
+        content: "매니저 권한의 스페이스와 작성한 게시글 및 모든 정보가 삭제됩니다. 탈퇴하시겠습니까?",
         fn: withdrawUserInfo,
       });
     }
@@ -586,22 +549,12 @@ export default function UserSettingPopup() {
   const handleUpdate = () => {
     const changed = changeValueCheck();
     const emailValue = getValues("user_email");
-    const ignore = [
-      "user_original_pw",
-      "user_pw",
-      "user_pw_check",
-      "user_hp",
-      "verify_number",
-      "user_withdraw_pw",
-    ];
+    const ignore = ["user_original_pw", "user_pw", "user_pw_check", "user_hp", "verify_number", "user_withdraw_pw"];
 
     if (!changed) {
       toggleAlert("수정된 정보가 없습니다.");
     } // 유효성 에러
-    else if (
-      Object.keys(errors).filter((fieldName) => !ignore.includes(fieldName))
-        .length > 0
-    ) {
+    else if (Object.keys(errors).filter((fieldName) => !ignore.includes(fieldName)).length > 0) {
       Object.keys(errors)
         .filter((fieldName) => !ignore.includes(fieldName))
         .forEach((fieldName) => {
@@ -610,11 +563,7 @@ export default function UserSettingPopup() {
             message: getValidMassage(fieldName),
           });
         });
-    } else if (
-      emailValue &&
-      emailValue !== useInfoState.user_email &&
-      !dupleCheck
-    ) {
+    } else if (emailValue && emailValue !== useInfoState.user_email && !dupleCheck) {
       setError("user_email", {
         type: "custom",
         message: "이메일 중복을 확인해 주세요.",
@@ -706,18 +655,10 @@ export default function UserSettingPopup() {
             <div className={styles.profile} ref={userProfileRef}>
               <div className={styles.profileWrapper}>
                 <div className={inputStyles.profile}>
-                  {useImageCropState.imageSource !== null &&
-                  useImageCropState.imageSource !== "" ? (
-                    <Image
-                      src={useImageCropState.imageSource as string}
-                      alt="profile"
-                      width={120}
-                      height={120}
-                    />
+                  {useImageCropState.imageSource !== null && useImageCropState.imageSource !== "" ? (
+                    <img src={useImageCropState.imageSource as string} alt="profile" width={120} height={120} />
                   ) : (
-                    <i className="normal">
-                      {useInfoState?.user_name.charAt(0)}
-                    </i>
+                    <i className="normal">{useInfoState?.user_name.charAt(0)}</i>
                   )}
                   <input
                     type="file"
@@ -726,8 +667,7 @@ export default function UserSettingPopup() {
                     style={{ display: "none" }}
                     onChange={handleFileChange}
                     onClick={() => {
-                      if (imgUploadInput.current)
-                        imgUploadInput.current.value = "";
+                      if (imgUploadInput.current) imgUploadInput.current.value = "";
                     }}
                     multiple
                   />
@@ -761,8 +701,7 @@ export default function UserSettingPopup() {
                           required: true,
                           pattern: {
                             value: passwordPattern,
-                            message:
-                              "영문, 숫자 포함 8자리 이상 50자 이하 입력해 주세요.",
+                            message: "영문, 숫자 포함 8자리 이상 50자 이하 입력해 주세요.",
                           },
                         }),
                       }}
@@ -770,9 +709,7 @@ export default function UserSettingPopup() {
                     <ErrorMessage
                       errors={errors}
                       name="user_original_pw"
-                      render={({ message }) => (
-                        <p className={inputStyles.errorMessage}>{message}</p>
-                      )}
+                      render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
                     />
                     <PasswordInput
                       id="userPw"
@@ -784,8 +721,7 @@ export default function UserSettingPopup() {
                           required: true,
                           pattern: {
                             value: passwordPattern,
-                            message:
-                              "영문, 숫자 포함 8자리 이상 50자 이하 입력해 주세요.",
+                            message: "영문, 숫자 포함 8자리 이상 50자 이하 입력해 주세요.",
                           },
                         }),
                       }}
@@ -793,9 +729,7 @@ export default function UserSettingPopup() {
                     <ErrorMessage
                       errors={errors}
                       name="user_pw"
-                      render={({ message }) => (
-                        <p className={inputStyles.errorMessage}>{message}</p>
-                      )}
+                      render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
                     />
                     <PasswordInput
                       id="userPwConfirm"
@@ -806,8 +740,7 @@ export default function UserSettingPopup() {
                           required: true,
                           pattern: {
                             value: passwordPattern,
-                            message:
-                              "영문, 숫자 포함 8자리 이상 50자 이하 입력해 주세요.",
+                            message: "영문, 숫자 포함 8자리 이상 50자 이하 입력해 주세요.",
                           },
                           validate: (value) => {
                             const passwordValue = getValues("user_pw");
@@ -823,9 +756,7 @@ export default function UserSettingPopup() {
                     <ErrorMessage
                       errors={errors}
                       name="user_pw_check"
-                      render={({ message }) => (
-                        <p className={inputStyles.errorMessage}>{message}</p>
-                      )}
+                      render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
                     />
                   </div>
                 )}
@@ -859,9 +790,7 @@ export default function UserSettingPopup() {
                   <ErrorMessage
                     errors={errors}
                     name="user_name"
-                    render={({ message }) => (
-                      <p className={inputStyles.errorMessage}>{message}</p>
-                    )}
+                    render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
                   />
                 </div>
               </div>
@@ -879,8 +808,7 @@ export default function UserSettingPopup() {
                           required: true,
                           pattern: {
                             value: phonePattern,
-                            message:
-                              "잘못된 휴대 전화 번호입니다. 확인 후 다시 입력해 주세요.",
+                            message: "잘못된 휴대 전화 번호입니다. 확인 후 다시 입력해 주세요.",
                           },
                         }),
                       }}
@@ -928,20 +856,14 @@ export default function UserSettingPopup() {
                         },
                       })}
                     />
-                    <button
-                      type="button"
-                      className="button"
-                      onClick={handleDupleCheck}
-                    >
+                    <button type="button" className="button" onClick={handleDupleCheck}>
                       중복 확인
                     </button>
                   </div>
                   <ErrorMessage
                     errors={errors}
                     name="user_email"
-                    render={({ message }) => (
-                      <p className={inputStyles.errorMessage}>{message}</p>
-                    )}
+                    render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
                   />
                 </div>
               </div>
@@ -965,9 +887,7 @@ export default function UserSettingPopup() {
                   <ErrorMessage
                     errors={errors}
                     name="user_birth"
-                    render={({ message }) => (
-                      <p className={inputStyles.errorMessage}>{message}</p>
-                    )}
+                    render={({ message }) => <p className={inputStyles.errorMessage}>{message}</p>}
                   />
                 </div>
               </div>
@@ -1005,9 +925,7 @@ export default function UserSettingPopup() {
                 <p>공개 설정</p>
                 <button
                   type="button"
-                  className={`button ${buttonStyles.toggleButton} ${
-                    userPublic ? "" : buttonStyles.disabled
-                  }`}
+                  className={`button ${buttonStyles.toggleButton} ${userPublic ? "" : buttonStyles.disabled}`}
                   title="공개 설정"
                   onClick={() => setUserPublic(!userPublic)}
                 />
@@ -1052,35 +970,29 @@ export default function UserSettingPopup() {
             >
               취소
             </button>
-            <button
-              type="button"
-              className={`button ${buttonStyles.buttonBlue}`}
-              onClick={handleUpdate}
-            >
+            <button type="button" className={`button ${buttonStyles.buttonBlue}`} onClick={handleUpdate}>
               저장
             </button>
           </div>
         </div>
       </div>
       {isLocked && <ImageCropInput />}
-      {emojiPopup.isActOpen &&
-        emojiPopup.position.top !== 0 &&
-        emojiPopup.position.left !== 0 && (
-          <div
-            className={styles.emojiPickerWrapper}
-            style={{
-              top: emojiPopup.position.top,
-              left: emojiPopup.position.left,
-            }}
-            data-ignore-outside-click
-          >
-            <EmojiPicker
-              // previewConfig={{ defaultEmoji: statusEmoji }}
-              onEmojiClick={(e) => setStatusEmoji(e.emoji)}
-              autoFocusSearch
-            />
-          </div>
-        )}
+      {emojiPopup.isActOpen && emojiPopup.position.top !== 0 && emojiPopup.position.left !== 0 && (
+        <div
+          className={styles.emojiPickerWrapper}
+          style={{
+            top: emojiPopup.position.top,
+            left: emojiPopup.position.left,
+          }}
+          data-ignore-outside-click
+        >
+          <EmojiPicker
+            // previewConfig={{ defaultEmoji: statusEmoji }}
+            onEmojiClick={(e) => setStatusEmoji(e.emoji)}
+            autoFocusSearch
+          />
+        </div>
+      )}
     </>
   );
 }

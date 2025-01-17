@@ -62,6 +62,7 @@ export async function handleFileUpload(file: Express.Multer.File) {
 
     const newFile = {
       file_name: fileName,
+      file_path: publicUrlData.publicUrl,
       file_size: fileSize.toString(),
       file_extension: fileExtension,
     };
@@ -76,14 +77,14 @@ export async function handleFileUpload(file: Express.Multer.File) {
       };
     }
 
-    const { data } = await supabase.from("file").select("*").eq("file_name", newFile.file_name).single();
+    const { data } = await supabase.from("file").select("*").eq("file_path", newFile.file_path).single();
 
     return {
       resultCode: true,
       message: "파일 업로드가 완료되었습니다.",
       data: {
         seq: data.seq,
-        path: data.file_name,
+        path: data.file_path,
       },
     };
   } catch (error) {

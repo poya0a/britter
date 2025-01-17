@@ -423,7 +423,7 @@ export default function Join() {
       <form>
         <div className={styles.joinWrapper}>
           <div className={inputStyles.profile}>
-            <Image
+            <img
               src={useImageCropState.imageSource !== null ? (useImageCropState.imageSource as string) : profile}
               alt="profile"
               width={120}

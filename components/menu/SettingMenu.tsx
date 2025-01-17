@@ -58,7 +58,7 @@ export default function SettingMenu() {
           >
             <div className={styles.spaceProfile}>
               {space.space_profile_path ? (
-                <Image src={space.space_profile_path} alt="profile" width={30} height={30} />
+                <img src={space.space_profile_path} alt="profile" width={30} height={30} />
               ) : (
                 <i className="normal">{space.space_name.charAt(0)}</i>
               )}

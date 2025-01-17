@@ -8,34 +8,28 @@ import inputStyles from "@styles/components/_input.module.scss";
 import Image from "next/image";
 
 export default function UserViewPopup() {
-  const { useUserViewPopupState, toggleUserViewPopup } =
-    useUserViewPopupStore();
+  const { useUserViewPopupState, toggleUserViewPopup } = useUserViewPopupStore();
   const { toggleUserSettingPopup } = useUserSettingPopupStore();
   const { useInfoState } = useInfoStore();
   const { toggleMessagePopup } = useMessagePopupStore();
 
   return (
     <div className={styles.popup}>
-      <div
-        className={styles.dim}
-        onClick={() => toggleUserViewPopup({ isActOpen: false })}
-      />
+      <div className={styles.dim} onClick={() => toggleUserViewPopup({ isActOpen: false })} />
       <div className={styles.popupWrapper}>
         <div className={styles.profile}>
           <div className={styles.settingMenu}>
             <div className={inputStyles.profile}>
               {useUserViewPopupState.user?.user_profile_path !== null &&
               useUserViewPopupState.user?.user_profile_path !== "" ? (
-                <Image
+                <img
                   src={useUserViewPopupState.user?.user_profile_path as string}
                   alt="profile"
                   width={120}
                   height={120}
                 />
               ) : (
-                <i className="normal">
-                  {useUserViewPopupState.user.user_name.charAt(0)}
-                </i>
+                <i className="normal">{useUserViewPopupState.user.user_name.charAt(0)}</i>
               )}
             </div>
           </div>
@@ -60,8 +54,7 @@ export default function UserViewPopup() {
               <p>{useUserViewPopupState.user?.user_birth}</p>
             </div>
           )}
-          {(useUserViewPopupState.user?.status_emoji ||
-            useUserViewPopupState.user?.status_message) && (
+          {(useUserViewPopupState.user?.status_emoji || useUserViewPopupState.user?.status_message) && (
             <div className={styles.profileItem}>
               <strong>상태</strong>
               <p>{useUserViewPopupState.user?.status_emoji}</p>

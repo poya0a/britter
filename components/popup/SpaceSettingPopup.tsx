@@ -1,22 +1,11 @@
-import {
-  ChangeEvent,
-  useEffect,
-  useRef,
-  useState,
-  KeyboardEvent,
-  useCallback,
-} from "react";
+import { ChangeEvent, useEffect, useRef, useState, KeyboardEvent, useCallback } from "react";
 import fetchApi from "@fetch/fetch";
 import requests from "@fetch/requests";
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
 import { useSpaceSettingPopupStore } from "@stores/popup/useSpaceSettingPopupStore";
-import {
-  SpaceData,
-  SpaceMemberData,
-  useSpaceStore,
-} from "@stores/user/useSpaceStore";
+import { SpaceData, SpaceMemberData, useSpaceStore } from "@stores/user/useSpaceStore";
 import { useSearchStore } from "@stores/useSearchStore";
 import { useNotificationStore } from "@stores/user/useNotificationStore";
 import Image from "next/image";
@@ -28,8 +17,7 @@ import { useAlertStore } from "@stores/popup/useAlertStore";
 import { useUserViewPopupStore } from "@stores/popup/useUserViewPopupStore";
 
 export default function SpaceSettingPopup() {
-  const { useSpaceSettingState, toggleSpaceSettingPopup } =
-    useSpaceSettingPopupStore();
+  const { useSpaceSettingState, toggleSpaceSettingPopup } = useSpaceSettingPopupStore();
   const {
     useSpaceState,
     useSpaceMemeberState,
@@ -43,8 +31,7 @@ export default function SpaceSettingPopup() {
   } = useSpaceStore();
   const { handleSearchUser } = useSearchStore();
   const { postLeaveNotification } = useNotificationStore();
-  const { useImageCropState, setImageCustom, setImageSource, reset } =
-    useImageCropStore();
+  const { useImageCropState, setImageCustom, setImageSource, reset } = useImageCropStore();
   const imgUploadInput = useRef<HTMLInputElement | null>(null);
   const { isLocked, toggleScrollLock } = useScrollLockStore();
   const [spaceName, setSpaceName] = useState<string>("");
@@ -60,16 +47,12 @@ export default function SpaceSettingPopup() {
 
   useEffect(() => {
     if (useSelectedSpaceState) {
-      const foundSpace = useSpaceState.find(
-        (space: SpaceData) => space.UID === useSelectedSpaceState.UID
-      );
+      const foundSpace = useSpaceState.find((space: SpaceData) => space.UID === useSelectedSpaceState.UID);
 
       if (foundSpace) {
         setSpaceName(foundSpace.space_name);
         setSpacePublic(foundSpace.space_public);
-        setImageSource(
-          foundSpace.space_profile_path ? foundSpace.space_profile_path : null
-        );
+        setImageSource(foundSpace.space_profile_path ? foundSpace.space_profile_path : null);
       } else {
         toggleFnAndCancelAlert({
           isActOpen: true,
@@ -111,9 +94,7 @@ export default function SpaceSettingPopup() {
     if (
       spaceName === useSelectedSpaceState.space_name &&
       spacePublic === useSelectedSpaceState.space_public &&
-      (useImageCropState.imageSource === null ||
-        useImageCropState.imageSource! == "" ||
-        !useImageCropState.imageFile)
+      (useImageCropState.imageSource === null || useImageCropState.imageSource! == "" || !useImageCropState.imageFile)
     ) {
       return toggleAlert("변경된 정보가 없습니다.");
     }
@@ -128,11 +109,7 @@ export default function SpaceSettingPopup() {
     if (spacePublic !== useSelectedSpaceState.space_public) {
       formData.append("spacePublic", JSON.stringify(spacePublic));
     }
-    if (
-      useImageCropState.imageSource !==
-        useSelectedSpaceState.space_profile_path &&
-      useImageCropState.imageFile
-    ) {
+    if (useImageCropState.imageSource !== useSelectedSpaceState.space_profile_path && useImageCropState.imageFile) {
       formData.append("spaceProfile", useImageCropState.imageFile);
     }
     updateSpace(formData);
@@ -223,16 +200,9 @@ export default function SpaceSettingPopup() {
     ) {
       setLoading(true);
       if (!pressEnter) {
-        setUseSpaceMemeberState(
-          useSelectedSpaceState.UID,
-          spaceMemeberPageInfo.currentPage
-        );
+        setUseSpaceMemeberState(useSelectedSpaceState.UID, spaceMemeberPageInfo.currentPage);
       } else {
-        setUseSpaceMemeberState(
-          useSelectedSpaceState.UID,
-          spaceMemeberPageInfo.currentPage,
-          prevInputValue
-        );
+        setUseSpaceMemeberState(useSelectedSpaceState.UID, spaceMemeberPageInfo.currentPage, prevInputValue);
       }
 
       setLoading(false);
@@ -287,9 +257,7 @@ export default function SpaceSettingPopup() {
             <button
               type="button"
               className={`button ${buttonStyles.tapButton} ${
-                useSpaceSettingState.mode === "setting"
-                  ? buttonStyles.active
-                  : ""
+                useSpaceSettingState.mode === "setting" ? buttonStyles.active : ""
               }`}
               onClick={() => handleMode("setting")}
             >
@@ -298,9 +266,7 @@ export default function SpaceSettingPopup() {
             <button
               type="button"
               className={`button ${buttonStyles.tapButton} ${
-                useSpaceSettingState.mode === "member"
-                  ? buttonStyles.active
-                  : ""
+                useSpaceSettingState.mode === "member" ? buttonStyles.active : ""
               }`}
               onClick={() => handleMode("member")}
             >
@@ -335,18 +301,10 @@ export default function SpaceSettingPopup() {
                 </div>
                 <div className={styles.settingMenu}>
                   <div className={inputStyles.profile}>
-                    {useImageCropState.imageSource !== null &&
-                    useImageCropState.imageSource !== "" ? (
-                      <Image
-                        src={useImageCropState.imageSource as string}
-                        alt="profile"
-                        width={120}
-                        height={120}
-                      />
+                    {useImageCropState.imageSource !== null && useImageCropState.imageSource !== "" ? (
+                      <img src={useImageCropState.imageSource as string} alt="profile" width={120} height={120} />
                     ) : (
-                      <i className="normal">
-                        {useSelectedSpaceState.space_name.charAt(0)}
-                      </i>
+                      <i className="normal">{useSelectedSpaceState.space_name.charAt(0)}</i>
                     )}
                     <input
                       type="file"
@@ -355,8 +313,7 @@ export default function SpaceSettingPopup() {
                       style={{ display: "none" }}
                       onChange={handleFileChange}
                       onClick={() => {
-                        if (imgUploadInput.current)
-                          imgUploadInput.current.value = "";
+                        if (imgUploadInput.current) imgUploadInput.current.value = "";
                       }}
                       multiple
                     />
@@ -376,9 +333,7 @@ export default function SpaceSettingPopup() {
                   <p>공개 설정</p>
                   <button
                     type="button"
-                    className={`button ${buttonStyles.toggleButton} ${
-                      spacePublic ? "" : buttonStyles.disabled
-                    }`}
+                    className={`button ${buttonStyles.toggleButton} ${spacePublic ? "" : buttonStyles.disabled}`}
                     title="공개 설정"
                     onClick={() => setSpacePublic(!spacePublic)}
                   />
@@ -392,10 +347,7 @@ export default function SpaceSettingPopup() {
                   >
                     스페이스 삭제
                   </button>
-                  <p
-                    className="normal"
-                    style={{ fontSize: "12px", marginTop: "15px" }}
-                  >
+                  <p className="normal" style={{ fontSize: "12px", marginTop: "15px" }}>
                     * 스페이스의 모든 페이지가 삭제되고 홈 페이지로 돌아갑니다.
                   </p>
                 </div>
@@ -407,11 +359,7 @@ export default function SpaceSettingPopup() {
                   >
                     취소
                   </button>
-                  <button
-                    type="button"
-                    className={`button ${buttonStyles.buttonBlue}`}
-                    onClick={handleUpdateSpace}
-                  >
+                  <button type="button" className={`button ${buttonStyles.buttonBlue}`} onClick={handleUpdateSpace}>
                     저장
                   </button>
                 </div>
@@ -427,11 +375,7 @@ export default function SpaceSettingPopup() {
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyDown={handleKeyDown}
                     />
-                    <button
-                      type="button"
-                      className="button"
-                      onClick={handleSearch}
-                    >
+                    <button type="button" className="button" onClick={handleSearch}>
                       검&nbsp;색
                     </button>
                   </div>
@@ -440,89 +384,66 @@ export default function SpaceSettingPopup() {
                   {useSpaceMemeberState && (
                     <>
                       <p>
-                        {pressEnter && "검색 결과 : "} 총{" "}
-                        {useSpaceMemeberState.length} 명
+                        {pressEnter && "검색 결과 : "} 총 {useSpaceMemeberState.length} 명
                       </p>
                       {pressEnter && useSpaceMemeberState.length < 1 ? (
-                        <p className={styles.noSearchResults}>
-                          검색 결과가 없습니다.
-                        </p>
+                        <p className={styles.noSearchResults}>검색 결과가 없습니다.</p>
                       ) : (
                         <div className={styles.searchResultList}>
-                          {useSpaceMemeberState.map(
-                            (member: SpaceMemberData, index: number) => (
-                              <div
-                                className={styles.searchResult}
-                                key={`search-space-${index}`}
+                          {useSpaceMemeberState.map((member: SpaceMemberData, index: number) => (
+                            <div className={styles.searchResult} key={`search-space-${index}`}>
+                              <button
+                                type="button"
+                                className={`button ${styles.goToSearchResult}`}
+                                title={`${member.user_name} 님 정보`}
+                                onClick={() => handleViewUser(member.UID)}
                               >
-                                <button
-                                  type="button"
-                                  className={`button ${styles.goToSearchResult}`}
-                                  title={`${member.user_name} 님 정보`}
-                                  onClick={() => handleViewUser(member.UID)}
-                                >
-                                  {member.roll === "manager" && (
-                                    <strong>M</strong>
-                                  )}
-                                  {member.user_profile_path &&
-                                  member.user_profile_path !== "" ? (
-                                    <img
-                                      src={member.user_profile_path}
-                                      alt=""
-                                    />
-                                  ) : (
-                                    <i className="normal">
-                                      {member.user_name.charAt(0)}
-                                    </i>
-                                  )}
-                                  <em className="normal">{member.user_name}</em>
-                                </button>
-                                {member.UID !==
-                                  useSelectedSpaceState.space_manager && (
-                                  <div className={styles.alertButton}>
-                                    <button
-                                      type="button"
-                                      style={{ width: "80px", height: "38px" }}
-                                      className={`button ${buttonStyles.buttonBorderBlue}`}
-                                      onClick={() => {
-                                        if (useSelectedSpaceState.UID) {
-                                          toggleFnAndCancelAlert({
-                                            isActOpen: true,
-                                            content: `${member.user_name} 님을 내보내시겠습니까?`,
-                                            fn: () =>
-                                              handleExit(
-                                                member.UID,
-                                                useSelectedSpaceState.UID,
-                                                "user"
-                                              ),
-                                          });
-                                        }
-                                      }}
-                                    >
-                                      내보내기
-                                    </button>
-                                    <button
-                                      type="button"
-                                      style={{ width: "80px", height: "38px" }}
-                                      className={`button ${buttonStyles.buttonBlue}`}
-                                      onClick={() => {
-                                        if (useSelectedSpaceState.UID) {
-                                          toggleFnAndCancelAlert({
-                                            isActOpen: true,
-                                            content: `매니저 권한을 ${member.user_name} 님에게 이관하시겠습니까?`,
-                                            fn: () =>
-                                              handleAuthority(member.UID),
-                                          });
-                                        }
-                                      }}
-                                    >
-                                      권한변경
-                                    </button>
-                                  </div>
+                                {member.roll === "manager" && <strong>M</strong>}
+                                {member.user_profile_path && member.user_profile_path !== "" ? (
+                                  <img src={member.user_profile_path} alt="" />
+                                ) : (
+                                  <i className="normal">{member.user_name.charAt(0)}</i>
                                 )}
-                              </div>
-                            )
-                          )}
+                                <em className="normal">{member.user_name}</em>
+                              </button>
+                              {member.UID !== useSelectedSpaceState.space_manager && (
+                                <div className={styles.alertButton}>
+                                  <button
+                                    type="button"
+                                    style={{ width: "80px", height: "38px" }}
+                                    className={`button ${buttonStyles.buttonBorderBlue}`}
+                                    onClick={() => {
+                                      if (useSelectedSpaceState.UID) {
+                                        toggleFnAndCancelAlert({
+                                          isActOpen: true,
+                                          content: `${member.user_name} 님을 내보내시겠습니까?`,
+                                          fn: () => handleExit(member.UID, useSelectedSpaceState.UID, "user"),
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    내보내기
+                                  </button>
+                                  <button
+                                    type="button"
+                                    style={{ width: "80px", height: "38px" }}
+                                    className={`button ${buttonStyles.buttonBlue}`}
+                                    onClick={() => {
+                                      if (useSelectedSpaceState.UID) {
+                                        toggleFnAndCancelAlert({
+                                          isActOpen: true,
+                                          content: `매니저 권한을 ${member.user_name} 님에게 이관하시겠습니까?`,
+                                          fn: () => handleAuthority(member.UID),
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    권한변경
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
                         </div>
                       )}
                     </>
