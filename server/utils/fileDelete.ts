@@ -13,7 +13,7 @@ export async function handleFileDelete(fileSeq: number) {
   try {
     const { data: findFile, error: findError } = await supabase
       .from("file")
-      .select("file_name")
+      .select("file_path")
       .eq("seq", fileSeq)
       .single();
 
@@ -25,7 +25,7 @@ export async function handleFileDelete(fileSeq: number) {
       };
     }
 
-    const { error: storageError } = await supabase.storage.from(NEXT_PUBLIC_STORAGE_BUCKET).remove(findFile.file_name);
+    const { error: storageError } = await supabase.storage.from(NEXT_PUBLIC_STORAGE_BUCKET).remove(findFile.file_path);
 
     if (storageError) {
       return {

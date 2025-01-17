@@ -116,7 +116,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
         return res.status(200).json({
           message: "스페이스 정보 수정되었습니다.",
-          data: { seq: spaceUid },
+          data: { seq: JSON.parse(spaceUid) },
           resultCode: true,
         });
       } catch (error) {
