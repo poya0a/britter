@@ -35,7 +35,15 @@ export async function handleFileDelete(fileSeq: number) {
       };
     }
 
-    await supabase.from("file").delete().eq("seq", fileSeq);
+    const { error: databaseError } = await supabase.from("file").delete().eq("seq", fileSeq);
+
+    if (databaseError) {
+      return {
+        resultCode: false,
+        message: "파일 삭제 중 오류가 발생하였습니다.",
+        error: databaseError.message,
+      };
+    }
   } catch (error) {
     throw new Error("파일 삭제 중 오류가 발생하였습니다.");
   }
