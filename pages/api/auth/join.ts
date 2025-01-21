@@ -9,7 +9,6 @@ import { regexValue } from "@utils/regex";
 import { validationRules } from "@utils/errorMessage";
 import { EmpsInterface } from "@models/Emps.model";
 import { handleFileUpload } from "@server/utils/fileUpload";
-import { error } from "console";
 
 type NextApiRequestWithFormData = NextApiRequest &
   Request & {
@@ -126,25 +125,12 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
 
   try {
-    const { data: existingId, error: idError } = await supabase
+    const { data: existingId } = await supabase.from("emps").select().eq("user_id", data.user_id);
+    const { data: existinghp } = await supabase.from("emps").select().eq("user_hp", data.user_hp);
+    const { data: existingEmail } = await supabase
       .from("emps")
-      .select("user_id")
-      .eq("user_id", data.user_id);
-    const { data: existinghp, error: hpError } = await supabase
-      .from("emps")
-      .select("user_hp")
-      .eq("user_hp", data.user_hp);
-    const { data: existingEmail, error: emailError } = await supabase
-      .from("emps")
-      .select("user_email")
-      .eq("user_email", data.user_email);
-
-    if (
-      (idError && idError.code !== "PGRST116") ||
-      (hpError && hpError.code !== "PGRST116") ||
-      (emailError && emailError.code !== "PGRST116")
-    )
-      throw error;
+      .select()
+      .eq("user_email", data?.user_email || null);
 
     if (existingId || existinghp || existingEmail) {
       let name = "";
@@ -169,12 +155,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     // 개인 스페이스 생성
     let randomString = generateRandomString();
 
-    const { data: checkSameName, error: checkSameNameError } = await supabase
-      .from("space")
-      .select("space_name")
-      .eq("space_name", randomString);
-
-    if (checkSameNameError && checkSameNameError.code === "PGRST116") throw checkSameNameError;
+    const { data: checkSameName } = await supabase.from("space").select().eq("space_name", randomString);
 
     // 랜덤으로 스페이스명을 생성할 때 동일한 값이 있는지 확인
     if (checkSameName) {
