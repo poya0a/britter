@@ -77,16 +77,16 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
         resultCode: false,
       });
     }
-    if (agreedTermsIds) throw agreedTermsIds;
-    const hasAgreedToAllRequiredTerms = requiredTermsIds.every((seq: number) => agreedTermsIds.includes(seq));
+    if (agreedTermsIds) throw { agreedTermsIds, requiredTermsIds };
+    // const hasAgreedToAllRequiredTerms = requiredTermsIds.every((seq: number) => agreedTermsIds.includes(seq));
 
-    if (hasAgreedToAllRequiredTerms) throw hasAgreedToAllRequiredTerms;
-    if (!hasAgreedToAllRequiredTerms) {
-      return res.status(200).json({
-        message: "필수 이용약관에 동의해 주세요.",
-        resultCode: false,
-      });
-    }
+    // if (hasAgreedToAllRequiredTerms) throw hasAgreedToAllRequiredTerms;
+    // if (!hasAgreedToAllRequiredTerms) {
+    //   return res.status(200).json({
+    //     message: "필수 이용약관에 동의해 주세요.",
+    //     resultCode: false,
+    //   });
+    // }
   } catch (error) {
     return res.status(500).json({
       message: "서버 에러가 발생하였습니다.",
