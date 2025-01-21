@@ -63,7 +63,6 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
 
   // 필수 이용 약관 동의 확인
-
   const termsList: number[] = data.terms?.map((term: number) => term) || [];
 
   if (termsList.length < 1) {
@@ -252,7 +251,9 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     return res.status(500).json({
       message: "서버 에러가 발생하였습니다.",
       error: error,
-      test: data.terms?.map((term: number) => term),
+      body: req.body,
+      type: typeof req.body.terms,
+      test: req.body.terms?.map((term: number) => term),
       resultCode: false,
     });
   }
