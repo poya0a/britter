@@ -207,12 +207,13 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     }
 
     // 스페이스 리스트 생성
-    const { error: spaceListError } = await supabase.from("spaceList").insert([
-      {
+    const { error: spaceListError } = await supabase
+      .from("spaceList")
+      .insert({
         UID: emp.UID,
         space: [space.UID],
-      },
-    ]);
+      })
+      .single();
 
     if (spaceListError) {
       await supabase.from("emps").delete().eq("UID", emp.UID);
