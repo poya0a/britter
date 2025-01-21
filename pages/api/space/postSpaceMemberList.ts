@@ -50,6 +50,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
               if (!user) {
                 return null;
               }
+
               const { data: userInfo, error: userError } = await supabase
                 .from("emps")
                 .select(

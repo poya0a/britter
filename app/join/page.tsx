@@ -10,7 +10,7 @@ import PhoneNumberInput from "@components/input/PhoneNumberInput";
 import { useImageCropStore } from "@stores/useImageCropStore";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useScrollLockStore } from "@stores/useScrollLockStore";
-import profile from "/public/images/profile.svg";
+import profile from "/images/profile.svg";
 import { ErrorMessage } from "@hookform/error-message";
 import { FieldValues, useForm } from "react-hook-form";
 import {
