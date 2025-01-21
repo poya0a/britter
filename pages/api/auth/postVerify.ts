@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const { data: existingCertification, error: findError } = await supabase
       .from("certification")
-      .select("user_hp, certification_number, create_date")
+      .select("seq, user_hp, certification_number, create_date")
       .eq("user_hp", user_hp)
       .single();
 
@@ -65,7 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(200).json({
       message: "인증이 완료되었습니다.",
-      data: { certification_number: certificationNumber },
+      data: { certification_number: existingCertification.seq },
       resultCode: true,
     });
   } catch (error) {

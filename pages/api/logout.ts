@@ -64,7 +64,6 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           }
 
           // 최근 방문한 스페이스 uid 저장
-
           const recentSpaceUid =
             !spaceUid || spaceUid === "null" || spaceUid === "undifined" || spaceUid === "" ? null : spaceUid;
 
