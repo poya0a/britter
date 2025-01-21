@@ -16,7 +16,7 @@ export interface EmpsInterface {
   user_birth?: string;
   user_public: boolean;
   user_level: number;
-  recent_space: string;
+  recent_space?: string | null;
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
@@ -40,7 +40,7 @@ export class EmpsModel implements EmpsInterface {
   user_birth?: string;
   user_public: boolean;
   user_level: number;
-  recent_space: string;
+  recent_space?: string | null;
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
