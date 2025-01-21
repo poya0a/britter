@@ -69,26 +69,24 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     if (error) throw error;
 
     const requiredTermsIds = terms.map((term) => term.seq);
+    const agreedTermsIds: number[] = data.terms?.map((term: number) => term) || [];
 
-    if (data.terms) throw data.terms;
-    // const agreedTermsIds: number[] | null[] | undefined = data.terms;
+    if (!agreedTermsIds || agreedTermsIds.length < 1) {
+      return res.status(200).json({
+        message: "필수 이용약관에 동의해 주세요.",
+        resultCode: false,
+      });
+    }
 
-    // if (!agreedTermsIds || agreedTermsIds.every((terms) => terms === null)) {
-    //   return res.status(200).json({
-    //     message: "필수 이용약관에 동의해 주세요.",
-    //     resultCode: false,
-    //   });
-    // }
+    const hasAgreedToAllRequiredTerms = requiredTermsIds.every((seq: number) => agreedTermsIds.includes(seq));
 
-    // const hasAgreedToAllRequiredTerms = requiredTermsIds.every((seq: number) => agreedTermsIds.includes(seq));
-
-    // if (hasAgreedToAllRequiredTerms) throw hasAgreedToAllRequiredTerms;
-    // if (!hasAgreedToAllRequiredTerms) {
-    //   return res.status(200).json({
-    //     message: "필수 이용약관에 동의해 주세요.",
-    //     resultCode: false,
-    //   });
-    // }
+    if (hasAgreedToAllRequiredTerms) throw hasAgreedToAllRequiredTerms;
+    if (!hasAgreedToAllRequiredTerms) {
+      return res.status(200).json({
+        message: "필수 이용약관에 동의해 주세요.",
+        resultCode: false,
+      });
+    }
   } catch (error) {
     return res.status(500).json({
       message: "서버 에러가 발생하였습니다.",
@@ -144,11 +142,11 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
     const hashedPassword = await bcrypt.hash(data.user_pw!, 10);
 
-    // const termsList: number[] = await Promise.all(
-    //   data.terms?.every((terms: number | null | undefined) => terms !== null && terms !== undefined)
-    //     ? data.terms.map((terms: number) => terms)
-    //     : []
-    // );
+    const termsList: number[] = await Promise.all(
+      data.terms?.every((terms: number | null | undefined) => terms !== null && terms !== undefined)
+        ? data.terms.map((terms: number) => terms)
+        : []
+    );
 
     // 개인 스페이스 생성
     let randomString = generateRandomString();
@@ -174,7 +172,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       user_level: 1,
       recent_space: randomString,
       create_date: new Date(),
-      // terms: termsList,
+      terms: termsList,
     };
 
     const { error: userError } = await supabase.from("emps").insert(emp).single();

@@ -20,7 +20,7 @@ export interface EmpsInterface {
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
-  terms: number[] | null[];
+  terms: number[];
   comments?: CommentModel[];
   posts?: PostModel[];
   userProfile?: FileModel;
@@ -44,7 +44,7 @@ export class EmpsModel implements EmpsInterface {
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
-  terms: number[] | null[];
+  terms: number[];
   comments?: CommentModel[];
   posts?: PostModel[];
   userProfile?: FileModel;
