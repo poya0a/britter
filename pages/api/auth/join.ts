@@ -125,17 +125,21 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
 
   try {
-    const { data: existingId } = await supabase.from("emps").select("user_id").eq("user_id", data.user_id);
-    const { data: existinghp } = await supabase.from("emps").select("user_hp").eq("user_hp", data.user_hp);
-    const { data: existingEmail } = await supabase.from("emps").select("user_email").eq("user_email", data.user_email);
+    const { error: idError } = await supabase.from("emps").select("user_id").eq("user_id", data.user_id);
+    const { error: hpError } = await supabase.from("emps").select("user_hp").eq("user_hp", data.user_hp);
+    const { error: emailError } = await supabase.from("emps").select("user_email").eq("user_email", data.user_email);
 
-    if (existingId || existinghp || existingEmail) {
+    if (
+      (idError && idError.code !== "PGRST116") ||
+      (hpError && hpError.code !== "PGRST116") ||
+      (emailError && emailError.code !== "PGRST116")
+    ) {
       let name = "";
-      if (existingId) {
+      if (idError) {
         name = "아이디";
-      } else if (existinghp) {
+      } else if (hpError) {
         name = "휴대전화 번호";
-      } else if (existingEmail) {
+      } else if (emailError) {
         name = "이메일";
       }
       return res.status(200).json({ message: `이미 사용 중인 ${name}입니다.`, resultCode: false });
@@ -152,10 +156,14 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     // 개인 스페이스 생성
     let randomString = generateRandomString();
 
-    const { data: checkSameName } = await supabase.from("space").select("space_name").eq("space_name", randomString);
+    const { data: checkSameName, error: checkSameNameError } = await supabase
+      .from("space")
+      .select("space_name")
+      .eq("space_name", randomString);
 
     // 랜덤으로 스페이스명을 생성할 때 동일한 값이 있는지 확인
-    if (checkSameName) {
+
+    if (!checkSameNameError && checkSameName) {
       randomString = `${randomString}_${checkSameName.length}`;
     }
 
