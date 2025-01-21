@@ -44,32 +44,35 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
 
         const managerWithRole = { ...manager, roll: "manager" };
 
-        const filteredUsers = await Promise.all(
-          space.space_users.map(async (user: string) => {
-            const { data: userInfo, error: userError } = await supabase
-              .from("emps")
-              .select(
-                "UID, user_profile_seq, user_id, user_name, user_hp, user_email, user_birth, user_public, status_emoji, status_message"
-              )
-              .eq("UID", user)
-              .single();
+        if (space.space_users !== null) {
+          const filteredUsers = await Promise.all(
+            space.space_users.map(async (user: string | null) => {
+              if (!user) {
+                return null;
+              }
+              const { data: userInfo, error: userError } = await supabase
+                .from("emps")
+                .select(
+                  "UID, user_profile_seq, user_id, user_name, user_hp, user_email, user_birth, user_public, status_emoji, status_message"
+                )
+                .eq("UID", user)
+                .single();
 
-            if (userError) {
-              return null;
-            }
+              if (userError) {
+                return null;
+              }
 
-            if (searchWord && !userInfo.user_name.includes(searchWord)) {
-              return null;
-            }
+              if (searchWord && !userInfo.user_name.includes(searchWord)) {
+                return null;
+              }
 
-            return { ...userInfo, roll: "member" };
-          })
-        );
-        const spaceUsers = [managerWithRole, ...filteredUsers];
+              return { ...userInfo, roll: "member" };
+            })
+          );
+          const spaceUsers = [managerWithRole, ...filteredUsers];
 
-        const validUsers = spaceUsers.filter((user) => user !== null);
+          const validUsers = spaceUsers.filter((user) => user !== null);
 
-        if (validUsers.length > 0) {
           const { paginatedItems, pageInfo } = paginate(validUsers, pageNumber, 10);
 
           return res.status(200).json({
@@ -78,14 +81,14 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
             pageInfo: pageInfo,
             resultCode: true,
           });
-        } else {
-          return res.status(200).json({
-            message: "스페이스 멤버를 조회하였습니다.",
-            data: [],
-            pageInfo: 0,
-            resultCode: true,
-          });
         }
+
+        return res.status(200).json({
+          message: "스페이스 멤버를 조회하였습니다.",
+          data: [],
+          pageInfo: 0,
+          resultCode: true,
+        });
       } catch (error) {
         return res.status(500).json({
           message: "서버 에러가 발생하였습니다.",

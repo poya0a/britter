@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import EmojiPicker from "emoji-picker-react";
 import { useInfoStore } from "@stores/user/useInfoStore";
 import { useUserSettingPopupStore } from "@stores/popup/useUserSettingPopupStore";
-import Image from "next/image";
 import { useImageCropStore } from "@stores/useImageCropStore";
 import { useScrollLockStore } from "@stores/useScrollLockStore";
 import ImageCropInput from "../input/ImageCropInput";

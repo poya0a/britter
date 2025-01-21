@@ -8,7 +8,6 @@ import { useSpaceSettingPopupStore } from "@stores/popup/useSpaceSettingPopupSto
 import { SpaceData, SpaceMemberData, useSpaceStore } from "@stores/user/useSpaceStore";
 import { useSearchStore } from "@stores/useSearchStore";
 import { useNotificationStore } from "@stores/user/useNotificationStore";
-import Image from "next/image";
 import { useImageCropStore } from "@stores/useImageCropStore";
 import { useScrollLockStore } from "@stores/useScrollLockStore";
 import ImageCropInput from "../input/ImageCropInput";

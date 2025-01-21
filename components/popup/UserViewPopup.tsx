@@ -5,7 +5,6 @@ import { useUserSettingPopupStore } from "@stores/popup/useUserSettingPopupStore
 import styles from "@styles/components/_popup.module.scss";
 import buttonStyles from "@styles/components/_button.module.scss";
 import inputStyles from "@styles/components/_input.module.scss";
-import Image from "next/image";
 
 export default function UserViewPopup() {
   const { useUserViewPopupState, toggleUserViewPopup } = useUserViewPopupStore();

@@ -11,7 +11,6 @@ import { useSpaceStore } from "@stores/user/useSpaceStore";
 import { useNotificationStore } from "@stores/user/useNotificationStore";
 import { useInfoStore } from "@stores/user/useInfoStore";
 import { usePostStore } from "@stores/user/usePostStore";
-import Image from "next/image";
 import { useAlertStore } from "@stores/popup/useAlertStore";
 import { useUserViewPopupStore } from "@stores/popup/useUserViewPopupStore";
 

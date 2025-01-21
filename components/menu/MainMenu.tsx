@@ -16,7 +16,6 @@ import { useNotificationStore } from "@stores/user/useNotificationStore";
 import { useMessageStore } from "@stores/user/useMessageStore";
 import { useSpaceSettingPopupStore } from "@stores/popup/useSpaceSettingPopupStore";
 import { usePostFolderPopupStore } from "@stores/popup/usePostFolderPopupStore";
-import Image from "next/image";
 
 export default function MainMenu() {
   const { useMainMenuWidthState, handleMainMenuWidth } = useMainMenuWidthStore();

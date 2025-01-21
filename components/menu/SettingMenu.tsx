@@ -8,7 +8,6 @@ import { useAlertStore } from "@stores/popup/useAlertStore";
 import { useRouter } from "next/navigation";
 import { usePostStore } from "@stores/user/usePostStore";
 import storage from "@fetch/auth/storage";
-import Image from "next/image";
 
 export default function SettingMenu() {
   const router = useRouter();
