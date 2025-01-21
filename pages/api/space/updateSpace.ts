@@ -89,16 +89,18 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
           space.space_public = spacePublic === "true" ? true : false;
         }
 
-        if (file) {
-          if (space.space_profile_seq) {
-            await handleFileDelete(space.space_profile_seq);
-          }
+        const existingProfileSeq: number | null = space.user_profile_seq;
 
+        if (file) {
           const saveFile = await handleFileUpload(file);
 
           if (!saveFile) throw saveFile;
 
           space.space_profile_seq = saveFile.data?.seq || 0;
+        }
+
+        if (existingProfileSeq) {
+          await handleFileDelete(existingProfileSeq);
         }
 
         const { error: updateError } = await supabase

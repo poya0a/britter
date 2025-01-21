@@ -2,6 +2,8 @@
 import { NextApiResponse, NextApiRequest } from "next";
 import supabase from "@database/supabase.config";
 import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
+import { extractImgDataSeq } from "@server/utils/extractImgDataSeq";
+import { handleFileDelete } from "@server/utils/fileDelete";
 
 export default async function handler(req: AuthenticatedRequest & NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -40,6 +42,17 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
             resultCode: false,
           });
         }
+
+        if (space.space_content) {
+          const extractedSeqList = extractImgDataSeq(space.space_content);
+
+          if (extractedSeqList.length > 0) {
+            for (const seq of extractedSeqList) {
+              await handleFileDelete(seq);
+            }
+          }
+        }
+
         const { error: updateError } = await supabase.from("space").update({ space_content: null }).eq("UID", spaceUid);
 
         if (updateError) {

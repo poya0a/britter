@@ -83,11 +83,9 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
           findUser.user_public = userPublic === "true" ? true : false;
         }
 
-        if (file !== undefined) {
-          if (findUser.user_profile_seq) {
-            await handleFileDelete(findUser.user_profile_seq);
-          }
+        const existingProfileSeq: number | null = findUser.user_profile_seq === 0 ? null : findUser.user_profile_seq;
 
+        if (file !== undefined) {
           const saveFile = await handleFileUpload(file);
 
           if (!saveFile) throw saveFile;
@@ -96,6 +94,10 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
         }
 
         const { error: updateError } = await supabase.from("emps").upsert(findUser);
+
+        if (existingProfileSeq) {
+          await handleFileDelete(existingProfileSeq);
+        }
 
         if (updateError) {
           return res.status(200).json({
