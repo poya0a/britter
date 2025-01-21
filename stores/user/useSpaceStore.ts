@@ -132,9 +132,10 @@ export const useSpaceStore = create<SpaceStore>((set) => ({
       useSpaceStore.getState().setUseSpaceState(updatedList);
 
       if (!selectedSpaceUid) {
-        const recentSpaceUid = useInfoStore.getState().useInfoState.recent_space
-          ? res.data[0].UID
-          : useInfoStore.getState().useInfoState.recent_space;
+        const recentSpaceUid =
+          useInfoStore.getState().useInfoState.recent_space === null
+            ? res.data[0].UID
+            : useInfoStore.getState().useInfoState.recent_space;
 
         storage.setSpaceUid(recentSpaceUid);
         const findSpace = updatedList.find((item) => item.UID === recentSpaceUid) || {};
