@@ -67,7 +67,12 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     const { data: terms, error } = await supabase.from("terms").select("seq").eq("in_used", true).eq("required", true);
 
     if (error) {
-      throw new Error(error.message);
+      // throw new Error(error.message);
+      return res.status(200).json({
+        message: "이용 약관 조회 에러",
+        error: error,
+        resultCode: false,
+      });
     }
 
     const requiredTermsIds = terms.map((term) => term.seq);
