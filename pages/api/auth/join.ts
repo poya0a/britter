@@ -68,27 +68,28 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
     if (error) throw error;
 
-    const requiredTermsIds = terms.map((term) => term.seq);
-    const agreedTermsIds: number[] | null[] | undefined = data.terms;
+    if (terms) throw terms;
+    // const requiredTermsIds = terms.map((term) => term.seq);
+    // const agreedTermsIds: number[] | null[] | undefined = data.terms;
 
-    if (!agreedTermsIds || agreedTermsIds.every((terms) => terms === null)) {
-      return res.status(200).json({
-        message: "필수 이용약관에 동의해 주세요.",
-        resultCode: false,
-      });
-    }
+    // if (!agreedTermsIds || agreedTermsIds.every((terms) => terms === null)) {
+    //   return res.status(200).json({
+    //     message: "필수 이용약관에 동의해 주세요.",
+    //     resultCode: false,
+    //   });
+    // }
 
-    const hasAgreedToAllRequiredTerms = requiredTermsIds.every((seq: number) => agreedTermsIds.includes(seq));
+    // const hasAgreedToAllRequiredTerms = requiredTermsIds.every((seq: number) => agreedTermsIds.includes(seq));
 
-    if (!hasAgreedToAllRequiredTerms) {
-      return res.status(200).json({
-        message: "필수 이용약관에 동의해 주세요.",
-        resultCode: false,
-      });
-    }
+    // if (!hasAgreedToAllRequiredTerms) {
+    //   return res.status(200).json({
+    //     message: "필수 이용약관에 동의해 주세요.",
+    //     resultCode: false,
+    //   });
+    // }
   } catch (error) {
     return res.status(500).json({
-      message: "서버 에러가 발생하였습니다.2222",
+      message: "서버 에러가 발생하였습니다.",
       error: error,
       resultCode: false,
     });
@@ -254,7 +255,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     });
   } catch (error) {
     return res.status(500).json({
-      message: "서버 에러가 발생하였습니다.111",
+      message: "서버 에러가 발생하였습니다.",
       error: error,
       resultCode: false,
     });
