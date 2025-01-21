@@ -132,10 +132,9 @@ export const useSpaceStore = create<SpaceStore>((set) => ({
       useSpaceStore.getState().setUseSpaceState(updatedList);
 
       if (!selectedSpaceUid) {
-        const recentSpaceUid =
-          useInfoStore.getState().useInfoState.recent_space === ""
-            ? res.data[0].UID
-            : useInfoStore.getState().useInfoState.recent_space;
+        const recentSpaceUid = useInfoStore.getState().useInfoState.recent_space
+          ? res.data[0].UID
+          : useInfoStore.getState().useInfoState.recent_space;
 
         storage.setSpaceUid(recentSpaceUid);
         const findSpace = updatedList.find((item) => item.UID === recentSpaceUid) || {};
@@ -143,11 +142,6 @@ export const useSpaceStore = create<SpaceStore>((set) => ({
         useSpaceStore.getState().setUseSelectedSpaceState(findSpace);
         fetchPostList(recentSpaceUid);
         useSpaceStore.getState().setUseSpaceMemeberState(recentSpaceUid, 0);
-
-        console.log(recentSpaceUid);
-        console.log(useInfoStore.getState().useInfoState.recent_space);
-        console.log(typeof useInfoStore.getState().useInfoState.recent_space);
-        console.log(res.data[0].UID);
       } else {
         const findSpace = updatedList.find((item) => item.UID === selectedSpaceUid);
         if (findSpace) {
