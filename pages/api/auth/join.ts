@@ -66,9 +66,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   try {
     const { data: terms, error } = await supabase.from("terms").select("seq").eq("in_used", true).eq("required", true);
 
-    if (error) {
-      throw new Error(error.message);
-    }
+    if (error) throw error;
 
     const requiredTermsIds = terms.map((term) => term.seq);
     const agreedTermsIds: number[] | null[] | undefined = data.terms;
@@ -127,10 +125,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   try {
     const { data: existingId } = await supabase.from("emps").select().eq("user_id", data.user_id);
     const { data: existinghp } = await supabase.from("emps").select().eq("user_hp", data.user_hp);
-    const { data: existingEmail } = await supabase
-      .from("emps")
-      .select()
-      .eq("user_email", data?.user_email || null);
+    const { data: existingEmail } = await supabase.from("emps").select().eq("user_email", data.user_email);
 
     if (existingId || existinghp || existingEmail) {
       let name = "";

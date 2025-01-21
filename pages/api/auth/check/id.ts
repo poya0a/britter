@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { data: existingUser, error } = await supabase.from("emps").select("user_id").eq("user_id", user_id).single();
+    const { data: existingUser, error } = await supabase.from("emps").select().eq("user_id", user_id).single();
 
     if (error && error.code !== "PGRST116") {
       throw error;
