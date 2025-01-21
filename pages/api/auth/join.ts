@@ -69,15 +69,17 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     if (error) throw error;
 
     const requiredTermsIds = terms.map((term) => term.seq);
-    const agreedTermsIds: number[] | null[] | undefined = data.terms;
 
-    if (!agreedTermsIds || agreedTermsIds.every((terms) => terms === null)) {
-      return res.status(200).json({
-        message: "필수 이용약관에 동의해 주세요.",
-        resultCode: false,
-      });
-    }
-    if (agreedTermsIds) throw { agreedTermsIds, requiredTermsIds };
+    if (data.terms) throw data.terms;
+    // const agreedTermsIds: number[] | null[] | undefined = data.terms;
+
+    // if (!agreedTermsIds || agreedTermsIds.every((terms) => terms === null)) {
+    //   return res.status(200).json({
+    //     message: "필수 이용약관에 동의해 주세요.",
+    //     resultCode: false,
+    //   });
+    // }
+
     // const hasAgreedToAllRequiredTerms = requiredTermsIds.every((seq: number) => agreedTermsIds.includes(seq));
 
     // if (hasAgreedToAllRequiredTerms) throw hasAgreedToAllRequiredTerms;
@@ -142,11 +144,11 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
     const hashedPassword = await bcrypt.hash(data.user_pw!, 10);
 
-    const termsList: number[] = await Promise.all(
-      data.terms?.every((terms: number | null | undefined) => terms !== null && terms !== undefined)
-        ? data.terms.map((terms: number) => terms)
-        : []
-    );
+    // const termsList: number[] = await Promise.all(
+    //   data.terms?.every((terms: number | null | undefined) => terms !== null && terms !== undefined)
+    //     ? data.terms.map((terms: number) => terms)
+    //     : []
+    // );
 
     // 개인 스페이스 생성
     let randomString = generateRandomString();
@@ -172,7 +174,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       user_level: 1,
       recent_space: randomString,
       create_date: new Date(),
-      terms: termsList,
+      // terms: termsList,
     };
 
     const { error: userError } = await supabase.from("emps").insert(emp).single();
