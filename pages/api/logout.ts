@@ -13,7 +13,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
       // UID를 토큰에서 추출
       const uid = req.user.claims.UID;
       try {
-        const spaceUid = req.query.spaceUid as string;
+        const spaceUid = req.query.spaceUid;
         // Supabase에서 사용자 조회
         const { data: user, error: userError } = await supabase
           .from("emps")
@@ -64,9 +64,13 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           }
 
           // 최근 방문한 스페이스 uid 저장
+
+          const recentSpaceUid =
+            !spaceUid || spaceUid === "null" || spaceUid === "undifined" || spaceUid === "" ? null : spaceUid;
+
           const { error: recentSpaceError } = await supabase
             .from("emps")
-            .update({ recent_space: spaceUid })
+            .update({ recent_space: recentSpaceUid })
             .eq("UID", uid);
 
           if (recentSpaceError) {
