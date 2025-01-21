@@ -19,6 +19,7 @@ export interface InfoData {
   user_birth?: string;
   user_public: boolean;
   user_level: number;
+  recent_space: string;
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
@@ -43,6 +44,7 @@ export const useInfoStore = create<InfoStore>((set, get) => ({
     user_hp: "",
     user_public: true,
     user_level: 1,
+    recent_space: "",
     create_date: new Date(),
   },
   toggleAlert: (message) => {

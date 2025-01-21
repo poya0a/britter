@@ -4,7 +4,7 @@ import { FileModel } from "./File.model";
 import { PrivateModel } from "./Private.model";
 
 export interface EmpsInterface {
-  "UID": string;
+  UID: string;
   user_profile_seq: number;
   private_seq?: number | null;
   user_id: string;
@@ -16,6 +16,7 @@ export interface EmpsInterface {
   user_birth?: string;
   user_public: boolean;
   user_level: number;
+  recent_space: string;
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
@@ -39,6 +40,7 @@ export class EmpsModel implements EmpsInterface {
   user_birth?: string;
   user_public: boolean;
   user_level: number;
+  recent_space: string;
   create_date: Date;
   status_emoji?: string;
   status_message?: string;
@@ -61,6 +63,7 @@ export class EmpsModel implements EmpsInterface {
     this.user_birth = emps.user_birth;
     this.user_public = emps.user_public;
     this.user_level = emps.user_level;
+    this.recent_space = emps.recent_space;
     this.create_date = emps.create_date;
     this.status_emoji = emps.status_emoji;
     this.status_message = emps.status_message;

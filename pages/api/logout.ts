@@ -1,19 +1,19 @@
 "use server";
-import { NextApiResponse } from "next";
+import { NextApiResponse, NextApiRequest } from "next";
 import supabase from "@database/supabase.config";
 import { AuthenticatedRequest, authenticateToken } from "@server/utils/authenticateToken";
 
-export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
+export default async function handler(req: AuthenticatedRequest & NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
     return res.status(405).json({ message: "잘못된 메소드입니다.", resultCode: false });
   }
 
   authenticateToken(req, res, async () => {
     if (req.user) {
+      // UID를 토큰에서 추출
+      const uid = req.user.claims.UID;
       try {
-        // UID를 토큰에서 추출
-        const uid = req.user.claims.UID;
-
+        const spaceUid = req.query.spaceUid as string;
         // Supabase에서 사용자 조회
         const { data: user, error: userError } = await supabase
           .from("emps")
@@ -59,6 +59,19 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
           if (deletePrivateError) {
             return res.status(200).json({
               message: "개인 키 삭제 중 오류가 발생하였습니다.",
+              resultCode: false,
+            });
+          }
+
+          // 최근 방문한 스페이스 uid 저장
+          const { error: recentSpaceError } = await supabase
+            .from("emps")
+            .update({ recent_space: spaceUid })
+            .eq("UID", uid);
+
+          if (recentSpaceError) {
+            return res.status(200).json({
+              message: "최근 방문한 스페이스 정보 업데이트 중 오류가 발생하였습니다.",
               resultCode: false,
             });
           }

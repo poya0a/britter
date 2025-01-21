@@ -12,6 +12,7 @@ import { useSpaceSettingPopupStore } from "../popup/useSpaceSettingPopupStore";
 import { useSettingMenuStore } from "../menu/useSettingMenuStore";
 import { useSearchStore } from "../useSearchStore";
 import { usePostStore } from "./usePostStore";
+import { useInfoStore } from "./useInfoStore";
 
 interface PageInfo {
   currentPage: number;
@@ -131,12 +132,17 @@ export const useSpaceStore = create<SpaceStore>((set) => ({
       useSpaceStore.getState().setUseSpaceState(updatedList);
 
       if (!selectedSpaceUid) {
-        storage.setSpaceUid(res.data[0].UID);
-        const findSpace = updatedList.find((item) => item.UID === res.data[0].UID) || {};
+        const recentSpaceUid =
+          useInfoStore.getState().useInfoState.recent_space === ""
+            ? res.data[0].UID
+            : useInfoStore.getState().useInfoState.recent_space;
+
+        storage.setSpaceUid(recentSpaceUid);
+        const findSpace = updatedList.find((item) => item.UID === recentSpaceUid) || {};
 
         useSpaceStore.getState().setUseSelectedSpaceState(findSpace);
-        fetchPostList(res.data[0].UID);
-        useSpaceStore.getState().setUseSpaceMemeberState(res.data[0].UID, 0);
+        fetchPostList(recentSpaceUid);
+        useSpaceStore.getState().setUseSpaceMemeberState(recentSpaceUid, 0);
       } else {
         const findSpace = updatedList.find((item) => item.UID === selectedSpaceUid);
         if (findSpace) {

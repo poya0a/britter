@@ -10,7 +10,6 @@ import PhoneNumberInput from "@components/input/PhoneNumberInput";
 import { useImageCropStore } from "@stores/useImageCropStore";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useScrollLockStore } from "@stores/useScrollLockStore";
-import profile from "/images/profile.svg";
 import { ErrorMessage } from "@hookform/error-message";
 import { FieldValues, useForm } from "react-hook-form";
 import {
@@ -423,7 +422,11 @@ export default function Join() {
         <div className={styles.joinWrapper}>
           <div className={inputStyles.profile}>
             <img
-              src={useImageCropState.imageSource !== null ? (useImageCropState.imageSource as string) : profile}
+              src={
+                useImageCropState.imageSource !== null
+                  ? (useImageCropState.imageSource as string)
+                  : "/images/profile.svg"
+              }
               alt="profile"
               width={120}
               height={120}

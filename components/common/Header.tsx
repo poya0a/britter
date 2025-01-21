@@ -46,9 +46,11 @@ export default function Header() {
   };
 
   const logout = async () => {
+    const spaceUid = storage.getSpaceUid();
+
     const res = await fetchApi({
       method: "GET",
-      url: requests.LOGOUT,
+      url: `${requests.LOGOUT}?spaceUid=${spaceUid}`,
     });
 
     if (!res.resultCode) {

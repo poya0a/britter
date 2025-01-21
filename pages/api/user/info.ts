@@ -18,7 +18,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
         const { data: findUser, error } = await supabase
           .from("emps")
           .select(
-            "UID, user_profile_seq, user_id, user_name, user_hp, user_email, user_birth, user_public, user_level, create_date, status_emoji, status_message"
+            "UID, user_profile_seq, user_id, user_name, user_hp, user_email, user_birth, user_public, user_level, recent_space, create_date, status_emoji, status_message"
           )
           .eq("UID", uid)
           .single();

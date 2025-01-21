@@ -149,6 +149,16 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
         : []
     );
 
+    // 개인 스페이스 생성
+    let randomString = generateRandomString();
+
+    const { data: checkSameName } = await supabase.from("space").select("space_name").eq("space_name", randomString);
+
+    // 랜덤으로 스페이스명을 생성할 때 동일한 값이 있는지 확인
+    if (checkSameName) {
+      randomString = `${randomString}_${checkSameName.length}`;
+    }
+
     const emp = {
       UID: uuidv4(),
       user_profile_seq: 0,
@@ -161,6 +171,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       user_birth: data.user_birth ? data.user_birth : undefined,
       user_public: data.user_public ? data.user_public : true,
       user_level: 1,
+      recent_space: randomString,
       create_date: new Date(),
       terms: termsList,
     };
@@ -173,16 +184,6 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
         error: userError.message,
         resultCode: false,
       });
-    }
-
-    // 개인 스페이스 생성
-    let randomString = generateRandomString();
-
-    const { data: checkSameName } = await supabase.from("space").select("space_name").eq("space_name", randomString);
-
-    // 랜덤으로 스페이스명을 생성할 때 동일한 값이 있는지 확인
-    if (checkSameName) {
-      randomString = `${randomString}_${checkSameName.length}`;
     }
 
     const space = {
