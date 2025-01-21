@@ -9,6 +9,7 @@ import { regexValue } from "@utils/regex";
 import { validationRules } from "@utils/errorMessage";
 import { EmpsInterface } from "@models/Emps.model";
 import { handleFileUpload } from "@server/utils/fileUpload";
+import { error } from "console";
 
 type NextApiRequestWithFormData = NextApiRequest &
   Request & {
@@ -125,21 +126,33 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
 
   try {
-    const { error: idError } = await supabase.from("emps").select("user_id").eq("user_id", data.user_id);
-    const { error: hpError } = await supabase.from("emps").select("user_hp").eq("user_hp", data.user_hp);
-    const { error: emailError } = await supabase.from("emps").select("user_email").eq("user_email", data.user_email);
+    const { data: existingId, error: idError } = await supabase
+      .from("emps")
+      .select("user_id")
+      .eq("user_id", data.user_id);
+    const { data: existinghp, error: hpError } = await supabase
+      .from("emps")
+      .select("user_hp")
+      .eq("user_hp", data.user_hp);
+    const { data: existingEmail, error: emailError } = await supabase
+      .from("emps")
+      .select("user_email")
+      .eq("user_email", data.user_email);
 
     if (
       (idError && idError.code !== "PGRST116") ||
       (hpError && hpError.code !== "PGRST116") ||
       (emailError && emailError.code !== "PGRST116")
-    ) {
+    )
+      throw error;
+
+    if (existingId || existinghp || existingEmail) {
       let name = "";
-      if (idError) {
+      if (existingId) {
         name = "아이디";
-      } else if (hpError) {
+      } else if (existinghp) {
         name = "휴대전화 번호";
-      } else if (emailError) {
+      } else if (existingEmail) {
         name = "이메일";
       }
       return res.status(200).json({ message: `이미 사용 중인 ${name}입니다.`, resultCode: false });
@@ -161,9 +174,10 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       .select("space_name")
       .eq("space_name", randomString);
 
-    // 랜덤으로 스페이스명을 생성할 때 동일한 값이 있는지 확인
+    if (checkSameNameError && checkSameNameError.code === "PGRST116") throw checkSameNameError;
 
-    if (!checkSameNameError && checkSameName) {
+    // 랜덤으로 스페이스명을 생성할 때 동일한 값이 있는지 확인
+    if (checkSameName) {
       randomString = `${randomString}_${checkSameName.length}`;
     }
 
