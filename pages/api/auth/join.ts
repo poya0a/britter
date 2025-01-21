@@ -63,22 +63,24 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
 
   // 필수 이용 약관 동의 확인
+
+  const termsList: number[] = data.terms?.map((term: number) => term) || [];
+
+  if (termsList.length < 1) {
+    return res.status(200).json({
+      message: "필수 이용약관에 동의해 주세요.",
+      resultCode: false,
+    });
+  }
+
   try {
     const { data: terms, error } = await supabase.from("terms").select("seq").eq("in_used", true).eq("required", true);
 
     if (error) throw error;
 
     const requiredTermsIds = terms.map((term) => term.seq);
-    const agreedTermsIds: number[] = data.terms?.map((term: number) => term) || [];
 
-    if (agreedTermsIds.length < 1) {
-      return res.status(200).json({
-        message: "필수 이용약관에 동의해 주세요.",
-        resultCode: false,
-      });
-    }
-
-    const hasAgreedToAllRequiredTerms = requiredTermsIds.every((seq: number) => agreedTermsIds.includes(seq));
+    const hasAgreedToAllRequiredTerms = requiredTermsIds.every((seq: number) => termsList.includes(seq));
 
     if (!hasAgreedToAllRequiredTerms) {
       return res.status(200).json({
@@ -140,8 +142,6 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     }
 
     const hashedPassword = await bcrypt.hash(data.user_pw!, 10);
-
-    const termsList: number[] = data.terms?.map((term: number) => term) || [];
 
     // 개인 스페이스 생성
     let randomString = generateRandomString();
@@ -252,6 +252,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     return res.status(500).json({
       message: "서버 에러가 발생하였습니다.",
       error: error,
+      test: data.terms?.map((term: number) => term),
       resultCode: false,
     });
   }
