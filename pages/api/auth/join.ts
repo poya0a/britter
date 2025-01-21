@@ -67,12 +67,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     const { data: terms, error } = await supabase.from("terms").select("seq").eq("in_used", true).eq("required", true);
 
     if (error) {
-      // throw new Error(error.message);
-      return res.status(200).json({
-        message: "이용 약관 조회 에러",
-        error: error,
-        resultCode: false,
-      });
+      throw new Error(error.message);
     }
 
     const requiredTermsIds = terms.map((term) => term.seq);
@@ -186,7 +181,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     if (userError) {
       return res.status(200).json({
         message: "회원 가입에 실패하였습니다.",
-        error: userError.message,
+        error: userError,
         resultCode: false,
       });
     }
@@ -208,7 +203,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
       return res.status(200).json({
         message: "스페이스 생성에 실패하였습니다.",
-        error: spaceError.message,
+        error: spaceError,
         resultCode: false,
       });
     }
@@ -227,7 +222,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
       return res.status(200).json({
         message: "스페이스 리스트 생성에 실패하였습니다.",
-        error: spaceListError.message,
+        error: spaceListError,
         resultCode: false,
       });
     }
@@ -249,7 +244,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
         return res.status(200).json({
           message: "프로필 이미지 저장에 실패하였습니다.",
-          error: profileError.message,
+          error: profileError,
           resultCode: false,
         });
       }
