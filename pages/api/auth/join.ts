@@ -45,16 +45,14 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   await runMiddleware(req, res, upload);
 
   const { user_id, user_pw, user_name, user_hp, user_certification, user_email, user_birth, terms } = req.body;
-
-  const data: Partial<EmpsInterface> = JSON.parse(req.body);
   const file: Express.Multer.File | undefined = req.file;
 
   // 빈 값 확인
   const emptyFields = requiredField.filter(
     (fieldName) =>
-      data[fieldName as keyof EmpsInterface] === undefined ||
-      data[fieldName as keyof EmpsInterface] === "" ||
-      data[fieldName as keyof EmpsInterface] === null
+      req.body[fieldName as keyof EmpsInterface] === undefined ||
+      req.body[fieldName as keyof EmpsInterface] === "" ||
+      req.body[fieldName as keyof EmpsInterface] === null
   );
 
   if (emptyFields.length > 0) {
@@ -98,14 +96,14 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
 
   // 유효성 검사
-  const errorMessages = Object.keys(data).reduce(
+  const errorMessages = Object.keys(req.body).reduce(
     (errors: Partial<{ [key in keyof EmpsInterface]: string }>, fieldName: string) => {
       if (requiredField.includes(fieldName)) {
         const patternInfo = validationRules[fieldName as keyof EmpsInterface];
         if (patternInfo) {
           const sanitizedValue = regexValue(
             patternInfo.pattern,
-            data[fieldName as keyof EmpsInterface]
+            req.body[fieldName as keyof EmpsInterface]
           ) as EmpsInterface[keyof EmpsInterface];
           if (!sanitizedValue) {
             errors[fieldName as keyof EmpsInterface] = patternInfo.errorMessage;
