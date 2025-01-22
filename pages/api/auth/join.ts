@@ -9,15 +9,15 @@ import { getErrorMassage, validationRules } from "@utils/errorMessage";
 import { EmpsInterface } from "@models/Emps.model";
 import { handleFileUpload } from "@server/utils/fileUpload";
 
-type NextApiRequestWithFormData = NextApiRequest & {
+interface NextApiRequestWithFormData extends NextApiRequest {
   file: Express.Multer.File;
-};
+}
 
-// export const config = {
-//   api: {
-//     bodyParser: false,
-//   },
-// };
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 const upload = multer({
   storage: multer.memoryStorage(),
