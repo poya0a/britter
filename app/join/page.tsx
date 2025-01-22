@@ -365,11 +365,11 @@ export default function Join() {
       const terms = useTermsState.filter((term) => term.checked).map((term) => term.seq);
 
       for (const key in data) {
-        formData.append(key, JSON.stringify(data[key]));
+        formData.append(key, data[key]);
       }
 
       formData.append("terms", JSON.stringify(terms));
-      formData.append("user_certification", JSON.stringify(useVerifyState.seq));
+      formData.append("user_certification", useVerifyState.seq);
 
       if (useImageCropState.imageFile) {
         formData.append("user_profile", useImageCropState.imageFile);
