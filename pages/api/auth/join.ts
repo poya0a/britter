@@ -9,9 +9,10 @@ import { getErrorMassage, validationRules } from "@utils/errorMessage";
 import { EmpsInterface } from "@models/Emps.model";
 import { handleFileUpload } from "@server/utils/fileUpload";
 
-interface NextApiRequestWithFormData extends NextApiRequest {
-  file: Express.Multer.File;
-}
+type NextApiRequestWithFormData = NextApiRequest &
+  Request & {
+    file: Express.Multer.File;
+  };
 
 export const config = {
   api: {
