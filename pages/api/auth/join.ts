@@ -91,6 +91,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     return res.status(500).json({
       message: "서버 에러가 발생하였습니다.",
       error: error,
+      termsList: termsList,
       resultCode: false,
     });
   }
@@ -249,11 +250,9 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     });
   } catch (error) {
     return res.status(500).json({
-      message: "서버 에러가 발생하였습니다.",
+      message: "서버 에러가 발생하였습니다.11111",
       error: error,
-      body: req,
-      // type: typeof req.body.terms,
-      // test: req.body.terms?.map((term: number) => term),
+      termsList: termsList,
       resultCode: false,
     });
   }
