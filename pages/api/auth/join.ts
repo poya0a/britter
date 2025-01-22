@@ -44,7 +44,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
   await runMiddleware(req, res, upload);
 
-  const data: Partial<EmpsInterface> = req.body;
+  const data: Partial<EmpsInterface> = JSON.parse(req.body);
   const file: Express.Multer.File | undefined = req.file;
 
   // 빈 값 확인

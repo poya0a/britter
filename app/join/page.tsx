@@ -380,7 +380,7 @@ export default function Join() {
           method: "POST",
           body: formData,
         });
-        alert(res);
+
         if (res.ok) {
           const resData = await res.json();
 
