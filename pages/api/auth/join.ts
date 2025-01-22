@@ -173,6 +173,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       randomString = `${randomString}_${checkSameName.length}`;
     }
 
+    const spaceUid = uuidv4();
     const emp = {
       UID: uuidv4(),
       user_profile_seq: 0,
@@ -185,7 +186,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       user_birth: user_birth ? user_birth : null,
       user_public: true,
       user_level: 1,
-      recent_space: randomString,
+      recent_space: spaceUid,
       create_date: new Date(),
       terms: termsList,
     };
@@ -201,7 +202,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     }
 
     const space = {
-      UID: uuidv4(),
+      UID: spaceUid,
       space_profile_seq: null,
       space_name: randomString,
       space_manager: emp.UID,

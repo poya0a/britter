@@ -139,8 +139,9 @@ export const useSpaceStore = create<SpaceStore>((set) => ({
 
         storage.setSpaceUid(recentSpaceUid);
         const findSpace = updatedList.find((item) => item.UID === recentSpaceUid) || {};
-
-        useSpaceStore.getState().setUseSelectedSpaceState(findSpace);
+        if (findSpace) {
+          useSpaceStore.getState().setUseSelectedSpaceState(findSpace);
+        }
         fetchPostList(recentSpaceUid);
         useSpaceStore.getState().setUseSpaceMemeberState(recentSpaceUid, 0);
       } else {
