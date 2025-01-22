@@ -10,9 +10,10 @@ import { validationRules } from "@utils/errorMessage";
 import { EmpsInterface } from "@models/Emps.model";
 import { handleFileUpload } from "@server/utils/fileUpload";
 
-type NextApiRequestWithFormData = NextApiRequest & {
-  file: Express.Multer.File;
-};
+type NextApiRequestWithFormData = NextApiRequest &
+  Request & {
+    file: Express.Multer.File;
+  };
 
 export const config = {
   api: {
@@ -38,9 +39,9 @@ const runMiddleware = (req: NextApiRequest, res: NextApiResponse, fn: any) => {
 const requiredField = ["user_id", "user_pw", "user_name", "user_hp", "user_certification"];
 
 export default async function handler(req: NextApiRequestWithFormData, res: NextApiResponse) {
-  // if (req.method !== "POST") {
-  //   return res.status(405).json({ message: "잘못된 메소드입니다.", resultCode: false });
-  // }
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "잘못된 메소드입니다.", resultCode: false });
+  }
   await runMiddleware(req, res, upload);
 
   const { user_id, user_pw, user_name, user_hp, user_certification, user_email, user_birth, terms } = req.body;
