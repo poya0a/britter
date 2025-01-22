@@ -252,8 +252,8 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       message: "서버 에러가 발생하였습니다.",
       error: error,
       body: req.body,
-      type: typeof req.body.terms,
-      test: req.body.terms?.map((term: number) => term),
+      // type: typeof req.body.terms,
+      // test: req.body.terms?.map((term: number) => term),
       resultCode: false,
     });
   }
