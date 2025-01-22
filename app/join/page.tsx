@@ -365,7 +365,7 @@ export default function Join() {
       const terms = useTermsState.filter((term) => term.checked).map((term) => term.seq);
 
       for (const key in data) {
-        formData.append(key, data[key]);
+        formData.append(key, JSON.stringify(data[key]));
       }
 
       formData.append("terms", JSON.stringify(terms));
