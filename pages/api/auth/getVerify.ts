@@ -56,7 +56,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         throw updateError;
       }
     } else {
-      // Generate a unique seq number
       let seq = null;
       while (true) {
         const { data: maxSeq, error: maxSeqError } = await supabase
