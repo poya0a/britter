@@ -91,7 +91,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
         const existingProfileSeq: number | null = space.user_profile_seq;
 
-        if (file) {
+        if (file !== undefined) {
           const saveFile = await handleFileUpload(file);
 
           if (!saveFile) throw saveFile;

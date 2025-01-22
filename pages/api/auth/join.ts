@@ -242,7 +242,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       });
     }
 
-    if (file) {
+    if (file !== undefined) {
       const saveFile = await handleFileUpload(file);
 
       if (!saveFile) throw saveFile;
