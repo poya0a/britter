@@ -56,10 +56,10 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   );
 
   if (emptyFields.length > 0) {
-    return res.status(200).json({
-      message: getErrorMassage(emptyFields[0]),
-      resultCode: false,
-    });
+    // return res.status(200).json({
+    //   message: getErrorMassage(emptyFields[0]),
+    //   resultCode: false,
+    // });
   }
 
   // 필수 이용 약관 동의 확인
@@ -117,10 +117,10 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
   if (Object.keys(errorMessages).length > 0) {
     const keys = Object.keys(errorMessages) as Array<keyof EmpsInterface>;
-    return res.status(200).json({
-      message: errorMessages[keys[0]],
-      resultCode: false,
-    });
+    // return res.status(200).json({
+    //   message: errorMessages[keys[0]],
+    //   resultCode: false,
+    // });
   }
 
   try {
