@@ -14,6 +14,17 @@ export const metadata: Metadata = {
     default: "BRITTER",
   },
   description: "Creating A Better World Through IT",
+  openGraph: {
+    title: "BRITTER",
+    description: "Creating A Better World Through IT",
+    siteName: "BRITTER",
+    locale: "ko_KR",
+    type: "website",
+    url: "https://britter.vercel.app",
+    images: {
+      url: "/images/logo.png",
+    },
+  },
 };
 
 export const viewport: Viewport = {
