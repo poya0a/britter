@@ -381,9 +381,6 @@ export default function Join() {
           body: formData,
         });
 
-        console.log(res);
-        console.log(res.body);
-        console.log(res.headers);
         if (res.ok) {
           const resData = await res.json();
 

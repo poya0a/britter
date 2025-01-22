@@ -130,11 +130,11 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       return res.status(200).json({ message: "데이터 조회 중 에러가 발생하였습니다.", resultCode: false });
     }
 
-    if (existingId || existinghp) {
+    if ((existingId && existingId.length > 0) || (existinghp && existinghp.length > 0)) {
       let name = "";
-      if (existingId) {
+      if (existingId && existingId.length > 0) {
         name = "아이디";
-      } else if (existinghp) {
+      } else if (existinghp && existinghp.length > 0) {
         name = "휴대전화 번호";
       }
       return res.status(200).json({ message: `이미 사용 중인 ${name}입니다.`, resultCode: false });
