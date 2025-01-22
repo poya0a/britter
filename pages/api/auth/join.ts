@@ -43,7 +43,9 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
   await runMiddleware(req, res, upload);
 
-  const { user_id, user_pw, user_name, user_hp, user_certification, user_email, user_birth, terms } = req.body;
+  const { user_id, user_pw, user_name, user_hp, user_certification, user_email, user_birth, terms } = JSON.parse(
+    req.body
+  );
   const file: Express.Multer.File | undefined = req.file;
 
   // 빈 값 확인
@@ -62,7 +64,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
 
   // 필수 이용 약관 동의 확인
-  const termsList: number[] = terms?.map((term: number) => term) || [];
+  const termsList: number[] = JSON.parse(terms)?.map((term: number) => term) || [];
 
   if (termsList.length < 1) {
     return res.status(200).json({

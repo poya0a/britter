@@ -378,7 +378,7 @@ export default function Join() {
       try {
         const res = await fetch("api/auth/join", {
           method: "POST",
-          body: formData,
+          body: JSON.stringify(formData),
         });
 
         console.log(res);
