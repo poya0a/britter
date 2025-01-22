@@ -10,10 +10,9 @@ import { validationRules } from "@utils/errorMessage";
 import { EmpsInterface } from "@models/Emps.model";
 import { handleFileUpload } from "@server/utils/fileUpload";
 
-type NextApiRequestWithFormData = NextApiRequest &
-  Request & {
-    file: Express.Multer.File;
-  };
+type NextApiRequestWithFormData = NextApiRequest & {
+  file: Express.Multer.File;
+};
 
 export const config = {
   api: {
@@ -89,7 +88,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     }
   } catch (error) {
     return res.status(500).json({
-      message: "서버 에러가 발생하였습니다.11111111111",
+      message: "서버 에러가 발생하였습니다.111111",
       error: error,
       resultCode: false,
     });
