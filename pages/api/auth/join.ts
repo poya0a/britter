@@ -44,6 +44,8 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
   await runMiddleware(req, res, upload);
 
+  const { user_id, user_pw, user_name, user_hp, user_certification, user_email, user_birth, terms } = req.body;
+
   const data: Partial<EmpsInterface> = JSON.parse(req.body);
   const file: Express.Multer.File | undefined = req.file;
 
@@ -63,7 +65,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
 
   // 필수 이용 약관 동의 확인
-  const termsList: number[] = data.terms?.map((term: number) => term) || [];
+  const termsList: number[] = terms?.map((term: number) => term) || [];
 
   if (termsList.length < 1) {
     return res.status(200).json({
@@ -124,9 +126,9 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
 
   try {
-    const { data: existingId } = await supabase.from("emps").select().eq("user_id", data.user_id);
-    const { data: existinghp } = await supabase.from("emps").select().eq("user_hp", data.user_hp);
-    const { data: existingEmail } = await supabase.from("emps").select().eq("user_email", data.user_email);
+    const { data: existingId } = await supabase.from("emps").select().eq("user_id", user_id);
+    const { data: existinghp } = await supabase.from("emps").select().eq("user_hp", user_hp);
+    const { data: existingEmail } = await supabase.from("emps").select().eq("user_email", user_email);
 
     if (existingId || existinghp || existingEmail) {
       let name = "";
@@ -140,7 +142,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       return res.status(200).json({ message: `이미 사용 중인 ${name}입니다.`, resultCode: false });
     }
 
-    const hashedPassword = await bcrypt.hash(data.user_pw!, 10);
+    const hashedPassword = await bcrypt.hash(user_pw, 10);
 
     // 개인 스페이스 생성
     let randomString = generateRandomString();
@@ -155,14 +157,14 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     const emp = {
       UID: uuidv4(),
       user_profile_seq: 0,
-      user_id: data.user_id,
+      user_id: user_id,
       user_pw: hashedPassword,
-      user_name: data.user_name,
-      user_hp: data.user_hp,
-      user_certification: data.user_certification,
-      user_email: data.user_email ? data.user_email : undefined,
-      user_birth: data.user_birth ? data.user_birth : undefined,
-      user_public: data.user_public ? data.user_public : true,
+      user_name: user_name,
+      user_hp: user_hp,
+      user_certification: user_certification,
+      user_email: user_email ? user_email : undefined,
+      user_birth: user_birth ? user_birth : undefined,
+      user_public: true,
       user_level: 1,
       recent_space: randomString,
       create_date: new Date(),
