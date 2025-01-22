@@ -126,16 +126,25 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   try {
     const { data: existingId } = await supabase.from("emps").select().eq("user_id", user_id);
     const { data: existinghp } = await supabase.from("emps").select().eq("user_hp", user_hp);
-    const { data: existingEmail } = await supabase.from("emps").select().eq("user_email", user_email);
+    // const { data: existingEmail } = await supabase.from("emps").select().eq("user_email", user_email);
 
-    if (existingId || existinghp || existingEmail) {
+    // if (existingId || existinghp || existingEmail) {
+    //   let name = "";
+    //   if (existingId) {
+    //     name = "아이디";
+    //   } else if (existinghp) {
+    //     name = "휴대전화 번호";
+    //   } else if (existingEmail) {
+    //     name = "이메일";
+    //   }
+    //   return res.status(200).json({ message: `이미 사용 중인 ${name}입니다.`, resultCode: false });
+    // }
+    if (existingId || existinghp) {
       let name = "";
       if (existingId) {
         name = "아이디";
       } else if (existinghp) {
         name = "휴대전화 번호";
-      } else if (existingEmail) {
-        name = "이메일";
       }
       return res.status(200).json({ message: `이미 사용 중인 ${name}입니다.`, resultCode: false });
     }
