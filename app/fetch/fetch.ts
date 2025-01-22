@@ -9,7 +9,6 @@ const fetchApi = async (config: RequestConfig): Promise<any> => {
   if (!token || token === "" || token === undefined) return;
 
   const defaultHeaders: HeadersInit = {
-    // "Content-Type": "application/json",
     "User-Token": token,
   };
 
@@ -48,10 +47,7 @@ const fetchApi = async (config: RequestConfig): Promise<any> => {
         throw new FetchError("서버 오류가 발생했습니다.", response.status);
       }
       const errorData = await response.json();
-      throw new FetchError(
-        errorData.message || "에러가 발생했습니다.",
-        response.status
-      );
+      throw new FetchError(errorData.message || "에러가 발생했습니다.", response.status);
     }
 
     const data = await response.json();
