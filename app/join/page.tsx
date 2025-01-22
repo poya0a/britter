@@ -378,6 +378,7 @@ export default function Join() {
       try {
         const res = await fetch("api/auth/join", {
           method: "POST",
+          headers: { "Content-Type": "multipart/form-data" },
           body: formData,
         });
         console.log(res);
