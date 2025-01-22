@@ -360,38 +360,26 @@ export default function Join() {
       delete data.user_pw_check;
       delete data.verify_number;
 
-      // const formData = new FormData();
+      const formData = new FormData();
 
-      // const terms = useTermsState.filter((term) => term.checked).map((term) => term.seq);
+      const terms = useTermsState.filter((term) => term.checked).map((term) => term.seq);
 
-      // for (const key in data) {
-      //   formData.append(key, data[key]);
-      // }
+      for (const key in data) {
+        formData.append(key, data[key]);
+      }
 
-      // formData.append("terms", JSON.stringify(terms));
-      // formData.append("user_certification", JSON.stringify(useVerifyState.seq));
+      formData.append("terms", JSON.stringify(terms));
+      formData.append("user_certification", JSON.stringify(useVerifyState.seq));
 
-      // if (useImageCropState.imageFile) {
-      //   formData.append("user_profile", useImageCropState.imageFile);
-      // }
-
-      const formData = {
-        ...data,
-        terms: useTermsState.filter((term) => term.checked).map((term) => term.seq),
-        user_certification: useVerifyState.seq,
-      };
-
-      // 프로필 이미지가 있으면 추가
-      // if (useImageCropState.imageFile) {
-      //   formData.user_profile = useImageCropState.imageFile;
-      // }
+      if (useImageCropState.imageFile) {
+        formData.append("user_profile", useImageCropState.imageFile);
+      }
 
       try {
         const res = await fetch("api/auth/join", {
           method: "POST",
-          body: JSON.stringify(formData),
+          body: formData,
         });
-
         if (res.ok) {
           const resData = await res.json();
 

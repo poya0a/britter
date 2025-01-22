@@ -129,6 +129,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
     const { data: existingEmail } = await supabase.from("emps").select().eq("user_email", user_email);
 
     if (existingId || existinghp || existingEmail) {
+      return { existingId, existinghp, existingEmail };
       let name = "";
       if (existingId) {
         name = "아이디";
@@ -149,7 +150,8 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
     // 랜덤으로 스페이스명을 생성할 때 동일한 값이 있는지 확인
     if (checkSameName) {
-      randomString = `${randomString}_${checkSameName.length}`;
+      return checkSameName;
+      // randomString = `${randomString}_${checkSameName.length}`;
     }
 
     const emp = {
@@ -160,8 +162,8 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       user_name: user_name,
       user_hp: user_hp,
       user_certification: user_certification,
-      user_email: user_email ? user_email : undefined,
-      user_birth: user_birth ? user_birth : undefined,
+      user_email: user_email ? user_email : null,
+      user_birth: user_birth ? user_birth : null,
       user_public: true,
       user_level: 1,
       recent_space: randomString,
