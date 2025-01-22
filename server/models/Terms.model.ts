@@ -1,5 +1,3 @@
-import { PostModel } from "./Post.model";
-
 export interface TermsInterface {
   seq: number;
   title: string;

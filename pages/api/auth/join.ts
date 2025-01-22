@@ -4,22 +4,20 @@ import supabase from "@database/supabase.config";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import multer from "multer";
-import { getErrorMassage } from "@utils/errorMessage";
 import { regexValue } from "@utils/regex";
-import { validationRules } from "@utils/errorMessage";
+import { getErrorMassage, validationRules } from "@utils/errorMessage";
 import { EmpsInterface } from "@models/Emps.model";
 import { handleFileUpload } from "@server/utils/fileUpload";
 
-type NextApiRequestWithFormData = NextApiRequest &
-  Request & {
-    file: Express.Multer.File;
-  };
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
+type NextApiRequestWithFormData = NextApiRequest & {
+  file: Express.Multer.File;
 };
+
+// export const config = {
+//   api: {
+//     bodyParser: false,
+//   },
+// };
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -56,10 +54,10 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   );
 
   if (emptyFields.length > 0) {
-    // return res.status(200).json({
-    //   message: getErrorMassage(emptyFields[0]),
-    //   resultCode: false,
-    // });
+    return res.status(200).json({
+      message: getErrorMassage(emptyFields[0]),
+      resultCode: false,
+    });
   }
 
   // 필수 이용 약관 동의 확인
@@ -117,10 +115,10 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
 
   if (Object.keys(errorMessages).length > 0) {
     const keys = Object.keys(errorMessages) as Array<keyof EmpsInterface>;
-    // return res.status(200).json({
-    //   message: errorMessages[keys[0]],
-    //   resultCode: false,
-    // });
+    return res.status(200).json({
+      message: errorMessages[keys[0]],
+      resultCode: false,
+    });
   }
 
   try {
