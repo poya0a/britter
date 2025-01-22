@@ -33,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { data: existingCertification, error: certError } = await supabase
       .from("certification")
-      .select("user_hp, certification_number, create_date")
+      .select("user_hp, certification_number, create_date, seq")
       .eq("user_hp", user_hp)
       .single();
 
@@ -56,7 +56,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         throw updateError;
       }
     } else {
+      // Generate a unique seq number
+      let seq = null;
+      while (true) {
+        const { data: maxSeq, error: maxSeqError } = await supabase
+          .from("certification")
+          .select("seq")
+          .order("seq", { ascending: false })
+          .limit(1)
+          .single();
+
+        if (maxSeqError && maxSeqError.code !== "PGRST116") {
+          throw maxSeqError;
+        }
+
+        seq = maxSeq ? maxSeq.seq + 1 : 1;
+
+        const { data: seqCheck, error: seqCheckError } = await supabase
+          .from("certification")
+          .select("seq")
+          .eq("seq", seq)
+          .single();
+
+        if (seqCheckError && seqCheckError.code === "PGRST116") {
+          break;
+        } else if (seqCheckError) {
+          throw seqCheckError;
+        }
+      }
+
       const { error: insertError } = await supabase.from("certification").insert({
+        seq,
         user_hp: user_hp,
         certification_number: CertificationNumber,
         create_date: new Date(),
