@@ -149,7 +149,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
         return res.status(200).json({ message: "데이터 조회 중 에러가 발생하였습니다.", resultCode: false });
       }
 
-      if (existingEmail) {
+      if (existingEmail && existingEmail.length > 0) {
         return res.status(200).json({ message: "이미 사용 중인 이메일입니다.", resultCode: false });
       }
     }
