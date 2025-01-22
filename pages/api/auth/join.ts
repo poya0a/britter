@@ -43,9 +43,7 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
   await runMiddleware(req, res, upload);
 
-  const { user_id, user_pw, user_name, user_hp, user_certification, user_email, user_birth, terms } = JSON.parse(
-    req.body
-  );
+  const { user_id, user_pw, user_name, user_hp, user_certification, user_email, user_birth, terms } = req.body;
   const file: Express.Multer.File | undefined = req.file;
 
   // 빈 값 확인
