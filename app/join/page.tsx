@@ -380,7 +380,7 @@ export default function Join() {
           method: "POST",
           body: formData,
         });
-
+        console.log(res);
         if (res.ok) {
           const resData = await res.json();
 
@@ -395,6 +395,7 @@ export default function Join() {
           toggleAlert("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
         }
       } catch (error) {
+        console.log(error);
         toggleAlert("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
       }
     }
