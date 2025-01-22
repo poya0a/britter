@@ -70,7 +70,7 @@ export const useInfoStore = create<InfoStore>((set, get) => ({
         throw new Error("데이터를 가져오는 데 실패했습니다.");
       }
 
-      if (res.data && get().useInfoState.UID !== res.data.UID) {
+      if (res.data) {
         set({ useInfoState: res.data });
         if (!res.data.user_profile_path) {
           get().fetchDataAndUpdateState(res.data.user_profile_seq);
