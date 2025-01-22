@@ -124,21 +124,13 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
   }
 
   try {
-    const { data: existingId } = await supabase.from("emps").select().eq("user_id", user_id);
-    const { data: existinghp } = await supabase.from("emps").select().eq("user_hp", user_hp);
-    // const { data: existingEmail } = await supabase.from("emps").select().eq("user_email", user_email);
+    const { data: existingId, error: idError } = await supabase.from("emps").select().eq("user_id", user_id);
+    const { data: existinghp, error: hpError } = await supabase.from("emps").select().eq("user_hp", user_hp);
 
-    // if (existingId || existinghp || existingEmail) {
-    //   let name = "";
-    //   if (existingId) {
-    //     name = "아이디";
-    //   } else if (existinghp) {
-    //     name = "휴대전화 번호";
-    //   } else if (existingEmail) {
-    //     name = "이메일";
-    //   }
-    //   return res.status(200).json({ message: `이미 사용 중인 ${name}입니다.`, resultCode: false });
-    // }
+    if ((idError && idError.code !== "PGRST116") || (hpError && hpError.code !== "PGRST116")) {
+      return res.status(200).json({ message: "데이터 조회 중 에러가 발생하였습니다.", resultCode: false });
+    }
+
     if (existingId || existinghp) {
       let name = "";
       if (existingId) {
@@ -149,12 +141,33 @@ export default async function handler(req: NextApiRequestWithFormData, res: Next
       return res.status(200).json({ message: `이미 사용 중인 ${name}입니다.`, resultCode: false });
     }
 
+    if (user_email) {
+      const { data: existingEmail, error: emailError } = await supabase
+        .from("emps")
+        .select()
+        .eq("user_email", user_email);
+      if (emailError && emailError.code !== "PGRST116") {
+        return res.status(200).json({ message: "데이터 조회 중 에러가 발생하였습니다.", resultCode: false });
+      }
+
+      if (existingEmail) {
+        return res.status(200).json({ message: "이미 사용 중인 이메일입니다.", resultCode: false });
+      }
+    }
+
     const hashedPassword = await bcrypt.hash(user_pw, 10);
 
     // 개인 스페이스 생성
     let randomString = generateRandomString();
 
-    const { data: checkSameName } = await supabase.from("space").select().eq("space_name", randomString);
+    const { data: checkSameName, error: checkSameNameError } = await supabase
+      .from("space")
+      .select()
+      .eq("space_name", randomString);
+
+    if (checkSameNameError && checkSameNameError.code !== "PGRST116") {
+      return res.status(200).json({ message: "데이터 조회 중 에러가 발생하였습니다.", resultCode: false });
+    }
 
     // 랜덤으로 스페이스명을 생성할 때 동일한 값이 있는지 확인
     if (checkSameName) {
