@@ -28,12 +28,13 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           });
         }
 
+        const privateSeq = user.private_seq;
         // private_seq가 있을 경우, private 정보 삭제
-        if (user.private_seq) {
+        if (privateSeq) {
           const { data: privateData, error: privateError } = await supabase
             .from("private")
             .select("*")
-            .eq("seq", user.private_seq)
+            .eq("seq", privateSeq)
             .single();
 
           if (privateError || !privateData) {
@@ -54,7 +55,7 @@ export default async function handler(req: AuthenticatedRequest & NextApiRequest
           }
 
           // private 정보 삭제
-          const { error: deletePrivateError } = await supabase.from("private").delete().eq("seq", user.private_seq);
+          const { error: deletePrivateError } = await supabase.from("private").delete().eq("seq", privateSeq);
 
           if (deletePrivateError) {
             return res.status(200).json({
