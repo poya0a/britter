@@ -380,6 +380,9 @@ export default function Join() {
           method: "POST",
           body: formData,
         });
+
+        console.log(res.body);
+        console.log(res.headers);
         if (res.ok) {
           const resData = await res.json();
 
